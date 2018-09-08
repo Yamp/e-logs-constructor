@@ -5,6 +5,10 @@ import router from './router'
 import store from './store/store'
 import './registerServiceWorker'
 
+// import 'codemirror'
+// import 'summernote/dist/summernote'
+// import 'summernote/dist/summernote.css'
+
 import Btn from '../src/components/Button'
 import Input from '../src/components/FormInput'
 
@@ -14,7 +18,8 @@ Vue.component('form-input', Input)
 Vue.config.productionTip = false
 
 new Vue({
+  el: '#app',
   router,
   store,
   render: h => h(App)
-}).$mount('#app')
+})
