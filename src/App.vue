@@ -17,5 +17,11 @@ html, body {
   color: #2c3e50;
   box-sizing: border-box;
 }
-
+th {
+  border: 1px solid #9d9d9d !important;
+  background-color: #e6e6e6 !important;
+}
+td {
+  border: 1px solid #9d9d9d !important;
+}
 </style>

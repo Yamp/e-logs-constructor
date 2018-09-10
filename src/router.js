@@ -5,6 +5,7 @@ import EditPage from './views/EditPage.vue'
 import CreateTablePage from './views/CreateTablePage.vue'
 import CreateJournalPage from './views/CreateJournalPage.vue'
 import JournalPage from './views/Journal.vue'
+import WysiwygPage from './views/WysiwygPage.vue'
 
 Vue.use(Router)
 
@@ -20,7 +21,7 @@ export default new Router({
     {
       path: '/journal/:journalName/table/:tableName/edit',
       name: 'edit',
-      component: EditPage
+      component: WysiwygPage
     },
     {
       path: '/journal/create',
