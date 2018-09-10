@@ -27,11 +27,6 @@ export default {
         this.$router.back()
       },
       onHandleContinue () {
-        let code = $('#summernote').summernote('code');
-        console.log(code);
-
-
-
         this.$store.commit('journalState/setTable',
             {
                 tableName: this.$route.params.tableName,

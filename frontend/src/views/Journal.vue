@@ -2,7 +2,7 @@
   <div class="journal">
     <div class="title">
       <h2>Журнал {{this.$route.params.journalName}}</h2>
-      <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Создать таблицу</button>
+      <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить таблицу</button>
     </div>
     <div class="body">
       <h3>Текущие таблицы</h3>
@@ -80,7 +80,7 @@ export default {
 }
 .btns {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   margin-bottom: 20px;
 }
 </style>
