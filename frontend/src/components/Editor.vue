@@ -8,7 +8,7 @@
 
 <script>
     import shortid from 'shortid'
-    import PopUp from './PopUp'
+    import PopUp from './PopUp.vue'
     export default {
         name: "Editor",
         components: {PopUp},
