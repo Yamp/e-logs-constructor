@@ -2,15 +2,15 @@
   <div class="journal">
     <div class="title">
       <h2>Журнал {{this.$route.params.journalName}}</h2>
-      <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить таблицу</button>
+      <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить секцию</button>
     </div>
     <div class="body">
-      <h3>Текущие таблицы</h3>
+      <h3>Текущие секции</h3>
       <div class="content">
         <template v-if="getTables.length">
           <table-item v-for="table in getTables" :table="table" :key="table.latinName" style="margin-bottom: 18px"></table-item>
         </template>
-        <span class="no-items-text" v-if="!getTables.length">Пока что таблиц нет, вы можете добавить их</span>
+        <span class="no-items-text" v-if="!getTables.length">Пока что секций нет, вы можете добавить их</span>
       </div>
     </div>
     <div class="btns" v-if="getTables.length">

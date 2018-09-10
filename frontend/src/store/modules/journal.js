@@ -56,6 +56,9 @@ const journalState = {
     addTable (state, payload) {
         state.journal.tables.push(payload)
     },
+    deleteTable (state, payload) {
+        state.journal.tables = state.journal.tables.filter(item => item.latinName !== payload.tableName)
+    },
     setTable (state, payload) {
         let table = state.journal.tables.filter((item) => item.latinName === payload.tableName)[0]
         table = Object.assign(table, {...payload.data})

@@ -3,10 +3,10 @@
         <h2 class="title">Создание таблицы</h2>
         <form class="form" @submit.prevent="onHandleCreate">
             <div class="form-group">
-                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
+                <input type="text" class="form-control" v-model="name" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" v-model="latinName" placeholder="Название на латинице" @input="onHandleChange" style="margin-bottom: 20px">
+                <input type="text" class="form-control" v-model="latinName" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
             <div v-show="error" class="error">
                 Заполните все поля
