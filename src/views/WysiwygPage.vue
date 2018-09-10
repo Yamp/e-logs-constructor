@@ -1,6 +1,7 @@
 <template>
   <div class="container">
-      <div id="summernote"></div>
+      <div id="summernote">
+      </div>
       <div class="btns">
           <btn :onClick="onHandleBack" style="margin-right: 14px">Назад</btn>
           <btn :onClick="onHandleContinue">Продолжить</btn>
@@ -11,6 +12,8 @@
 <script>
 import toggleHeaderInit from '../wysiwyg_modules/toggle-header'
 import mergeCellsInit from '../wysiwyg_modules/merge-cells'
+import formatFactory from '../utils/formatFactory.js'
+
 export default {
   name: 'WysiwygPage',
   data () {
@@ -23,7 +26,10 @@ export default {
         this.$router.back()
       },
       onHandleContinue () {
-        console.log($('#editor-content').html())
+          let html = $('.note-editable').html();
+          let htmlFormatted = formatFactory(html);
+          console.info(htmlFormatted);
+          $(".note-codable").val(htmlFormatted);
       }
   },
   created () {
@@ -37,7 +43,8 @@ export default {
               focus: true,
               toolbar: [
                   ['insert', ['table']],
-                  ['misk', ['undo', 'redo']]
+                  ['misk', ['undo', 'redo']],
+                  ['view', ['fullscreen', 'codeview']],
               ],
               popover: {
                   table: [
@@ -45,14 +52,14 @@ export default {
                       ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
                       ['custom', ['cellHeader', 'mergeCells']]
                   ],
-              }
+              },
+
           });
 
       });
   }
 }
 </script>
-
 <style scoped>
 .container {
   padding: 20px;
