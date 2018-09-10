@@ -4,6 +4,7 @@
       <div id="summernote"></div>
       <div class="btns">
           <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+          <button class="btn btn-success" @click="onFormatHtml" >Formate html</button>
           <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
       </div>
   </div>
@@ -26,7 +27,6 @@ export default {
         this.$router.back()
       },
       onHandleContinue () {
-
         this.$store.commit('journalState/setTable',
             {
                 tableName: this.$route.params.tableName,
@@ -34,14 +34,20 @@ export default {
                     html: $('#summernote').summernote('code')
                 }
             }
-        )
+        );
         this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.$route.params.tableName}/edit_data`)
+      },
+      onFormatHtml () {
+          let code = $('#summernote').summernote('code');
+          let formattedCode = formatFactory(code);
+          $('#summernote').summernote('code', formattedCode);
       }
+
   },
   created () {
       $(document).ready(function() {
-          toggleHeaderInit()
-          mergeCellsInit()
+          toggleHeaderInit();
+          mergeCellsInit();
           $('#summernote').summernote({
               height: 300,
               minHeight: null,
