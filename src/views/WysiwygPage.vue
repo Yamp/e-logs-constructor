@@ -12,6 +12,8 @@
 <script>
 import toggleHeaderInit from '../wysiwyg_modules/toggle-header'
 import mergeCellsInit from '../wysiwyg_modules/merge-cells'
+import formatFactory from '../utils/formatFactory.js'
+
 export default {
   name: 'WysiwygPage',
   data () {
@@ -46,7 +48,8 @@ export default {
               focus: true,
               toolbar: [
                   ['insert', ['table']],
-                  ['misk', ['undo', 'redo']]
+                  ['misk', ['undo', 'redo']],
+                  ['view', ['fullscreen', 'codeview']],
               ],
               popover: {
                   table: [
@@ -54,7 +57,8 @@ export default {
                       ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
                       ['custom', ['cellHeader', 'mergeCells']]
                   ],
-              }
+              },
+
           });
       });
   }
