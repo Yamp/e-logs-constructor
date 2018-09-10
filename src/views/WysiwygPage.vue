@@ -1,9 +1,10 @@
 <template>
-  <div class="container">
+  <div class="wysiwyg">
+      <h2 class="title">Создание структуры таблицы</h2>
       <div id="summernote"></div>
       <div class="btns">
-          <btn :onClick="onHandleBack" style="margin-right: 14px">Назад</btn>
-          <btn :onClick="onHandleContinue">Продолжить</btn>
+          <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+          <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
       </div>
   </div>
 </template>
@@ -23,7 +24,15 @@ export default {
         this.$router.back()
       },
       onHandleContinue () {
-        console.log($('#editor-content').html())
+        this.$store.commit('journalState/setTable',
+            {
+                tableName: this.$route.params.tableName,
+                data: {
+                    html: $('#summernote').summernote('code')
+                }
+            }
+        )
+        this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.$route.params.tableName}/edit_data`)
       }
   },
   created () {
@@ -47,18 +56,25 @@ export default {
                   ],
               }
           });
-
       });
   }
 }
 </script>
 
-<style scoped>
-.container {
+<style>
+.wysiwyg {
   padding: 20px;
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+}
+.wysiwyg .modal-dialog {
+    width: 300px;
+}
+.wysiwyg .title{
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
 }
 .btns {
   display: flex;

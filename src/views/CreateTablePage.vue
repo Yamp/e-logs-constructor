@@ -1,28 +1,20 @@
 <template>
-    <div class="container">
+    <div class="create-table">
         <h2 class="title">Создание таблицы</h2>
-        <form>
-            <form-input
-                    @change="(value) => onHandleChange('name', value)"
-                    :value="name"
-                    :label="'Введите название таблицы'"
-                    :placeholder="'Название'"
-                    style="width: 300px;"
-            />
-            <form-input
-                    @change="(value) => onHandleChange('latinName', value)"
-                    :value="latinName"
-                    :label="'Введите название таблицы на латинице'"
-                    :placeholder="'Название на латинице'"
-                    style="width: 300px;"
-            />
+        <form class="form" @submit.prevent="onHandleCreate">
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="latinName" placeholder="Название на латинице" @input="onHandleChange" style="margin-bottom: 20px">
+            </div>
             <div v-show="error" class="error">
                 Заполните все поля
             </div>
         </form>
         <div class="btns">
-            <btn :onClick="onHandleBack" style="margin-right: 14px">Назад</btn>
-            <btn :onClick="onHandleCreate">Создать</btn>
+            <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+            <button class="btn btn-primary" @click.prevent="onHandleCreate" type="submit">Создать</button>
         </div>
     </div>
 </template>
@@ -47,26 +39,26 @@
                         {
                             name: this.name,
                             latinName: this.latinName,
-                            fields: []
+                            fields: [],
+                            html: ''
                         }
                     )
-                    this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/${this.latinName}/edit`)
+                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.latinName}/edit`)
                 }
                 else if (!this.$store.getters['journalState/getJournalName']) {
                     this.$router.push('/journal/create')
                 }
                 else this.error = true
             },
-            onHandleChange (data, value) {
-                value ? this.error = '' : this.error = true
-                this[data] = value
+            onHandleChange (data) {
+               data.target.value ? this.error = '' : this.error = true
             }
         }
     }
 </script>
 
 <style scoped>
-.container {
+.create-table {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -84,6 +76,10 @@
     border-radius: 6px;
     padding: 0px 15px;
     margin-bottom: 20px;
+}
+.form {
+    width: 300px;
+    margin: 10px 0 0 0;
 }
 .btns {
   display: flex;

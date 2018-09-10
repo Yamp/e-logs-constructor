@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import EditPage from './views/EditPage.vue'
+import EditPage from './views/EditTableDataPage.vue'
 import CreateTablePage from './views/CreateTablePage.vue'
 import CreateJournalPage from './views/CreateJournalPage.vue'
 import JournalPage from './views/Journal.vue'
@@ -24,17 +24,22 @@ export default new Router({
       component: WysiwygPage
     },
     {
+      path: '/journal/:journalName/table/:tableName/edit_data',
+      name: 'editData',
+      component: EditPage
+    },
+    {
       path: '/journal/create',
       name: 'createJournal',
       component: CreateJournalPage
     },
     {
-      path: '/journal/:name/table/create',
+      path: '/journal/:journalName/table/create',
       name: 'createTable',
       component: CreateTablePage
     },
     {
-      path: '/journal/:name',
+      path: '/journal/:journalName',
       name: 'journal',
       component: JournalPage
     }

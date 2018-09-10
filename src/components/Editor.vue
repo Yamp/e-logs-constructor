@@ -1,10 +1,6 @@
 <template>
     <div class="editor-container" >
-       <div class="editor-header">
-           <btn :onClick="onAddRow">Добавить строку</btn>
-       </div>
-        <div id="editor-content" class="editor-body" v-html="table">
-
+        <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
         <pop-up :display="display" :x="x" :y="y" :cell="currentCell"/>
     </div>
@@ -21,80 +17,9 @@
               cells: [],
               currentCell: null,
               display: 'none',
+              tableHtml: '',
               x: '0',
-              y: '0',
-              table: '<table style="width: 100%;">\n' +
-                  '                <thead>\n' +
-                  '                    <tr>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                        <th>\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </th>\n' +
-                  '                    </tr>\n' +
-                  '                </thead>\n' +
-                  '                <tbody>\n' +
-                  '                    <tr>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n' +
-                  '                    </tr>\n' +
-                  '                </tbody>\n' +
-                  '            </table>',
-              colsLength: 10,
-              rowsLength: 1
+              y: '0'
           }
         },
         methods: {
@@ -121,7 +46,9 @@
             },
             setCells () {
                 let _this = this
-                $('.cell').css({width: $('.cell').outerWidth()})
+                $('#editor-content td').html('<div class="cell" field-name="" row-index="0"></div>')
+                $('#editor-content th').html('<div class="cell" field-name="" row-index="0"></div>')
+                // $('.cell').css({width: $('.cell').outerWidth()})
                 $('.cell').each(function () {
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
@@ -132,30 +59,17 @@
                 this.$store.commit('journalState/setTable',
                     {
                         tableName: _this.$route.params.tableName,
-                        fields: _this.cells
+                        data: {
+                            fields: _this.cells
+                        }
                     }
                 )
-            },
-            onAddRow () {
-                this.rowsLength ++
-                let table = $('#editor-content')
-                let thead = table.find('thead')
-                let tbody = table.find('tbody')
-                let newRowData = ''
-                thead.find('th').each(function () {
-                    newRowData = newRowData + '                        <td style="width: 10.0000%;">\n' +
-                  '                            <div class="cell" field-name="" row-index="0"></div>\n' +
-                  '                        </td>\n'
-                })
-                tbody.append(newRowData)
-                this.table = table.html()
-                setTimeout(() => this.setPopUpListeners(), 0)
-                setTimeout(() => this.setCells(), 0)
             }
         },
         mounted () {
-            this.setPopUpListeners()
-            this.setCells()
+            this.tableHtml = this.$store.getters['journalState/getTableHTML'](this.$route.params.tableName)
+            setTimeout(() => this.setCells(), 0)
+            setTimeout(() => this.setPopUpListeners(), 0)
         }
     }
 </script>
@@ -172,6 +86,7 @@
     height: auto;
     padding: 16px 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12),0 1px 1px 1px rgba(0,0,0,0.16);
+    overflow-x: auto;
 }
 .editor-body table input {
     width: 100%;
@@ -191,8 +106,9 @@ table {
     border-collapse: collapse;
 }
 .cell {
-    height: 28px;
-    line-height: 28px;
+    display: flex;
+    align-items: center;
+    height: 100%;
     transition: 0.2s;
     box-sizing: border-box;
     padding: 0px 4px;
@@ -205,7 +121,7 @@ table {
     }
 }
 table td {
-    padding: 0;
+    padding: 0 !important;
     border: 1px solid #a9a9a9;
 
     .cell:hover {
@@ -213,7 +129,7 @@ table td {
     }
 }
 table th {
-    padding: 0;
+    padding: 0 !important;
     border: 1px solid #a9a9a9;
     background-color: #eaeaea;
 

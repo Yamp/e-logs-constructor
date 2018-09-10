@@ -9,12 +9,6 @@ import './registerServiceWorker'
 // import 'summernote/dist/summernote'
 // import 'summernote/dist/summernote.css'
 
-import Btn from '../src/components/Button'
-import Input from '../src/components/FormInput'
-
-Vue.component('btn', Btn)
-Vue.component('form-input', Input)
-
 Vue.config.productionTip = false
 
 new Vue({

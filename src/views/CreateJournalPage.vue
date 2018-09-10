@@ -1,21 +1,20 @@
 <template>
-    <div class="container">
+    <div class="create-journal">
         <h2 class="title">Создание журнала</h2>
-        <form>
-            <form-input
-                    @change="(value) => onHandleChange('name', value)"
-                    :value="name"
-                    :label="'Введите название журнала'"
-                    :placeholder="'Название'"
-                    style="width: 300px;"
-            />
+        <form class="form" @submit.prevent="onHandleCreate">
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="latinName" placeholder="Название на латинице" @input="onHandleChange" style="margin-bottom: 20px">
+            </div>
             <div v-show="error" class="error">
                 Заполните все поля
             </div>
         </form>
         <div class="btns">
-            <btn :onClick="onHandleBack" style="margin-right: 14px">Назад</btn>
-            <btn :onClick="onHandleCreate">Создать</btn>
+            <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+            <button class="btn btn-primary" @click.prevent="onHandleCreate" type="submit">Создать</button>
         </div>
     </div>
 </template>
@@ -26,6 +25,7 @@
         data () {
             return {
                 name: '',
+                latinName: '',
                 error: ''
             }
         },
@@ -33,23 +33,22 @@
             onHandleBack () {
                 this.$router.back()
             },
-            onHandleCreate () {
-                if (this.name) {
-                    this.$store.commit('journalState/setJournal', {name: this.name})
-                    this.$router.push(`/journal/${this.name}`)
+            onHandleCreate (e) {
+                if (this.name && this.latinName) {
+                    this.$store.commit('journalState/setJournal', {name: this.name, latinName: this.latinName})
+                    this.$router.push(`/journal/${this.latinName}`)
                 }
                 else this.error = true
             },
-            onHandleChange (data, value) {
-                value ? this.error = '' : this.error = true
-                this[data] = value
+            onHandleChange (data) {
+                data.target.value ? this.error = '' : this.error = true
             }
         }
     }
 </script>
 
 <style scoped>
-.container {
+.create-journal {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,6 +66,10 @@
     border-radius: 6px;
     padding: 0px 15px;
     margin-bottom: 20px;
+}
+.form {
+    width: 300px;
+    margin: 10px 0 0 0;
 }
 .btns {
   display: flex;

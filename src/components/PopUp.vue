@@ -1,26 +1,14 @@
 <template>
     <div class="pop-up" v-bind:style="{display: display, left: x + 'px', top: y + 'px'}">
-        <form-input
-                    @change="(value) => onHandleChange('fieldName', value)"
-                    :value="fieldName"
-                    :label="'Имя'"
-                    :placeholder="''"
-                    id="name"
-        />
-        <form-input
-                    @change="(value) => onHandleChange('minValue', value)"
-                    :value="minValue"
-                    :label="'Минимальное значение'"
-                    :placeholder="''"
-                    id="minValue"
-        />
-        <form-input
-                    @change="(value) => onHandleChange('maxValue', value)"
-                    :value="maxValue"
-                    :label="'Максимальное значение'"
-                    :placeholder="''"
-                    id="maxValue"
-        />
+        <div class="form-group">
+            <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)" style="margin-bottom: 20px">
+        </div>
+        <div class="form-group">
+            <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)" style="margin-bottom: 20px">
+        </div>
+        <div class="form-group">
+            <input type="text" id="maxValue" class="form-control" v-model="maxValue" placeholder="Максимальное значение" @input="(value) => onHandleChange('maxValue', value)">
+        </div>
     </div>
 </template>
 
@@ -54,11 +42,10 @@
           }
         },
         methods: {
-            onHandleChange (data, value) {
-                this[data] = value
+            onHandleChange (data, input) {
                 if (data === 'fieldName') {
-                    $(`#${this.cell}`).attr('field-name', value)
-                    $(`#${this.cell}`).text(value)
+                    $(`#${this.cell}`).attr('field-name', input.target.value)
+                    $(`#${this.cell}`).text(input.target.value)
                 }
                 this.$store.commit('journalState/setField',
                     {

@@ -20,8 +20,12 @@ html, body {
 th {
   border: 1px solid #9d9d9d !important;
   background-color: #e6e6e6 !important;
+  width: 145px !important;
+  height: 35px !important;
 }
 td {
   border: 1px solid #9d9d9d !important;
+  width: 145px !important;
+  height: 35px !important;
 }
 </style>

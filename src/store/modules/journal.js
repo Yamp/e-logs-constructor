@@ -6,8 +6,20 @@ const journalState = {
     }
   },
   getters: {
+      getJournal (state, getters) {
+          return state.journal
+      },
       getJournalName (state, getters) {
         return state.journal.name
+      },
+      getTables (state, getters) {
+        return state.journal.tables
+      },
+      getTableHTML (state, getters) {
+          return function (tableName) {
+              let table = state.journal.tables.filter((item) => item.latinName === tableName)[0]
+              return table.html
+          }
       },
       getCellMinValue (state, getters) {
         return function (tableName, cell) {
@@ -46,7 +58,7 @@ const journalState = {
     },
     setTable (state, payload) {
         let table = state.journal.tables.filter((item) => item.latinName === payload.tableName)[0]
-        table.fields = payload.fields
+        table = Object.assign(table, {...payload.data})
     },
     setField (state, payload) {
         let table = state.journal.tables.filter((item) => item.latinName === payload.name)[0]

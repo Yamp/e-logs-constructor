@@ -1,10 +1,10 @@
 <template>
-  <div class="container">
+  <div class="home">
     <h1 class="title">
       <span>Реальный конструктор</span>
       <span>для нереальных таблиц</span>
     </h1>
-    <btn :onClick="onHandleClick">Создать журнал</btn>
+    <button class="btn btn-primary" @click="onHandleClick">Создать журнал</button>
   </div>
 </template>
 
@@ -20,7 +20,7 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.home {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
