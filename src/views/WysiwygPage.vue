@@ -26,6 +26,7 @@ export default {
         this.$router.back()
       },
       onHandleContinue () {
+
         this.$store.commit('journalState/setTable',
             {
                 tableName: this.$route.params.tableName,
