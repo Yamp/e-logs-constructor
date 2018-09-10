@@ -21,6 +21,8 @@
 
 <script>
 import TableItem from '../components/TableItem'
+import axios from 'axios'
+
 export default {
   name: "JournalPage",
   components: {TableItem},
@@ -31,7 +33,12 @@ export default {
               : this.$router.push('/journal/create')
       },
       onHandleSend () {
-          console.log(this.$store.getters['journalState/getJournal'])
+          let journalObserver = this.$store.getters['journalState/getJournal'];
+          console.log(journalObserver);
+          let journal = JSON.parse(JSON.stringify(journalObserver));
+          console.log(journal);
+          axios.post('127.0.0.1:3000/save', JSON.stringify(journal));
+
       }
   },
     computed: {
