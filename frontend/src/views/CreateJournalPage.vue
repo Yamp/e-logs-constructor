@@ -20,6 +20,7 @@
 </template>
 
 <script>
+    import slugify from 'slugify'
     export default {
         name: "CreateJournalPage",
         data () {
@@ -35,8 +36,8 @@
             },
             onHandleCreate (e) {
                 if (this.name && this.latinName) {
-                    this.$store.commit('journalState/setJournal', {name: this.name, latinName: this.latinName})
-                    this.$router.push(`/journal/${this.latinName}`)
+                    this.$store.commit('journalState/setJournal', {name: this.name, latinName: slugify(this.latinName, '_')})
+                    this.$router.push(`/journal/${slugify(this.latinName, '_')}`)
                 }
                 else this.error = true
             },

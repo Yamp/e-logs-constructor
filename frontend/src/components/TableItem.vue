@@ -6,7 +6,7 @@
                 <p><span style="opacity: 0.6;">Название:</span> {{table.latinName}}</p>
             </div>
             <div style="display: flex; align-items: center">
-                <span class="delete-icon" @click="deleteTable">&times;</span>
+                <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
             </div>
         </div>
         <div class="body" v-html="table.html">
@@ -36,6 +36,7 @@ export default {
     justify-content: space-between;
 }
 .delete-icon {
+    width: 20px;
     font-size: 36px;
     opacity: 0.6;
     transition: 0.2s;

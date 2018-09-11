@@ -20,6 +20,7 @@
 </template>
 
 <script>
+    import slugify from 'slugify'
     export default {
         name: "CreateTablePage",
         data () {
@@ -38,12 +39,12 @@
                     this.$store.commit('journalState/addTable',
                         {
                             name: this.name,
-                            latinName: this.latinName,
+                            latinName: slugify(this.latinName, '_'),
                             fields: [],
                             html: ''
                         }
                     )
-                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.latinName}/edit`)
+                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${slugify(this.latinName, '_')}/edit`)
                 }
                 else if (!this.$store.getters['journalState/getJournalName']) {
                     this.$router.push('/journal/create')

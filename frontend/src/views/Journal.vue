@@ -1,20 +1,27 @@
 <template>
   <div class="journal">
-    <div class="title">
-      <h2>Журнал {{this.$route.params.journalName}}</h2>
-      <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить секцию</button>
+    <div class="side-bar col-sm-4">
+      <h3>Журнал <span style="font-weight: bold">{{this.$route.params.journalName}}</span></h3>
+      <hr style="margin-bottom: 10px">
+      <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
+      <ul v-if="getTables.length" id="section-list">
+        <li v-for="table in getTables" :key="table.latinName">{{table.name}}</li>
+      </ul>
     </div>
-    <div class="body">
-      <h3>Текущие секции</h3>
+    <div class="body col-sm-8">
+      <div class="title">
+        <h3>Текущие секции</h3>
+        <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить секцию</button>
+      </div>
       <div class="content">
         <template v-if="getTables.length">
           <table-item v-for="table in getTables" :table="table" :key="table.latinName" style="margin-bottom: 18px"></table-item>
         </template>
         <span class="no-items-text" v-if="!getTables.length">Пока что секций нет, вы можете добавить их</span>
       </div>
-    </div>
-    <div class="btns" v-if="getTables.length">
-      <button class="btn btn-primary" @click.prevent="onHandleSend" type="submit">Отправить</button>
+      <div class="btns" v-if="getTables.length">
+        <button class="btn btn-primary" @click.prevent="onHandleSend" type="submit">Отправить</button>
+      </div>
     </div>
   </div>
 </template>
@@ -22,14 +29,14 @@
 <script>
 import TableItem from '../components/TableItem'
 import axios from 'axios'
-
+import sortable from 'sortablejs'
 export default {
   name: "JournalPage",
   components: {TableItem},
   methods: {
       onHandleClick () {
           this.$store.getters['journalState/getJournalName'] ?
-              this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create`)
+              this.$router.push(`/journal/${this.$route.params.journalName}/table/create`)
               : this.$router.push('/journal/create')
       },
       onHandleSend () {
@@ -41,41 +48,86 @@ export default {
 
       }
   },
-    computed: {
+  computed: {
       getTables () {
           return this.$store.getters['journalState/getTables']
       }
-    }
+  },
+  mounted () {
+      let _this = this
+      if (document.getElementById('section-list')) {
+          sortable.create(document.getElementById('section-list'), {
+              chosenClass: "sortable-drag",
+              onEnd: function (event) {
+                  const movedItem = _this.getTables.find((item, index) => index === event.oldIndex)
+                  const remainingItems = _this.getTables.filter((item, index) => index !== event.oldIndex)
+
+                  const reorderedItems = [
+                      ...remainingItems.slice(0, event.newIndex),
+                      movedItem,
+                      ...remainingItems.slice(event.newIndex)
+                  ]
+
+                  _this.$store.commit('journalState/setTablesList', {tables: reorderedItems})
+              }
+          })
+      }
+  }
 }
 </script>
 
 <style scoped>
 .journal {
   height: 100%;
+  font-size: 18px;
   box-sizing: border-box;
-  padding: 20px 40px;
+  overflow-y: hidden;
+}
+.side-bar {
+  height: 100%;
+  background-color: #337ab7;
+  border-right: 6px solid #2e6da4;
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+}
+.side-bar ul {
+  list-style-type: decimal-leading-zero;
+}
+.side-bar li {
+  padding: 10px;
+  cursor: move;
+}
+.sortable-drag {
+  background-color: #2e6da4;
+}
+.side-bar .no-items-text {
+  padding-top: 10px;
+}
+.side-bar h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 .title {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 20px;
 }
-.title h2 {
-  font-weight: bold;
+.body {
+  height: 100%;
+  margin-bottom: 30px;
+  padding: 20px 40px;
+  overflow-y: auto;
+}
+.body h3 {
   margin-top: 0;
   margin-bottom: 0;
 }
-.body {
-  margin-bottom: 30px;
-}
-.body h3 {
-  margin-bottom: 20px;
-}
 .content {
-  font-size: 18px;
   opacity: 0.8;
 }
-.content .no-items-text{
+.no-items-text {
   opacity: 0.6;
 }
 .btns {

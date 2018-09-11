@@ -63,6 +63,9 @@ const journalState = {
         let table = state.journal.tables.filter((item) => item.latinName === payload.tableName)[0]
         table = Object.assign(table, {...payload.data})
     },
+    setTablesList (state, payload) {
+        state.journal.tables = payload.tables
+    },
     setField (state, payload) {
         let table = state.journal.tables.filter((item) => item.latinName === payload.name)[0]
         let field = table.fields.filter(item => item.cell === payload.field.cell)[0]
