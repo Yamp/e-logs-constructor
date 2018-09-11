@@ -67,6 +67,17 @@ export default {
               },
 
           });
+          $('#summernote').on('summernote.change', function(we, contents, $editable) {
+            console.log('summernote\'s content is changed.');
+            // remove '<p><br></p>' inside tables
+            // (summernote creates them when nesting table in table)
+            var uselessParagraphs = document.querySelectorAll('table p'), i;
+            for (i = 0; i < uselessParagraphs.length; ++i) {
+              let p = uselessParagraphs[i];
+              p.parentNode.removeChild(p);
+            }
+          });
+
       });
   }
 }
