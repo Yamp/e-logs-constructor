@@ -2,8 +2,8 @@
     <div class="table-item">
         <div class="title">
             <div>
-                <p><span style="opacity: 0.6;">Заголовок:</span> {{table.name}}</p>
-                <p><span style="opacity: 0.6;">Название:</span> {{table.latinName}}</p>
+                <p><span style="opacity: 0.6;">Заголовок:</span> {{table.title}}</p>
+                <p><span style="opacity: 0.6;">Название:</span> {{table.name}}</p>
             </div>
             <div style="display: flex; align-items: center">
                 <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
@@ -20,7 +20,7 @@ export default {
     props: ['table'],
     methods: {
         deleteTable () {
-            this.$store.commit('journalState/deleteTable', {tableName: this.table.latinName})
+            this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
         }
     }
 }

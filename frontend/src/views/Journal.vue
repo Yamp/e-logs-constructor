@@ -5,7 +5,7 @@
       <hr style="margin-bottom: 10px">
       <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
       <ul v-if="getTables.length" id="section-list">
-        <li v-for="table in getTables" :key="table.latinName">{{table.name}}</li>
+        <li v-for="table in getTables" :key="table.name">{{table.title}}</li>
       </ul>
     </div>
     <div class="body col-sm-8">
@@ -15,7 +15,7 @@
       </div>
       <div class="content">
         <template v-if="getTables.length">
-          <table-item v-for="table in getTables" :table="table" :key="table.latinName" style="margin-bottom: 18px"></table-item>
+          <table-item v-for="table in getTables" :table="table" :key="table.name" style="margin-bottom: 18px"></table-item>
         </template>
         <span class="no-items-text" v-if="!getTables.length">Пока что секций нет, вы можете добавить их</span>
       </div>
