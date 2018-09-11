@@ -25,7 +25,7 @@ const journalState = {
         return function (tableName, cell) {
           let table = state.journal.tables.filter((item) => item.name === tableName)[0]
           let field = table.fields.filter(item => item.cell === cell)[0]
-          if (field) {
+          if (field && field.min_value) {
               return field.min_value
           }
           else {
@@ -37,13 +37,37 @@ const journalState = {
         return function (tableName, cell) {
           let table = state.journal.tables.filter((item) => item.name === tableName)[0]
           let field = table.fields.filter(item => item.cell === cell)[0]
-          if (field) {
+          if (field && field.max_value) {
               return field.max_value
           }
           else {
               return ''
           }
         }
+      },
+      getCellType (state, getters) {
+          return function (tableName, cell) {
+              let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+              let field = table.fields.filter(item => item.cell === cell)[0]
+              if (field && field.type) {
+                  return field.type
+              }
+              else {
+                  return ''
+              }
+          }
+      },
+      getCellUnits (state, getters) {
+          return function (tableName, cell) {
+              let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+              let field = table.fields.filter(item => item.cell === cell)[0]
+              if (field && field.units) {
+                  return field.units
+              }
+              else {
+                  return ''
+              }
+          }
       }
   },
   actions: {
@@ -73,6 +97,8 @@ const journalState = {
             field.field_name = payload.field.field_name
             field.min_value = payload.field.min_value
             field.max_value = payload.field.max_value
+            field.type = payload.field.type
+            field.units = payload.field.units
         }
         else table.fields.push(payload.field)
 
