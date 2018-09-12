@@ -20,43 +20,42 @@ const mkdirSync = function (dirPath) {
   } catch (err) {
     if (err.code !== 'EEXIST') throw err
   }
-}
+};
 
 router.post('/save', function(req, res, next) {
-    let obj = req.body
-    let journalName = obj["name"]
-    let hash = crypto.createHash('md5').update(JSON.stringify(obj)).digest('hex');
-    console.log(__dirname)
+    let data = req.body;
+    let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
     let dirPath = path.resolve(__dirname, "../media") + "/" + hash;
-    // let dirPath = getMediaDirPath() +
-    mkdirSync(dirPath)
-    obj["tables"].forEach(function(table, index) {
-        let name = table["latinName"]
-        let html = table["html"]
-        let filepath = dirPath + "/" + name + ".html"
-        fs.writeFile(filepath, html, (err) => {
+
+    data.version = "0.1";
+
+    mkdirSync(dirPath);
+    let tables = data.tables;
+    console.log("data: ", data);
+    for (let table of tables) {
+             table.name += ".html";
+        let filepath = dirPath + "/" + table.name;
+           fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
-            console.log("The file was succesfully saved!");
+            console.log("The "+ table.name + ".html was saved!");
         });
-        obj["tables"][index]["html"] = name + ".html"
-        console.log("Created file " + filepath)
-    })
-    fs.writeFile(dirPath + "/meta.json", JSON.stringify(obj), (err) => {
+    }
+
+    fs.writeFile(dirPath + "/meta.json", JSON.stringify(data), (err) => {
         if (err) throw err;
-        console.log("The file was succesfully saved!");
+        console.log("The meta.json was saved!");
     });
 
     zipFolder(dirPath, path.resolve(__dirname, "../media") +  "/journals/" + hash + '.journal', function(err) {
         if(err) {
             console.log('oh no!', err);
         } else {
-            console.log('EXCELLENT');
+            console.log('Journal was saved');
         }
-    })
+    });
 
-    console.log("OK!")
-    res.sendStatus(200)
-})
+    res.sendStatus(200);
+});
 
 
 function xlsxToHtml(filepath) {

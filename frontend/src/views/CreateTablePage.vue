@@ -1,12 +1,16 @@
 <template>
     <div class="create-table">
-        <h2 class="title">Создание таблицы</h2>
+        <h2 class="title">Создание секции</h2>
         <form class="form" @submit.prevent="onHandleCreate">
+            <div class="form-group">
+                <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
+            </div>
             <div class="form-group">
                 <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
-            <div class="form-group">
-                <input type="text" class="form-control" v-model="latinName" placeholder="Название на латинице" @input="onHandleChange" style="margin-bottom: 20px">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="repeatableRow" v-model="repeatableRow" @change="onHandleChange" style="margin-bottom: 20px">
+                <label class="form-check-label" for="repeatableRow">Повторяющиеся строки</label>
             </div>
             <div v-show="error" class="error">
                 Заполните все поля
@@ -20,12 +24,14 @@
 </template>
 
 <script>
+    import slugify from 'slugify'
     export default {
         name: "CreateTablePage",
         data () {
             return {
+                title: '',
                 name: '',
-                latinName: '',
+                repeatableRow: false,
                 error: ''
             }
         },
@@ -34,16 +40,17 @@
                 this.$router.back()
             },
             onHandleCreate () {
-                if (this.latinName && this.name && this.$store.getters['journalState/getJournalName']) {
+                if (this.title && this.name && this.$store.getters['journalState/getJournalName']) {
                     this.$store.commit('journalState/addTable',
                         {
-                            name: this.name,
-                            latinName: this.latinName,
+                            title: this.title,
+                            name: slugify(this.name, '_'),
                             fields: [],
-                            html: ''
+                            html: '',
+                            repeatable_row: this.repeatableRow
                         }
                     )
-                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.latinName}/edit`)
+                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${slugify(this.name, '_')}/edit`)
                 }
                 else if (!this.$store.getters['journalState/getJournalName']) {
                     this.$router.push('/journal/create')
@@ -80,6 +87,9 @@
 .form {
     width: 300px;
     margin: 10px 0 0 0;
+}
+.form-check label {
+    font-weight: normal;
 }
 .btns {
   display: flex;
