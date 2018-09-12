@@ -69,7 +69,7 @@ h2.table-title {
 .table { // the table itself
     table-layout: auto !important; // test fixed layout
     width: 100%;
-    height: 100% !important;
+
 
     font: {
         family: 'Roboto Condensed', sans-serif;
@@ -141,10 +141,6 @@ h2.table-title {
     border-collapse: collapse;
     border-top: none;
 }
-
-
-
-
 
 /*------------------------------------*\
   # INSIDE TABLES
