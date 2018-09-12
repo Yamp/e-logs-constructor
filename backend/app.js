@@ -1,8 +1,10 @@
 var createError = require('http-errors');
 var express = require('express');
+var bodyParser = require('body-parser')
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const fileUpload = require('express-fileupload');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -15,9 +17,12 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}))
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/import", fileUpload({
+  limits: { fileSize: 50 * 1024 * 1024 },
+}));
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
