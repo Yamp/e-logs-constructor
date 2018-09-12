@@ -29,6 +29,9 @@ router.post('/save', function(req, res, next) {
     let data = req.body;
     let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
     let dirPath = getDirName() + "/" + hash;
+
+    data.version = "0.1";
+
     mkdirSync(dirPath);
     let tables = data.tables;
     console.log("data: ", data);
