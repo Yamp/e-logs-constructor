@@ -49,7 +49,12 @@
             },
             setCells () {
                 let _this = this
-                $('#editor-content td').html('<div class="cell" field-name="" row-index="0"></div>')
+                $('#editor-content td').each(function () {
+                    if ($(this).children('table').length) {
+                        $(this).children('table td').html('<div class="cell" field-name="" row-index="0"></div>')
+                    }
+                    else $(this).html('<div class="cell" field-name="" row-index="0"></div>')
+                })
                 $('.cell').each(function () {
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()

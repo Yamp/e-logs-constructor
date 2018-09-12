@@ -1,27 +1,27 @@
 export default function () {
     $.extend($.summernote.plugins, {
 
-        'mergeCells': function (context) {
+        'removeColumn': function (context) {
             let self = this,
                 ui = $.summernote.ui,
                 options = context.options,
                 $editor   = context.layoutInfo.editor,
                 $editable = context.layoutInfo.editable;
 
-            context.memo('button.mergeCells', function () {
+            context.memo('button.removeColumnPlugin', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Merge<b>',
-                        tooltip:  'Merge cells',
+                        contents: '<b>Col -<b>',
+                        tooltip:  'Remove column',
                         click:function (e) {
-                            self.mergeCells();
+                            self.removeColumn();
                         }
                     }),
                 ]).render();
             });
 
-            this.mergeCells = function () {
-                if (redips) redips.merge()
+            this.removeColumn = function () {
+                if (redips) redips.column('delete')
             };
         }
     });

@@ -1,27 +1,27 @@
 export default function () {
     $.extend($.summernote.plugins, {
 
-        'mergeCells': function (context) {
+        'addRow': function (context) {
             let self = this,
                 ui = $.summernote.ui,
                 options = context.options,
                 $editor   = context.layoutInfo.editor,
                 $editable = context.layoutInfo.editable;
 
-            context.memo('button.mergeCells', function () {
+            context.memo('button.addRowPlugin', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Merge<b>',
-                        tooltip:  'Merge cells',
+                        contents: '<b>Row +<b>',
+                        tooltip:  'Add row',
                         click:function (e) {
-                            self.mergeCells();
+                            self.addRow();
                         }
                     }),
                 ]).render();
             });
 
-            this.mergeCells = function () {
-                if (redips) redips.merge()
+            this.addRow = function () {
+                if (redips) redips.row('insert')
             };
         }
     });
