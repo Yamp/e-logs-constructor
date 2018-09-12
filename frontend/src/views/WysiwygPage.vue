@@ -1,7 +1,8 @@
 <template>
   <div class="wysiwyg">
       <h2 class="title">Создание структуры таблицы</h2>
-      <div id="summernote"></div>
+      <div v-if="!getRepeatableRow" id="summernote"></div>
+      <div v-if="getRepeatableRow" id="repeatableSummernote"></div>
       <div class="btns">
           <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
           <button class="btn btn-success" @click="onFormatHtml" >Formate html</button>
@@ -18,7 +19,44 @@ export default {
   name: 'WysiwygPage',
   data () {
     return {
-
+        repeatableRowDefaultHTML:
+            `<table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <br>
+                        </td>
+                        <td>
+                            <br>
+                        </td>
+                        <td>
+                            <br>
+                        </td>
+                        <td>
+                            <br>
+                        </td>
+                        <td>
+                            <br>
+                        </td>
+                        <td>
+                            <br>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>`
+    }
+  },
+  computed: {
+    getRepeatableRow () {
+        return this.$store.getters['journalState/getTableRepeatableRow'](this.$route.params.tableName)
     }
   },
   methods: {
@@ -30,53 +68,93 @@ export default {
             {
                 tableName: this.$route.params.tableName,
                 data: {
-                    html: $('#summernote').summernote('code')
+                    html: this.getRepeatableRow ? $('#repeatableSummernote').summernote('code') : $('#summernote').summernote('code')
                 }
             }
         );
         this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.$route.params.tableName}/edit_data`)
       },
       onFormatHtml () {
-          let code = $('#summernote').summernote('code');
-          let formattedCode = formatFactory(code);
-          $('#summernote').summernote('code', formattedCode);
+          if (this.getRepeatableRow) {
+              let code = $('#repeatableSummernote').summernote('code');
+              let formattedCode = formatFactory(code);
+              $('#repeatableSummernote').summernote('code', formattedCode);
+          }
+          else {
+              let code = $('#summernote').summernote('code');
+              let formattedCode = formatFactory(code);
+              $('#summernote').summernote('code', formattedCode);
+          }
       }
 
   },
-  created () {
+  mounted () {
+      let _this = this
       $(document).ready(function() {
           toggleHeaderInit();
           mergeCellsInit();
-          $('#summernote').summernote({
-              height: 300,
-              minHeight: null,
-              maxHeight: null,
-              focus: true,
-              toolbar: [
-                  ['insert', ['table']],
-                  ['misk', ['undo', 'redo']],
-                  ['view', ['fullscreen', 'codeview']],
-              ],
-              popover: {
-                  table: [
-                      ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight', 'toggle']],
-                      ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
-                      ['custom', ['cellHeader', 'mergeCells']]
+          if (_this.getRepeatableRow) {
+              $('#repeatableSummernote').summernote({
+                  height: 300,
+                  minHeight: null,
+                  maxHeight: null,
+                  focus: true,
+                  toolbar: [
+                      ['misk', ['undo', 'redo']],
+                      ['view', ['fullscreen', 'codeview']],
                   ],
-              },
+                  popover: {
+                      table: [
+                          ['add', ['addColLeft', 'addColRight', 'toggle']],
+                          ['delete', ['deleteCol', 'deleteTable']],
+                          ['custom', ['cellHeader']]
+                      ],
+                  },
 
-          });
-          $('#summernote').on('summernote.change', function(we, contents, $editable) {
-            console.log('summernote\'s content is changed.');
-            // remove '<p><br></p>' inside tables
-            // (summernote creates them when nesting table in table)
-            var uselessParagraphs = document.querySelectorAll('table p'), i;
-            for (i = 0; i < uselessParagraphs.length; ++i) {
-              let p = uselessParagraphs[i];
-              p.parentNode.removeChild(p);
-            }
-          });
+              });
+              $('#repeatableSummernote').summernote('code', _this.repeatableRowDefaultHTML)
+              $('#repeatableSummernote').on('summernote.change', function(we, contents, $editable) {
+                  console.log('summernote\'s content is changed.');
+                  // remove '<p><br></p>' inside tables
+                  // (summernote creates them when nesting table in table)
+                  var uselessParagraphs = document.querySelectorAll('table p'), i;
+                  for (i = 0; i < uselessParagraphs.length; ++i) {
+                      let p = uselessParagraphs[i];
+                      p.parentNode.removeChild(p);
+                  }
+              });
+          }
+          else {
+              $('#summernote').summernote({
+                  height: 300,
+                  minHeight: null,
+                  maxHeight: null,
+                  focus: true,
+                  toolbar: [
+                      ['insert', ['table']],
+                      ['misk', ['undo', 'redo']],
+                      ['view', ['fullscreen', 'codeview']],
+                  ],
+                  popover: {
+                      table: [
+                          ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight', 'toggle']],
+                          ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
+                          ['custom', ['cellHeader', 'mergeCells']]
+                      ],
+                  },
 
+              });
+              $('#summernote').on('summernote.change', function(we, contents, $editable) {
+                  console.log('summernote\'s content is changed.');
+                  // remove '<p><br></p>' inside tables
+                  // (summernote creates them when nesting table in table)
+                  var uselessParagraphs = document.querySelectorAll('table p'), i;
+                  for (i = 0; i < uselessParagraphs.length; ++i) {
+                      let p = uselessParagraphs[i];
+                      p.parentNode.removeChild(p);
+                  }
+              });
+          }
       });
   }
 }

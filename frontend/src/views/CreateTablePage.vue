@@ -8,6 +8,10 @@
             <div class="form-group">
                 <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="repeatableRow" v-model="repeatableRow" @change="onHandleChange" style="margin-bottom: 20px">
+                <label class="form-check-label" for="repeatableRow">Повторяющиеся строки</label>
+            </div>
             <div v-show="error" class="error">
                 Заполните все поля
             </div>
@@ -27,6 +31,7 @@
             return {
                 title: '',
                 name: '',
+                repeatableRow: false,
                 error: ''
             }
         },
@@ -41,7 +46,8 @@
                             title: this.title,
                             name: slugify(this.name, '_'),
                             fields: [],
-                            html: ''
+                            html: '',
+                            repeatable_row: this.repeatableRow
                         }
                     )
                     this.$router.push(`/journal/${this.$route.params.journalName}/table/${slugify(this.name, '_')}/edit`)
@@ -81,6 +87,9 @@
 .form {
     width: 300px;
     margin: 10px 0 0 0;
+}
+.form-check label {
+    font-weight: normal;
 }
 .btns {
   display: flex;

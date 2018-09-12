@@ -21,6 +21,12 @@ const journalState = {
               return table.html
           }
       },
+      getTableRepeatableRow (state, getters) {
+          return function (tableName) {
+              let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+              return table.repeatable_row
+          }
+      },
       getCellMinValue (state, getters) {
         return function (tableName, cell) {
           let table = state.journal.tables.filter((item) => item.name === tableName)[0]
