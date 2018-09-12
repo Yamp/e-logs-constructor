@@ -1,12 +1,12 @@
 <template>
     <div class="create-journal">
-        <h2 class="title">Создание журнала</h2>
+        <h2 class="title">Создание секции</h2>
         <form class="form" @submit.prevent="onHandleCreate">
             <div class="form-group">
-                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
+                <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" v-model="latinName" placeholder="Название на латинице" @input="onHandleChange" style="margin-bottom: 20px">
+                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
             <div v-show="error" class="error">
                 Заполните все поля
@@ -20,12 +20,13 @@
 </template>
 
 <script>
+    import slugify from 'slugify'
     export default {
         name: "CreateJournalPage",
         data () {
             return {
+                title: '',
                 name: '',
-                latinName: '',
                 error: ''
             }
         },
@@ -34,9 +35,9 @@
                 this.$router.back()
             },
             onHandleCreate (e) {
-                if (this.name && this.latinName) {
-                    this.$store.commit('journalState/setJournal', {name: this.name, latinName: this.latinName})
-                    this.$router.push(`/journal/${this.latinName}`)
+                if (this.title && this.name) {
+                    this.$store.commit('journalState/setJournal', {title: this.title, name: slugify(this.name, '_')})
+                    this.$router.push(`/journal/${slugify(this.name, '_')}`)
                 }
                 else this.error = true
             },

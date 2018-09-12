@@ -14,7 +14,6 @@
 import toggleHeaderInit from '../wysiwyg_modules/toggle-header'
 import mergeCellsInit from '../wysiwyg_modules/merge-cells'
 import formatFactory from '../utils/formatFactory.js'
-
 export default {
   name: 'WysiwygPage',
   data () {

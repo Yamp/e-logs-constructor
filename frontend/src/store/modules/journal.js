@@ -17,15 +17,15 @@ const journalState = {
       },
       getTableHTML (state, getters) {
           return function (tableName) {
-              let table = state.journal.tables.filter((item) => item.latinName === tableName)[0]
+              let table = state.journal.tables.filter((item) => item.name === tableName)[0]
               return table.html
           }
       },
       getCellMinValue (state, getters) {
         return function (tableName, cell) {
-          let table = state.journal.tables.filter((item) => item.latinName === tableName)[0]
+          let table = state.journal.tables.filter((item) => item.name === tableName)[0]
           let field = table.fields.filter(item => item.cell === cell)[0]
-          if (field) {
+          if (field && field.min_value) {
               return field.min_value
           }
           else {
@@ -35,15 +35,39 @@ const journalState = {
       },
       getCellMaxValue (state, getters) {
         return function (tableName, cell) {
-          let table = state.journal.tables.filter((item) => item.latinName === tableName)[0]
+          let table = state.journal.tables.filter((item) => item.name === tableName)[0]
           let field = table.fields.filter(item => item.cell === cell)[0]
-          if (field) {
+          if (field && field.max_value) {
               return field.max_value
           }
           else {
               return ''
           }
         }
+      },
+      getCellType (state, getters) {
+          return function (tableName, cell) {
+              let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+              let field = table.fields.filter(item => item.cell === cell)[0]
+              if (field && field.type) {
+                  return field.type
+              }
+              else {
+                  return ''
+              }
+          }
+      },
+      getCellUnits (state, getters) {
+          return function (tableName, cell) {
+              let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+              let field = table.fields.filter(item => item.cell === cell)[0]
+              if (field && field.units) {
+                  return field.units
+              }
+              else {
+                  return ''
+              }
+          }
       }
   },
   actions: {
@@ -56,17 +80,25 @@ const journalState = {
     addTable (state, payload) {
         state.journal.tables.push(payload)
     },
+    deleteTable (state, payload) {
+        state.journal.tables = state.journal.tables.filter(item => item.name !== payload.tableName)
+    },
     setTable (state, payload) {
-        let table = state.journal.tables.filter((item) => item.latinName === payload.tableName)[0]
+        let table = state.journal.tables.filter((item) => item.name === payload.tableName)[0]
         table = Object.assign(table, {...payload.data})
     },
+    setTablesList (state, payload) {
+        state.journal.tables = payload.tables
+    },
     setField (state, payload) {
-        let table = state.journal.tables.filter((item) => item.latinName === payload.name)[0]
+        let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
         let field = table.fields.filter(item => item.cell === payload.field.cell)[0]
         if(field) {
             field.field_name = payload.field.field_name
             field.min_value = payload.field.min_value
             field.max_value = payload.field.max_value
+            field.type = payload.field.type
+            field.units = payload.field.units
         }
         else table.fields.push(payload.field)
 

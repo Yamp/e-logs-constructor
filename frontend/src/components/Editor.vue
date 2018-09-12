@@ -2,7 +2,7 @@
     <div class="editor-container" >
         <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
-        <pop-up :display="display" :x="x" :y="y" :cell="currentCell"/>
+        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag"/>
     </div>
 </template>
 
@@ -16,6 +16,7 @@
           return {
               cells: [],
               currentCell: null,
+              currentCellTag: null,
               display: 'none',
               tableHtml: '',
               x: '0',
@@ -25,7 +26,7 @@
         methods: {
             setPopUpListeners () {
                 let _this = this
-                $('.cell').click(function(e) {
+                $('.cell, #editor-content th').click(function(e) {
                     e.stopPropagation()
                     _this.display = 'block'
                     if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
@@ -34,6 +35,7 @@
                     else _this.x = e.clientX
                     _this.y = e.clientY
                     _this.currentCell = $(this).attr('id')
+                    _this.currentCellTag = $(this).is('.cell') ? 'td' : $(this).is('th') ? 'th' : ''
                 })
                 $('.pop-up').click(function(e) {
                     e.stopPropagation()
@@ -42,18 +44,23 @@
                 $('#app').click(function(e) {
                     _this.display = 'none'
                     _this.currentCell = null
+                    _this.currentCellTag = null
                 })
             },
             setCells () {
                 let _this = this
                 $('#editor-content td').html('<div class="cell" field-name="" row-index="0"></div>')
-                $('#editor-content th').html('<div class="cell" field-name="" row-index="0"></div>')
-                // $('.cell').css({width: $('.cell').outerWidth()})
                 $('.cell').each(function () {
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         _this.cells.push({cell: id})
+                    }
+                })
+                $('#editor-content th').each(function () {
+                    if (!$(this).attr('id')) {
+                        let id = shortid.generate()
+                        $(this).attr('id', id)
                     }
                 })
                 this.$store.commit('journalState/setTable',
@@ -133,8 +140,9 @@ table th {
     border: 1px solid #a9a9a9;
     background-color: #eaeaea;
 
-    .cell:hover {
+    &:hover {
         background-color: #e3e3e3;
+        cursor: pointer;
     }
 }
 </style>

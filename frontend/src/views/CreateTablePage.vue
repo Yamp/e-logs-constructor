@@ -3,10 +3,10 @@
         <h2 class="title">Создание таблицы</h2>
         <form class="form" @submit.prevent="onHandleCreate">
             <div class="form-group">
-                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
+                <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
             <div class="form-group">
-                <input type="text" class="form-control" v-model="latinName" placeholder="Название на латинице" @input="onHandleChange" style="margin-bottom: 20px">
+                <input type="text" class="form-control" v-model="name" placeholder="Название" @input="onHandleChange" style="margin-bottom: 20px">
             </div>
             <div v-show="error" class="error">
                 Заполните все поля
@@ -20,12 +20,13 @@
 </template>
 
 <script>
+    import slugify from 'slugify'
     export default {
         name: "CreateTablePage",
         data () {
             return {
+                title: '',
                 name: '',
-                latinName: '',
                 error: ''
             }
         },
@@ -34,16 +35,16 @@
                 this.$router.back()
             },
             onHandleCreate () {
-                if (this.latinName && this.name && this.$store.getters['journalState/getJournalName']) {
+                if (this.title && this.name && this.$store.getters['journalState/getJournalName']) {
                     this.$store.commit('journalState/addTable',
                         {
-                            name: this.name,
-                            latinName: this.latinName,
+                            title: this.title,
+                            name: slugify(this.name, '_'),
                             fields: [],
                             html: ''
                         }
                     )
-                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.latinName}/edit`)
+                    this.$router.push(`/journal/${this.$route.params.journalName}/table/${slugify(this.name, '_')}/edit`)
                 }
                 else if (!this.$store.getters['journalState/getJournalName']) {
                     this.$router.push('/journal/create')
