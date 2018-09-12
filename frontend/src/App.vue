@@ -5,6 +5,8 @@
 </template>
 
 <style lang="scss">
+@import '~bootstrap3/dist/css/bootstrap.min.css';
+/*@import '~bootstrap3/dist/css/bootstrap-theme.min.css';*/
 html, body {
   padding: 0;
   margin: 0;

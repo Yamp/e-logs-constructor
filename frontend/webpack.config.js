@@ -14,7 +14,7 @@ module.exports = {
     entry: './src/main.js',
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'public')
     },
     module: {
         rules: [
@@ -63,13 +63,6 @@ module.exports = {
                 test: /bootstrap\/dist\/js\/umd\//, use: 'imports-loader?jQuery=jquery'
             },
             {
-                test: /font-awesome\.config\.js/,
-                use: [
-                    {loader: 'style-loader'},
-                    {loader: 'font-awesome-loader'}
-                ]
-            },
-            {
                 test: /\.(gif|png|jpe?g|svg|ico)$/i,
                 loader: 'url-loader',
                 // loader: 'file-loader',
@@ -93,11 +86,11 @@ module.exports = {
             $: "jquery",
             jQuery: "jquery",
             _: 'lodash',
-            Popper: ['popper.js', 'default'],
+            // Popper: ['popper.js', 'default'],
         }),
         new VueLoaderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new Cleaner(),
+        // new Cleaner(),
         new UglifyJsPlugin({
             include: /\.min\.js$/, cache: true, parallel: true,
             extractComments: true, sourceMap: true

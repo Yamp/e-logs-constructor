@@ -1,6 +1,6 @@
 <template>
   <div class="journal">
-    <div class="side-bar col-sm-4">
+    <div class="side-bar">
       <h3>Журнал <span style="font-weight: bold">{{this.$route.params.journalName}}</span></h3>
       <hr style="margin-bottom: 10px">
       <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
@@ -8,7 +8,7 @@
         <li v-for="table in getTables" :key="table.name">{{table.title}}</li>
       </ul>
     </div>
-    <div class="body col-sm-8">
+    <div class="body">
       <div class="title">
         <h3>Текущие секции</h3>
         <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить секцию</button>
@@ -86,12 +86,14 @@ export default {
 
 <style scoped>
 .journal {
+  display: flex;
   height: 100%;
   font-size: 18px;
   box-sizing: border-box;
   overflow-y: hidden;
 }
 .side-bar {
+  width: 280px;
   height: 100%;
   background-color: #337ab7;
   border-right: 6px solid #2e6da4;
@@ -123,6 +125,7 @@ export default {
   margin-bottom: 20px;
 }
 .body {
+  width: calc(100% - 280px);
   height: 100%;
   margin-bottom: 30px;
   padding: 20px 40px;

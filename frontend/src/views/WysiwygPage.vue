@@ -5,13 +5,19 @@
       <div v-if="getRepeatableRow" id="repeatableSummernote"></div>
       <div class="btns">
           <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
-          <button class="btn btn-success" @click="onFormatHtml" >Formate html</button>
+          <button class="btn btn-success" @click="onFormatHtml" style="margin-right: 14px">Formate html</button>
           <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
       </div>
   </div>
 </template>
 
 <script>
+// import 'jquery'
+// import 'bootstrap3/dist/js/npm';
+// import 'bootstrap3/dist/js/bootstrap';
+// import 'summernote/dist/summernote.css'
+// import 'summernote/dist/summernote'
+
 import toggleHeaderInit from '../wysiwyg_modules/toggle-header'
 import mergeCellsInit from '../wysiwyg_modules/merge-cells'
 import splitH from '../wysiwyg_modules/split-horizontally'
@@ -140,8 +146,15 @@ export default {
                   maxHeight: null,
                   focus: true,
                   toolbar: [
+                      ['style', ['bold', 'italic', 'underline', 'clear']],
+                      ['font', ['strikethrough', 'superscript', 'subscript']],
+                      ['fontsize', ['fontsize']],
+                      ['color', ['color']],
+                      ['para', ['ul', 'ol', 'paragraph']],
+                      ['height', ['height']],
+                      ['insert', ['link', 'hr']],
                       ['misk', ['undo', 'redo']],
-                      ['view', ['fullscreen', 'codeview']],
+                      ['view', ['fullscreen', 'codeview']]
                   ],
                   popover: {
                       table: [
@@ -179,9 +192,15 @@ export default {
                   maxHeight: null,
                   focus: true,
                   toolbar: [
-                      ['insert', ['table']],
+                      ['style', ['bold', 'italic', 'underline', 'clear']],
+                      ['font', ['strikethrough', 'superscript', 'subscript']],
+                      ['fontsize', ['fontsize']],
+                      ['color', ['color']],
+                      ['para', ['ul', 'ol', 'paragraph']],
+                      ['height', ['height']],
+                      ['insert', ['table', 'link', 'hr']],
                       ['misk', ['undo', 'redo']],
-                      ['view', ['fullscreen', 'codeview']],
+                      ['view', ['fullscreen', 'codeview']]
                   ],
                   popover: {
                       table: [
