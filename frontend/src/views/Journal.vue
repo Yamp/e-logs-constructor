@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import TableItem from '../components/TableItem'
+import TableItem from '../components/TableItem.vue'
 import axios from 'axios'
 import sortable from 'sortablejs'
 export default {
