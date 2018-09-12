@@ -1,6 +1,5 @@
 const webpack = require('webpack')
 const path = require('path')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
     entry: './src/main.js',
@@ -84,7 +83,6 @@ module.exports = {
         new webpack.ProvidePlugin({
           $: "jquery",
           jQuery: "jquery"
-        }),
-        new CleanWebpackPlugin()
+        })
     ]
 }
