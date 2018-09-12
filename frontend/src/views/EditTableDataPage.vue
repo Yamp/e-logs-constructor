@@ -11,6 +11,8 @@
 
 <script>
 import Editor from '../components/Editor.vue'
+import formatFactory from '../utils/formatFactory.js'
+
 export default {
   name: 'EditTableDataPage',
   data () {
@@ -27,7 +29,7 @@ export default {
             {
                 tableName: this.$route.params.tableName,
                 data: {
-                    html: $('#editor-content').html()
+                    html: formatFactory($('#editor-content').html())
                 }
             }
         )
