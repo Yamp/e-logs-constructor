@@ -23,24 +23,12 @@ export default {
             `<table class="table table-bordered">
                 <tbody>
                     <tr>
-                        <th>
-                            <br>
-                        </th>
-                        <th>
-                            <br>
-                        </th>
-                        <th>
-                            <br>
-                        </th>
-                        <th>
-                            <br>
-                        </th>
-                        <th>
-                            <br>
-                        </th>
-                        <th>
-                            <br>
-                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
                     <tr>
                         <td>
