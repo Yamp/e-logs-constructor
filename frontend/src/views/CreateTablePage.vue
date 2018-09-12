@@ -1,6 +1,6 @@
 <template>
     <div class="create-table">
-        <h2 class="title">Создание таблицы</h2>
+        <h2 class="title">Создание секции</h2>
         <form class="form" @submit.prevent="onHandleCreate">
             <div class="form-group">
                 <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
