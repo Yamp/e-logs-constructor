@@ -20,8 +20,9 @@
 </template>
 
 <script>
-import TableItem from '../components/TableItem'
+import TableItem from '../components/TableItem.vue'
 import axios from 'axios'
+
 
 export default {
   name: "JournalPage",
@@ -37,7 +38,9 @@ export default {
           console.log(journalObserver);
           let journal = JSON.parse(JSON.stringify(journalObserver));
           console.log(journal);
-          axios.post('127.0.0.1:3000/save', JSON.stringify(journal));
+          window.journal = journal;
+          let url = 'http://localhost:3000/save';
+          axios.post(url, JSON.stringify(journal));
 
       }
   },
