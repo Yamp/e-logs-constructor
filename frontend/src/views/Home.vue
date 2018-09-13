@@ -4,16 +4,41 @@
       <span>Реальный конструктор</span>
       <span>для нереальных таблиц</span>
     </h1>
-    <button class="btn btn-primary" @click="onHandleClick">Создать журнал</button>
+    <form class="form" @submit.prevent="onHandleCreate">
+      <div class="form-group">
+        <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
+      </div>
+      <div v-show="error" class="error">
+        Введите заголовок
+      </div>
+      <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
+    </form>
   </div>
 </template>
 
 <script>
+import slugify from 'slugify'
 export default {
   name: "HomePage",
+  data () {
+      return {
+          title: '',
+          error: ''
+      }
+  },
   methods: {
-      onHandleClick () {
-          this.$router.push('/journal/create')
+      onHandleBack () {
+          this.$router.back()
+      },
+      onHandleCreate (e) {
+          if (this.title) {
+              this.$store.commit('journalState/setJournal', {title: this.title, name: slugify(this.title, '_')})
+              this.$router.push(`/journal/${slugify(this.title, '_')}`)
+          }
+          else this.error = true
+      },
+      onHandleChange (data) {
+          data.target.value ? this.error = '' : this.error = true
       }
   }
 }
@@ -42,5 +67,20 @@ export default {
 }
 .title span:last-child {
   font-size: 44px;
+}
+.error {
+  display: flex;
+  align-items: center;
+  background-color: rgb(245, 108, 108);
+  color: rgb(255, 255, 255);
+  height: 40px;
+  border-radius: 6px;
+  padding: 0px 15px;
+  margin-bottom: 20px;
+}
+.form {
+  width: 300px;
+  margin: 10px 0 0 0;
+  text-align: center;
 }
 </style>

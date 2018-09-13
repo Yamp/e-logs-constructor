@@ -49,13 +49,12 @@ export default {
 .edit-data .title{
     margin-top: 0;
     margin-bottom: 20px;
-    text-align: center;
 }
 .editor {
     margin-bottom: 20px;
 }
 .btns {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
 }
 </style>

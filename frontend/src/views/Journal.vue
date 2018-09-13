@@ -37,7 +37,7 @@ export default {
       onHandleClick () {
           this.$store.getters['journalState/getJournalName'] ?
               this.$router.push(`/journal/${this.$route.params.journalName}/table/create`)
-              : this.$router.push('/journal/create')
+              : this.$router.push('/')
       },
       onHandleSend () {
           let journalObserver = this.$store.getters['journalState/getJournal'];
@@ -128,7 +128,7 @@ export default {
   width: calc(100% - 280px);
   height: 100%;
   margin-bottom: 30px;
-  padding: 20px 40px;
+  padding: 20px;
   overflow-y: auto;
 }
 .body h3 {
