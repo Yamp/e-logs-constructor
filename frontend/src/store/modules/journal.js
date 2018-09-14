@@ -96,17 +96,20 @@ const journalState = {
     setTablesList (state, payload) {
         state.journal.tables = payload.tables
     },
-    setField (state, payload) {
+    setFields (state, payload) {
         let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
-        let field = table.fields.filter(item => item.cell === payload.field.cell)[0]
-        if(field) {
-            field.field_name = payload.field.field_name
-            field.min_value = payload.field.min_value
-            field.max_value = payload.field.max_value
-            field.type = payload.field.type
-            field.units = payload.field.units
-        }
-        else table.fields.push(payload.field)
+
+        payload.fields.cells.map(cell => {
+            let field = table.fields.filter(item => item.cell === $(cell).attr('id'))[0]
+
+            if (field) {
+                field.field_name = payload.fields.field_name
+                field.min_value = payload.fields.min_value
+                field.max_value = payload.fields.max_value
+                field.type = payload.fields.type
+                field.units = payload.fields.units
+            }
+        })
 
     }
   }

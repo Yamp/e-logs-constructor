@@ -2,7 +2,7 @@
     <div class="editor-container" >
         <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
-        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag"/>
+        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedCells="selectedCells"/>
     </div>
 </template>
 
@@ -15,6 +15,7 @@
         data () {
           return {
               cells: [],
+              selectedCells: [],
               currentCell: null,
               currentCellTag: null,
               display: 'none',
@@ -26,8 +27,29 @@
         methods: {
             setPopUpListeners () {
                 let _this = this
-                $('.cell, #editor-content th').click(function(e) {
+                $('.cell').click(function(e) {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected')
+                        _this.selectedCells = _this.selectedCells.filter(item => $(item).attr('id') !== $(this).attr('id'))
+                    }
+                    else {
+                        $(this).addClass('selected')
+                        _this.selectedCells.push(this)
+                        e.stopPropagation()
+                        _this.display = 'block'
+                        if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
+                            _this.x = e.clientX - $('.pop-up').outerWidth()
+                        }
+                        else _this.x = e.clientX
+                        _this.y = e.clientY
+                        _this.currentCell = $(this).attr('id')
+                        _this.currentCellTag = 'td'
+                    }
+                })
+                $('#editor-content th').click(function(e) {
                     e.stopPropagation()
+                    _this.selectedCells = []
+                    $('.selected').removeClass('selected')
                     _this.display = 'block'
                     if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
                         _this.x = e.clientX - $('.pop-up').outerWidth()
@@ -35,7 +57,7 @@
                     else _this.x = e.clientX
                     _this.y = e.clientY
                     _this.currentCell = $(this).attr('id')
-                    _this.currentCellTag = $(this).is('.cell') ? 'td' : $(this).is('th') ? 'th' : ''
+                    _this.currentCellTag = 'th'
                 })
                 $('.pop-up').click(function(e) {
                     e.stopPropagation()
@@ -130,6 +152,14 @@ table {
 
     &:hover {
         cursor: pointer;
+    }
+
+    &.selected {
+        background-color: #9BB3DA;
+
+        &:hover {
+            background-color: #9BB3DA;
+        }
     }
 }
 table td {

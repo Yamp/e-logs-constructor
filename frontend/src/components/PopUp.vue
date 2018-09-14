@@ -31,7 +31,7 @@
 <script>
     export default {
         name: "PopUp",
-        props: ['display', 'x', 'y', 'cell', 'cellTag'],
+        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedCells'],
         data () {
             return {
                 fieldName: '',
@@ -43,7 +43,7 @@
         },
         watch: {
           cell (value) {
-              if (value && this.cellTag === 'td') {
+              if (value && this.cellTag === 'td' && this.selectedCells.length === 1) {
                   this.fieldName = $(`#${this.cell}`).attr('field-name')
                   this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
                   this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
@@ -75,19 +75,26 @@
         methods: {
             onHandleChange (data, input) {
                 if (data === 'fieldName') {
-                    if (this.cellTag === 'td') {
-                        $(`#${this.cell}`).attr('field-name', input.target.value)
+                    this.selectedCells.map(item => {
+                        $(item).attr('field-name', input.target.value)
+                    })
+                    if (this.cellTag === 'th') {
+                        $(`#${this.cell}`).text(input.target.value)
                     }
-                    $(`#${this.cell}`).text(input.target.value)
+                    else {
+                        this.selectedCells.map(item => {
+                            $(item).text(input.target.value)
+                        })
+                    }
                 }
 
                 if (this.cellTag === 'td') {
-                    this.$store.commit('journalState/setField',
+                    this.$store.commit('journalState/setFields',
                         {
                             name: this.$route.params.tableName,
-                            field: {
+                            fields: {
                                 field_name: this.fieldName,
-                                cell: this.cell,
+                                cells: this.selectedCells,
                                 min_value: this.minValue,
                                 max_value: this.maxValue,
                                 type: this.type,
