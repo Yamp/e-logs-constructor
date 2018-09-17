@@ -5,7 +5,7 @@
       <hr style="margin-bottom: 10px">
       <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
       <ul v-if="getTables.length" id="section-list">
-        <li v-for="table in getTables" :key="table.name">{{table.title}}</li>
+        <li v-for="table in getTables" :key="table.name"><div><span>{{table.title}}</span></div><div><img class="move-icon" src="../assets/scroll.svg"></div></li>
       </ul>
     </div>
     <div class="body">
@@ -118,8 +118,25 @@ export default {
   list-style-type: decimal-leading-zero;
 }
 .side-bar li {
-  padding: 10px;
+  padding: 10px 0 10px 10px;
   cursor: move;
+}
+.side-bar li div {
+  display: inline-block;
+  width: 50%;
+}
+.side-bar li div:last-child {
+  display: inline-block;
+  width: 50%;
+  text-align: right;
+}
+.side-bar li .move-icon {
+  width: 24px;
+  opacity: 0.4;
+  transition: 0.2s;
+}
+.side-bar li:hover .move-icon {
+  opacity: 1;
 }
 .sortable-drag {
   background-color: #2e6da4;
