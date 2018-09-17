@@ -103,6 +103,8 @@ export default {
            data.target.value ? this.error = '' : this.error = true
         },
         onHandleContinue () {
+            $('.note-popover').css({display: 'none'})
+            $('.note-editable td').removeAttr('style')
             if (this.title && this.$store.getters['journalState/getJournalName']) {
                 this.$store.commit('journalState/addTable',
                     {

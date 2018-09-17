@@ -39,15 +39,28 @@ export default {
               this.$router.push(`/journal/${this.$route.params.journalName}/table/create`)
               : this.$router.push('/')
       },
+      getAllAttributes (node) {
+          let attr = {}
+          Array.from(node.attributes).map(item => attr[item.name] = item.value)
+          return attr
+      },
+      addCells (table_html) {
+          let refactoredHtml = table_html
+          refactoredHtml = refactoredHtml.split('div').join('cell')
+          refactoredHtml = refactoredHtml.split('class="cell"').join('')
+          return refactoredHtml
+      },
       onHandleSend () {
           let journalObserver = this.$store.getters['journalState/getJournal'];
           console.log(journalObserver);
           let journal = JSON.parse(JSON.stringify(journalObserver));
+          journal.tables.map(item => {
+              item.html = this.addCells(item.html)
+          })
           console.log(journal);
           window.journal = journal;
           let url = 'http://localhost:3000/save';
           axios.post(url, journal);
-
       },
       clearJson(json) {
         let result = json.replace('"',"'");

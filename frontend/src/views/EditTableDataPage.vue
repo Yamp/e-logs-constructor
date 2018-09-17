@@ -25,6 +25,7 @@ export default {
         this.$router.back()
       },
       onHandleSave () {
+        $('.editor .cell').removeClass("selected")
         this.$store.commit('journalState/setTable',
             {
                 tableName: this.$route.params.tableName,

@@ -33,9 +33,9 @@ router.post('/save', function(req, res, next) {
     let tables = data.tables;
     console.log("data: ", data);
     for (let table of tables) {
-             table.name += ".html";
+        table.name += ".html";
         let filepath = dirPath + "/" + table.name;
-           fs.writeFile(filepath, table.html, (err) => {
+        fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
             console.log("The "+ table.name + ".html was saved!");
         });
