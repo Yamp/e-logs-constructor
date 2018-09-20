@@ -4,7 +4,6 @@ var crypto = require('crypto');
 var fs = require('fs');
 var path = require('path');
 var zipFolder = require('zip-folder');
-var cheerio = require('cheerio');
 
 var xlsxMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 var docxMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
