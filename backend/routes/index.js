@@ -4,6 +4,8 @@ var crypto = require('crypto');
 var fs = require('fs');
 var path = require('path');
 var zipFolder = require('zip-folder');
+var mime = require('mime');
+
 
 var xlsxMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 var docxMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -40,19 +42,43 @@ const mkdirSync = function (dirPath) {
 //     });
 // }
 
+
+router.get('/download', function(req, res){
+  let hash = req.query.hash;
+  if (hash.length > 0 ) {
+      let fileNamePath = path.resolve(__dirname, "../media") + '/journals/' + hash + '.journal';
+      console.log(fileNamePath);
+
+      let filename = path.basename(fileNamePath);
+      let mimetype = mime.lookup(fileNamePath);
+      let filestream = fs.createReadStream(fileNamePath);
+
+      res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+      res.setHeader('Content-type', mimetype);
+
+      filestream.pipe(res);
+  } else {
+      res.status(200).json({name: 'hash not found' });
+  }
+});
+
+
+
 router.post('/save', function(req, res, next) {
     let data = req.body;
     let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
-    let dirPath = path.resolve(__dirname, "../media") + "/" + hash;
+
+    console.log(__dirname);
+    let relativeMediaPath = "../media";
+    let dirPath = path.resolve(__dirname, relativeMediaPath) + "/" + hash;
 
     data.version = "0.1";
 
     mkdirSync(dirPath);
     let tables = data.tables;
-    console.log("data: ", data);
     for (let table of tables) {
         table.name += ".html";
-        add_vue_tags(table.html)
+        // add_vue_tags(table.html);
         let filepath = dirPath + "/" + table.name;
         fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
@@ -65,7 +91,9 @@ router.post('/save', function(req, res, next) {
         console.log("The meta.json was saved!");
     });
 
-    zipFolder(dirPath, path.resolve(__dirname, "../media") +  "/journals/" + hash + '.journal', function(err) {
+    let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.journal';
+
+    zipFolder(dirPath, journalPath, function(err) {
         if(err) {
             console.log('oh no!', err);
         } else {
@@ -73,7 +101,8 @@ router.post('/save', function(req, res, next) {
         }
     });
 
-    res.sendStatus(200);
+    let downloadLink = "http://localhost:3000/download?hash=" + hash;
+    res.status(200).json({hash: hash, download_link: '' + downloadLink });
 });
 
 

@@ -20,19 +20,32 @@
         <span class="no-items-text" v-if="!getTables.length">Пока что секций нет, вы можете добавить их</span>
       </div>
       <div class="btns" v-if="getTables.length">
-        <button class="btn btn-primary" @click.prevent="onHandleSend" type="submit">Отправить</button>
+        <button class="btn btn-primary" @click.prevent="showDownloadModal" type="submit">Отправить</button>
       </div>
     </div>
+    <modal v-show="isShowDownload" @close="isShowDownload = false">
+      <div>
+        <br/>
+        <a class="btn btn-success" target="_blank" :href="downloadLink">Download journal</a>
+      </div>
+    </modal>
   </div>
 </template>
 <script>
 import TableItem from '../components/TableItem.vue'
 import axios from 'axios'
 import sortable from 'sortablejs'
+import Modal from "../components/Modal";
 
 export default {
   name: "JournalPage",
-  components: {TableItem},
+  data() {
+      return {
+          isShowDownload: false,
+          downloadLink: '#'
+      }
+  },
+  components: {Modal, TableItem},
   methods: {
       onHandleClick () {
           this.$store.getters['journalState/getJournalName'] ?
@@ -50,17 +63,25 @@ export default {
           refactoredHtml = refactoredHtml.split('class="cell"').join('')
           return refactoredHtml
       },
+      showDownloadModal() {
+          this.onHandleSend();
+      },
       onHandleSend () {
           let journalObserver = this.$store.getters['journalState/getJournal'];
           console.log(journalObserver);
           let journal = JSON.parse(JSON.stringify(journalObserver));
           journal.tables.map(item => {
               item.html = this.addCells(item.html)
-          })
+          });
           console.log(journal);
           window.journal = journal;
           let url = 'http://localhost:3000/save';
-          axios.post(url, journal);
+          let self = this;
+          axios.post(url, journal).then( function (response) {
+              console.log("data", response.data);
+              self.downloadLink = response.data.download_link;
+              self.isShowDownload = true;
+          });
       },
       clearJson(json) {
         let result = json.replace('"',"'");
