@@ -1,15 +1,15 @@
-var express = require('express');
+let mime = require('mime');
+let express = require('express');
+
 var router = express.Router();
 var crypto = require('crypto');
 var fs = require('fs');
 var path = require('path');
 var zipFolder = require('zip-folder');
-var mime = require('mime');
 
-
-var xlsxMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-var docxMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-var htmlMimeType = 'text/html'
+var xlsxMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+var docxMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+var htmlMimeType = 'text/html';
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -23,24 +23,6 @@ const mkdirSync = function (dirPath) {
     if (err.code !== 'EEXIST') throw err
   }
 };
-
-// TODO: make it work
-// const getAllAttributes = function (node) {
-//     const $ = cheerio.load(node);
-//     return node.attribs;
-// }
-//
-// const add_vue_tags = function (table_html) {
-//     const $ = cheerio.load(table_html);
-//     $('div.cell').each(function () {
-//         let cell = $(this).replaceWith('<cell></cell>');
-//         console.log('attr', getAllAttributes(this))
-//         $(getAllAttributes(this)).each(function () {
-//             $(cell).attr(this.name, this.value);
-//         });
-//         $(this).replaceWith(cell)
-//     });
-// }
 
 
 router.get('/download', function(req, res){
@@ -63,7 +45,6 @@ router.get('/download', function(req, res){
 });
 
 
-
 router.post('/save', function(req, res, next) {
     let data = req.body;
     let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
@@ -78,7 +59,6 @@ router.post('/save', function(req, res, next) {
     let tables = data.tables;
     for (let table of tables) {
         table.name += ".html";
-        // add_vue_tags(table.html);
         let filepath = dirPath + "/" + table.name;
         fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
@@ -161,8 +141,7 @@ router.post('/import', function(req, res, next) {
     else {
         res.send(html);
     }
-    // res.sendStatus(200);
-})
 
+});
 
 module.exports = router;
