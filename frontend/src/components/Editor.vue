@@ -71,30 +71,34 @@
             },
             setCells () {
                 let _this = this
-                $('#editor-content td').each(function () {
-                    if ($(this).children('table').length) {
-                        $(this).children('table td').html('<div class="cell" field-name="" row-index="0"></div>')
-                    }
-                    else $(this).html('<div class="cell" field-name="" row-index="0"></div>')
-                })
-                $('.cell').each(function () {
-                    if (!$(this).attr('id')) {
-                        let id = shortid.generate()
-                        $(this).attr('id', id)
-                        _this.cells.push({cell: id})
-                    }
-                })
-                $('#editor-content th').each(function () {
-                    if (!$(this).attr('id')) {
-                        let id = shortid.generate()
-                        $(this).attr('id', id)
-                    }
-                })
+                if (!_this.cells.length) {
+                    $('#editor-content td').each(function () {
+                        if ($(this).children('table').length) {
+                            $(this).children('table td').html(`<div class="cell" field-name="" row-index="0"></div>`)
+                        }
+                        else $(this).html('<div class="cell" field-name="" row-index="0"></div>')
+                    })
+                    $('.cell').each(function () {
+                        if (!$(this).attr('id')) {
+                            let id = shortid.generate()
+                            $(this).attr('id', id)
+                            _this.cells.push({cell: id})
+                        }
+                    })
+                    $('#editor-content th').each(function () {
+                        if (!$(this).attr('id')) {
+                            let id = shortid.generate()
+                            $(this).attr('id', id)
+                        }
+                    })
+                }
+
                 this.$store.commit('journalState/setTable',
                     {
                         tableName: _this.$route.params.tableName,
                         data: {
-                            fields: _this.cells
+                            fields: _this.cells,
+                            recoveryFields: JSON.parse(JSON.stringify(_this.cells))
                         }
                     }
                 )
@@ -102,6 +106,8 @@
         },
         mounted () {
             this.tableHtml = this.$store.getters['journalState/getTableHTML'](this.$route.params.tableName)
+            this.cells = this.$store.getters['journalState/getTableCells'](this.$route.params.tableName)
+            console.log(this.$store.getters['journalState/getJournal'])
             setTimeout(() => this.setCells(), 0)
             setTimeout(() => this.setPopUpListeners(), 0)
         }

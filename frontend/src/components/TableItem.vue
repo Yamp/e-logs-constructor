@@ -6,6 +6,7 @@
                 <p><span style="opacity: 0.6;">Название:</span> {{table.name}}</p>
             </div>
             <div style="display: flex; align-items: center">
+                <img src="../assets/edit.svg" class="edit-icon" @click="editTable(table.name)">
                 <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
             </div>
         </div>
@@ -21,6 +22,9 @@ export default {
     methods: {
         deleteTable () {
             this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
+        },
+        editTable (tableName) {
+            this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/${tableName}/edit_data`)
         }
     }
 }
@@ -35,13 +39,17 @@ export default {
     display: flex;
     justify-content: space-between;
 }
-.delete-icon {
+.delete-icon, .edit-icon {
     width: 20px;
     font-size: 36px;
     opacity: 0.6;
     transition: 0.2s;
 }
-.delete-icon:hover {
+.edit-icon {
+    margin-right: 20px;
+}
+
+.delete-icon:hover, .edit-icon:hover {
     opacity: 1;
     cursor: pointer;
 }
