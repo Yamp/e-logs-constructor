@@ -24,7 +24,7 @@ export default {
             this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
         },
         editTable (tableName) {
-            this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/${tableName}/edit_data`)
+            this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${tableName}`)
         }
     }
 }
@@ -38,6 +38,9 @@ export default {
 .title {
     display: flex;
     justify-content: space-between;
+}
+.body {
+    overflow-x: auto;
 }
 .delete-icon, .edit-icon {
     width: 20px;

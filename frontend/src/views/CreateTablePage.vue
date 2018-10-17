@@ -1,14 +1,18 @@
 <template>
     <div class="create-table">
-        <h2 class="title">Создание секции</h2>
+        <h2 class="title" v-if="!getUrlParams('table')">Создание секции</h2>
+        <h2 class="title" v-else>Изменение секции</h2>
         <form class="form" @submit.prevent="onHandleContinue">
-            <div class="form-group">
+            <div class="form-group" v-if="!getUrlParams('table')">
                 <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange">
             </div>
-            <div class="form-check">
+            <div class="form-group" v-else>
+                <p class="table-verbose-name"><span>Заголовок: </span>{{title}}</p>
+            </div>
+            <!-- <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="repeatableRow" v-model="repeatableRow" @change="onHandleChange">
                 <label class="form-check-label" for="repeatableRow">Повторяющиеся строки</label>
-            </div>
+            </div> -->
             <div v-show="error" class="error">
                 Введите заголовок
             </div>
@@ -18,7 +22,6 @@
             <div id="summernote"></div>
             <div class="btns">
                 <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
-                <button class="btn btn-success" @click="onFormatHtml" style="margin-right: 14px">Formate html</button>
                 <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
             </div>
         </div>
@@ -42,6 +45,7 @@ import removeCol from '../wysiwyg_modules/remove-column'
 import removeRow from '../wysiwyg_modules/remove-row'
 import formatFactory from '../utils/formatFactory.js'
 import slugify from 'slugify'
+
 export default {
     name: "CreateTablePage",
     data () {
@@ -96,8 +100,17 @@ export default {
         }
     },
     methods: {
+        getUrlParams(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        },
         onHandleBack () {
-            this.$router.back()
+            this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
         },
         onHandleChange (data) {
            data.target.value ? this.error = '' : this.error = true
@@ -105,17 +118,17 @@ export default {
         onHandleContinue () {
             $('.note-popover').css({display: 'none'})
             $('.note-editable td').removeAttr('style')
-            if (this.title && this.$store.getters['journalState/getJournalName']) {
-                this.$store.commit('journalState/addTable',
+            if ((this.title && !this.getUrlParams('table') || this.getUrlParams('table')) && this.$store.getters['journalState/getJournalName']) {
+                this.$store.commit('journalState/setTable',
                     {
                         title: this.title,
-                        name: slugify(this.title, '_'),
-                        fields: [],
+                        name: this.getUrlParams('table') ? this.getUrlParams('table') : slugify(this.title, '_'),
+                        fields: this.getUrlParams('table') ? this.$store.getters['journalState/getTableCells'](this.getUrlParams('table')) : [],
                         html: $('#summernote').summernote('code'),
-                        repeatable_row: this.repeatableRow
+                        // repeatable_row: this.repeatableRow
                     }
                 )
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/${slugify(this.title, '_')}/edit_data`)
+                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data`)
             }
             else if (!this.$store.getters['journalState/getJournalName']) {
                 this.$router.push('/')
@@ -133,6 +146,16 @@ export default {
                 let formattedCode = formatFactory(code);
                 $('#summernote').summernote('code', formattedCode);
             }
+        },
+        replaceAttrs () {
+            $('.cell').each(function() {
+                // console.log($(this))
+                let self = this
+                $.each( $(self)[0].attributes, function ( index, attribute ) {
+                    if (attribute.name !== 'class') $(self).parent().attr(attribute.name, attribute.value)
+                } );
+                $(this).remove()
+            })
         },
         redipsInit () {
             let _this = this
@@ -160,6 +183,15 @@ export default {
                 };
             };
             window.redips = _this.redips
+        },
+        getUrlParams(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
         },
         summernoteInit () {
             let _this = this
@@ -193,6 +225,7 @@ export default {
                     console.log('summernote\'s content is changed.');
 
                     let table = $('.note-editable table:first')
+                    console.log('table', table)
                     if (table.length) {
                         table.attr('id', 'redipsTable')
                         _this.redips.init()
@@ -207,20 +240,64 @@ export default {
                     }
                 });
             })
-        }
+        },
+        initAll (tableHtml) {
+            this.redipsInit()
+            if ($.summernote) {
+                toggleHeaderInit();
+                mergeCellsInit();
+                splitH()
+                splitV()
+                addCol()
+                addRow()
+                removeCol()
+                removeRow()
+                this.summernoteInit()
+
+                setTimeout(() => $('#summernote').summernote('code', tableHtml), 0)
+                setTimeout(() => this.replaceAttrs(), 0)  
+            }
+        },
+        removeCells (table_html) {
+            let refactoredHtml = table_html
+            refactoredHtml = refactoredHtml.split('<cell').join('<div class="cell"')
+            refactoredHtml = refactoredHtml.split('</cell>').join('</div>')
+            return refactoredHtml
+        },
     },
     mounted () {
-        this.redipsInit()
-        if ($.summernote) {
-            toggleHeaderInit();
-            mergeCellsInit();
-            splitH()
-            splitV()
-            addCol()
-            addRow()
-            removeCol()
-            removeRow()
-            this.summernoteInit()
+        let tableHtml = ''
+
+        if (this.getUrlParams('table')) {
+            if (this.getUrlParams('imported') == 'true') {
+                console.log('imported')
+                this.$store.dispatch('journalState/importJournal', this.$route.params.journalName)
+                    .then(() => {
+                        let journalObserver = this.$store.getters['journalState/getJournal'];
+                        console.log(journalObserver);
+                        let journal = JSON.parse(JSON.stringify(journalObserver));
+                        journal.tables.map(item => {
+                            item.html = this.removeCells(item.html)
+                        });
+                        this.$store.commit('journalState/setJournal', journal)
+                    })
+                    .then(() => {
+                        tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
+                        this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
+
+                        this.initAll(tableHtml)
+                    })
+            }
+            else {
+                console.log('not imported')
+                tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
+                this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
+
+                this.initAll(tableHtml)
+            }
+        }
+        else {
+            this.initAll(tableHtml)
         }
     }
 }
@@ -250,12 +327,19 @@ export default {
     margin-bottom: 20px;
 }
 .form {
-    width: 300px;
+    /* width: 300px; */
     margin-bottom: 10px;
 }
 .form-check label {
     font-weight: normal;
     margin-left: 10px;
+}
+.table-verbose-name {
+    font-size: 18px;
+}
+.table-verbose-name > span{
+    opacity: 0.6;
+    font-size: 18px;
 }
 .wysiwyg {
     height: 100%;

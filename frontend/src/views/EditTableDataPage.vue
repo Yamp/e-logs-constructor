@@ -20,21 +20,19 @@
         },
         methods: {
             onHandleBack() {
-                this.$router.back()
                 this.$store.commit('journalState/recoverFields',
                     {
                         name: this.$route.params.tableName,
                     }
                 )
+                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}`)
             },
             onHandleSave() {
                 $('.editor .cell').removeClass("selected")
                 this.$store.commit('journalState/setTable',
                     {
-                        tableName: this.$route.params.tableName,
-                        data: {
-                            html: formatFactory($('#editor-content').html())
-                        }
+                        name: this.$route.params.tableName,
+                        html: formatFactory($('#editor-content').html())
                     }
                 )
                 this.$router.push(`/journal/${this.$route.params.journalName}`)

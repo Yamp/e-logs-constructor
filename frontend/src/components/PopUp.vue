@@ -103,6 +103,7 @@
                         }
                     )
                 }
+                console.log(this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell))
             }
         }
     }

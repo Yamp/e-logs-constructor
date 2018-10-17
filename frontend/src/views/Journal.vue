@@ -25,8 +25,9 @@
     </div>
     <modal v-show="isShowDownload" @close="isShowDownload = false">
       <div>
-        <br/>
-        <a class="btn btn-success" target="_blank" :href="downloadLink">Download journal</a>
+        <p class="modal-title">Журнал успешно сохранен!</p>
+        <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
+        <button class="btn btn-primary modal-btn">Добавить в E-logs</button>
       </div>
     </modal>
   </div>
@@ -35,7 +36,7 @@
 import TableItem from '../components/TableItem.vue'
 import axios from 'axios'
 import sortable from 'sortablejs'
-import Modal from "../components/Modal";
+import Modal from "../components/Modal.vue";
 
 export default {
   name: "JournalPage",
@@ -56,6 +57,12 @@ export default {
           let attr = {}
           Array.from(node.attributes).map(item => attr[item.name] = item.value)
           return attr
+      },
+      removeCells (table_html) {
+          let refactoredHtml = table_html
+          refactoredHtml = refactoredHtml.split('<cell').join('<div class="cell"')
+          refactoredHtml = refactoredHtml.split('</cell>').join('</div>')
+          return refactoredHtml
       },
       addCells (table_html) {
           let refactoredHtml = table_html
@@ -88,16 +95,20 @@ export default {
             // json.replace(/\//g, '');
         console.log("json:", result);
         return result;
-      }
-  },
-  computed: {
-      getTables () {
-          return this.$store.getters['journalState/getTables']
-      }
-  },
-  mounted () {
-      let _this = this
-      if (document.getElementById('section-list')) {
+      },
+      getUrlParams(name, url) {
+          if (!url) url = window.location.href;
+          name = name.replace(/[\[\]]/g, '\\$&');
+          var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+              results = regex.exec(url);
+          if (!results) return null;
+          if (!results[2]) return '';
+          return decodeURIComponent(results[2].replace(/\+/g, ' '));
+      },
+      initSectionList () {
+        let _this = this
+
+        if (document.getElementById('section-list')) {
           sortable.create(document.getElementById('section-list'), {
               chosenClass: "sortable-drag",
               onEnd: function (event) {
@@ -113,7 +124,33 @@ export default {
                   _this.$store.commit('journalState/setTablesList', {tables: reorderedItems})
               }
           })
+        }
       }
+  },
+  computed: {
+      getTables () {
+          return this.$store.getters['journalState/getTables']
+      }
+  },
+  mounted () {
+      let _this = this
+      if (_this.getUrlParams('imported') == 'true') {
+          this.$store.dispatch('journalState/importJournal', this.$route.params.journalName)
+            .then(() => {
+              let journalObserver = this.$store.getters['journalState/getJournal'];
+              console.log(journalObserver);
+              let journal = JSON.parse(JSON.stringify(journalObserver));
+              journal.tables.map(item => {
+                  item.html = this.removeCells(item.html)
+              });
+              this.$store.commit('journalState/setJournal', journal)
+            })
+            .then(() => {
+              _this.initSectionList()
+            })
+      }
+
+      this.initSectionList()
   }
 }
 </script>
@@ -196,5 +233,15 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+}
+.modal-title {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+.modal-btn {
+  margin-right: 10px;
+}
+.modal-btn:last-child {
+  margin-right: 0;
 }
 </style>

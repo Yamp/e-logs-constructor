@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 const journalState = {
     namespaced: true,
     state: {
@@ -15,10 +17,16 @@ const journalState = {
         getTables(state, getters) {
             return state.journal.tables
         },
+        getTableTitle(state, getters) {
+            return function (tableName) {
+                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+                return table.title
+            }
+        },
         getTableHTML(state, getters) {
             return function (tableName) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                return table.html
+                return table.html ? table.html : ''
             }
         },
         getTableRepeatableRow(state, getters) {
@@ -64,7 +72,9 @@ const journalState = {
         getCellMaxValue(state, getters) {
             return function (tableName, cell) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+                console.log('ttttt', table)
                 let field = table.fields.filter(item => item.cell === cell)[0]
+                console.log('fff', field)
                 if (field && field.max_value) {
                     return field.max_value
                 }
@@ -98,10 +108,22 @@ const journalState = {
             }
         }
     },
-    actions: {},
+    actions: {
+        importJournal: function ({commit, state, getters}, payload) {
+            let url = `http://${window.location.hostname}:3000/get_journal?journal=${payload}`;
+
+            return axios.get(url)
+                .then( function (response) {
+                    commit('setJournal', response.data)
+                });
+            }
+    },
     mutations: {
         setJournal(state, payload) {
-            state.journal = {...state.journal, ...payload}
+            state.journal = {...payload}
+            if (!payload.tables) {
+                state.journal.tables = []
+            }
         },
         addTable(state, payload) {
             state.journal.tables.push(payload)
@@ -110,8 +132,13 @@ const journalState = {
             state.journal.tables = state.journal.tables.filter(item => item.name !== payload.tableName)
         },
         setTable(state, payload) {
-            let table = state.journal.tables.filter((item) => item.name === payload.tableName)[0]
-            table = Object.assign(table, {...payload.data})
+            let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
+            if (table) {
+                table = Object.assign(table, {...payload})
+            }
+            else {
+                state.journal.tables.push(payload)
+            }
         },
         setTablesList(state, payload) {
             state.journal.tables = payload.tables
@@ -134,9 +161,9 @@ const journalState = {
         },
         recoverFields(state, payload) {
             let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
-            console.log('before', table.fields)
+            // console.log('before', table, payload, state.journal.tables)
             table.fields = table.recoveryFields
-            console.log('after', table.fields)
+            // console.log('after', table)
         }
     }
 }

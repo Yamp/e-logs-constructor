@@ -71,35 +71,50 @@
             },
             setCells () {
                 let _this = this
-                if (!_this.cells.length) {
-                    $('#editor-content td').each(function () {
-                        if ($(this).children('table').length) {
-                            $(this).children('table td').html(`<div class="cell" field-name="" row-index="0"></div>`)
+
+                $('#editor-content td').each(function () {
+                    let cellItem = `<div 
+                                        class="cell" 
+                                        ${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}
+                                        field-name="${$(this).attr('field-name') ? $(this).attr('field-name') : ''}" 
+                                        ${$(this).attr('row-index') ? `row-index="${$(this).attr("row-index")}"` : $(this).attr(':row-index') ? `:row-index="${$(this).attr(":row-index")}"` : 'row-index="0"'}
+                                    >${$(this).attr('field-name')}</div>`
+                    
+                    $(this)[0].removeAttribute('id')
+                    $(this)[0].removeAttribute('field-name')
+                    $(this)[0].removeAttribute('row-index')
+                    $(this)[0].removeAttribute(':row-index')
+
+                    if ($(this).children('table').length) {
+                        if (!$(this).children('table td').children('.cell').length) {
+                            $(this).children('table td').html(cellItem)
                         }
-                        else $(this).html('<div class="cell" field-name="" row-index="0"></div>')
-                    })
-                    $('.cell').each(function () {
-                        if (!$(this).attr('id')) {
-                            let id = shortid.generate()
-                            $(this).attr('id', id)
-                            _this.cells.push({cell: id})
+                    }
+                    else {
+                        if (!$(this).children('.cell').length) {
+                            $(this).html(cellItem)
                         }
-                    })
-                    $('#editor-content th').each(function () {
-                        if (!$(this).attr('id')) {
-                            let id = shortid.generate()
-                            $(this).attr('id', id)
-                        }
-                    })
-                }
+                    }
+                })
+                $('.cell').each(function () {
+                    if (!$(this).attr('id')) {
+                        let id = shortid.generate()
+                        $(this).attr('id', id)
+                        _this.cells.push({cell: id})
+                    }
+                })
+                $('#editor-content th').each(function () {
+                    if (!$(this).attr('id')) {
+                        let id = shortid.generate()
+                        $(this).attr('id', id)
+                    }
+                })
 
                 this.$store.commit('journalState/setTable',
                     {
-                        tableName: _this.$route.params.tableName,
-                        data: {
-                            fields: _this.cells,
-                            recoveryFields: JSON.parse(JSON.stringify(_this.cells))
-                        }
+                        name: _this.$route.params.tableName,
+                        fields: _this.cells,
+                        recoveryFields: JSON.parse(JSON.stringify(_this.cells))
                     }
                 )
             }
@@ -107,7 +122,7 @@
         mounted () {
             this.tableHtml = this.$store.getters['journalState/getTableHTML'](this.$route.params.tableName)
             this.cells = this.$store.getters['journalState/getTableCells'](this.$route.params.tableName)
-            console.log(this.$store.getters['journalState/getJournal'])
+            console.log(this.cells)
             setTimeout(() => this.setCells(), 0)
             setTimeout(() => this.setPopUpListeners(), 0)
         }
@@ -172,9 +187,9 @@ table td {
     padding: 0 !important;
     border: 1px solid #a9a9a9;
 
-    .cell:hover {
-        background-color: #f9f9f9;
-    }
+    // .cell:hover {
+        // background-color: #f9f9f9;
+    // }
 }
 table th {
     padding: 0 !important;

@@ -19,15 +19,10 @@ html, body {
   color: #2c3e50;
   box-sizing: border-box;
 }
-th {
-  border: 1px solid #9d9d9d !important;
-  background-color: #e6e6e6 !important;
-  width: 145px !important;
-  height: 35px !important;
-}
-td {
-  border: 1px solid #9d9d9d !important;
-  width: 145px !important;
-  height: 35px !important;
+.has-data {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  width: 16px;
 }
 </style>

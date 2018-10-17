@@ -1,8 +1,7 @@
 <template>
   <div class="home">
     <h1 class="title">
-      <span>Реальный конструктор</span>
-      <span>для нереальных таблиц</span>
+      <span>Конструктор журналов</span>
     </h1>
     <form class="form" @submit.prevent="onHandleCreate">
       <div class="form-group">
@@ -12,12 +11,15 @@
         Введите заголовок
       </div>
       <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
+      <!-- <button class="btn btn-primary" @click="onHandleImport">Import</button> -->
     </form>
   </div>
 </template>
 
 <script>
 import slugify from 'slugify'
+import axios from 'axios'
+
 export default {
   name: "HomePage",
   data () {
@@ -29,6 +31,13 @@ export default {
   methods: {
       onHandleBack () {
           this.$router.back()
+      },
+      onHandleImport () {
+        let url = 'http://localhost:3003/get_journal?journal=metals_compute';
+          let self = this;
+          axios.get(url).then( function (response) {
+              console.log("data", response.data);
+          });
       },
       onHandleCreate (e) {
           if (this.title) {
@@ -59,13 +68,9 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: 130px;
+  margin-bottom: 100px;
 }
-.title span:first-child {
-  font-size: 40px;
-  opacity: 0.9;
-}
-.title span:last-child {
+.title span {
   font-size: 44px;
 }
 .error {

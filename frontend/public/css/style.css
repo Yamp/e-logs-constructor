@@ -1,7 +1,4 @@
 /*------------------------------------*\
-  # TABLES
-\*------------------------------------*/
-/*------------------------------------*\
   # Color variables
 \*------------------------------------*/
 /*------------------------------------*\
@@ -27,6 +24,7 @@ td {
   min-width: 0;
   min-height: 30px;
   word-break: break-word;
+  height: 35px !important;
   background: linear-gradient(-45deg, #9FBF47 0%, transparent 10px, transparent 100%); }
 
 td:focus {
@@ -43,11 +41,17 @@ td:focus {
     background-color: #F5F5F5; }
   .table td, .table th {
     border: 1px solid #EAEAEA !important;
-    vertical-align: bottom !important; }
+    vertical-align: bottom !important;
+    min-width: 20px;
+    min-height: 30px; }
   .table thead th {
     padding: 12px 4px 12px 3px !important;
-    background-color: #666666;
-    color: white; }
+    background-color: #666666 !important;
+    color: white !important; }
+  .table tbody th {
+    padding: 12px 4px 12px 3px !important;
+    background-color: #a6a6a6 !important;
+    color: white !important; }
   .table th {
     font-family: 'Roboto Condensed', sans-serif;
     font-weight: 400;
@@ -56,5 +60,4 @@ td:focus {
     hyphens: auto; }
   .table td {
     padding: 0 !important;
-    /* to have inputs inside cells*/
     position: relative; }
