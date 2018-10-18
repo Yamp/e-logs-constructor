@@ -21,9 +21,26 @@
             <h3 class="title">Создание структуры таблицы</h3>
             <div id="summernote"></div>
             <div class="btns">
-                <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
-                <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
+                <button class="btn btn-primary" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
+                <div>
+                    <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+                    <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
+                </div>
             </div>
+            <modal v-show="isShowImport" @close="isShowImport = false">
+                <div>
+                    <p class="modal-title">Выберите файл для загрузки</p>
+                    <div class="modal-form">
+                        <input 
+                            accept="text/html, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                            type="file" 
+                            value="Обзор" 
+                            @change="(e) => {importFile = e.target.files[0]}"
+                        />
+                        <button class="btn btn-primary modal-btn" @click="onImport">Загрузить</button>
+                    </div>
+                </div>
+            </modal>
         </div>
     </div>
 </template>
@@ -34,6 +51,8 @@
 // import 'bootstrap3/dist/js/bootstrap';
 // import 'summernote/dist/summernote.css'
 // import 'summernote/dist/summernote'
+
+import axios from 'axios'
 
 import toggleHeaderInit from '../wysiwyg_modules/toggle-header'
 import mergeCellsInit from '../wysiwyg_modules/merge-cells'
@@ -46,11 +65,16 @@ import removeRow from '../wysiwyg_modules/remove-row'
 import formatFactory from '../utils/formatFactory.js'
 import slugify from 'slugify'
 
+import Modal from "../components/Modal.vue";
+
 export default {
     name: "CreateTablePage",
+    components: {Modal},
     data () {
         return {
             title: '',
+            isShowImport: false,
+            importFile: null,
             repeatableRow: false,
             redips: {},
             repeatableRowDefaultHTML:
@@ -146,6 +170,16 @@ export default {
                 let formattedCode = formatFactory(code);
                 $('#summernote').summernote('code', formattedCode);
             }
+        },
+        onImport () {
+            let url = 'http://localhost:3000/import';
+            let data = new FormData()
+            data.append('data', this.importFile)
+
+            axios.post(url, data).then((response) => {
+                $('#summernote').summernote('code', response.data)
+                this.isShowImport = false
+            })
         },
         replaceAttrs () {
             $('.cell').each(function() {
@@ -355,7 +389,20 @@ export default {
 }
 .btns {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-top: 0;
+}
+.modal-title {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+.modal-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+}
+.modal-btn {
+  margin-left: 10px;
 }
 </style>
