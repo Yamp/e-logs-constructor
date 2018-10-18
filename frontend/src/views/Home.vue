@@ -33,7 +33,7 @@ export default {
           this.$router.back()
       },
       onHandleImport () {
-        let url = 'http://localhost:3003/get_journal?journal=metals_compute';
+        let url = 'http://localhost:8000/constructor/get_journal?journal=metals_compute';
           let self = this;
           axios.get(url).then( function (response) {
               console.log("data", response.data);
