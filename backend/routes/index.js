@@ -52,16 +52,16 @@ router.get('/get_journal', function(req, res){
     console.log('req', req.query.journal)
     try {
         var zip = new AdmZip(path.resolve(__dirname, `../media/journals/${req.query.journal}.zip`));
-        var zipEntries = zip.getEntries(); 
+        var zipEntries = zip.getEntries();
         let data = null
 
         zipEntries.forEach(function(zipEntry) {
             if (zipEntry.entryName == "meta.json") {
                 data = JSON.parse(zipEntry.getData().toString('utf8'))
-                //  console.log(data.tables); 
+                //  console.log(data.tables);
             }
         });
-        
+
         zipEntries.forEach(function(zipEntry) {
             if (zipEntry.entryName != "meta.json") {
                 let tableHtml = zipEntry.getData().toString('utf8')
@@ -114,7 +114,7 @@ router.post('/save', function(req, res, next) {
         }
     });
 
-    let downloadLink = "http://localhost:3000/download?hash=" + hash;
+    let downloadLink = "http://localhost:8000/constructor/download?hash=" + hash;
     res.status(200).json({hash: hash, download_link: '' + downloadLink });
 });
 

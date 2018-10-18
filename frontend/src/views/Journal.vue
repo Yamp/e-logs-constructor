@@ -82,7 +82,7 @@ export default {
           });
           console.log(journal);
           window.journal = journal;
-          let url = 'http://localhost:3000/save';
+          let url = 'http://localhost:8000/constructor/save';
           let self = this;
           axios.post(url, journal).then( function (response) {
               console.log("data", response.data);

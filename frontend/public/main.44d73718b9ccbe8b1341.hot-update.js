@@ -170,7 +170,7 @@ __webpack_require__.r(__webpack_exports__);
       });
       console.log(journal);
       window.journal = journal;
-      var url = 'http://localhost:3000/save';
+      var url = 'http://localhost:8000/constructor/save';
       var self = this;
       axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url, journal).then(function (response) {
         console.log("data", response.data);

@@ -3862,7 +3862,7 @@ __webpack_require__.r(__webpack_exports__);
       this.$router.back();
     },
     onHandleImport: function onHandleImport() {
-      var url = 'http://localhost:3003/get_journal?journal=metals_compute';
+      var url = 'http://localhost:8000/constructor/get_journal?journal=metals_compute';
       var self = this;
       axios__WEBPACK_IMPORTED_MODULE_1___default.a.get(url).then(function (response) {
         console.log("data", response.data);
@@ -4016,7 +4016,7 @@ __webpack_require__.r(__webpack_exports__);
       });
       console.log(journal);
       window.journal = journal;
-      var url = 'http://localhost:3000/save';
+      var url = 'http://localhost:8000/constructor/save';
       var self = this;
       axios__WEBPACK_IMPORTED_MODULE_11___default.a.post(url, journal).then(function (response) {
         console.log("data", response.data);
