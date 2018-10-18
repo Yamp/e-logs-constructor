@@ -78,7 +78,7 @@
                                         ${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}
                                         field-name="${$(this).attr('field-name') ? $(this).attr('field-name') : ''}" 
                                         ${$(this).attr('row-index') ? `row-index="${$(this).attr("row-index")}"` : $(this).attr(':row-index') ? `:row-index="${$(this).attr(":row-index")}"` : 'row-index="0"'}
-                                    >${$(this).attr('field-name')}</div>`
+                                    >${$(this).attr('field-name') ? $(this).attr('field-name') : ''}</div>`
                     
                     $(this)[0].removeAttribute('id')
                     $(this)[0].removeAttribute('field-name')
