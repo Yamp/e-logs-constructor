@@ -82,12 +82,19 @@ router.get('/get_journal', function(req, res){
 router.get("/copy_journal", function(req, res, next) {
     var plant = req.query.plant
     var journal = req.query.journal
-    var to = Number(req.query.to)
-    var from = Math.abs(to - 1)
+    var to = req.query.to
+    var targets = ["constructor", "elog"]
+    var to_id = targets.indexOf(to)
+    var from_id = Math.abs(to_id - 1)
+    console.log(to_id, from_id)
+    var from = targets[from_id]
 
     var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`)
     var constructor_folder = path.resolve(__dirname, `../media/journals/${journal}.jrn`)
-    var folders = [constructor_folder, e_logs_folder]
+    var folders = {
+        constructor: constructor_folder,
+        elog: e_logs_folder,
+    }
     console.log(from, to)
     try {
         console.log(folders[from], folders[to])
