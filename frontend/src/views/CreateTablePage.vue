@@ -305,7 +305,7 @@ export default {
         if (this.getUrlParams('table')) {
             if (this.getUrlParams('imported') == 'true') {
                 console.log('imported')
-                this.$store.dispatch('journalState/importJournal', this.$route.params.journalName)
+                this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
                     .then(() => {
                         let journalObserver = this.$store.getters['journalState/getJournal'];
                         console.log(journalObserver);
