@@ -80,16 +80,22 @@ router.get('/get_journal', function(req, res){
 
 
 router.get("/copy_journal", function(req, res, next) {
-    console.log(req.params)
     var plant = req.query.plant
     var journal = req.query.journal
+    var to = Number(req.query.to)
+    var from = Math.abs(to - 1)
+
     var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`)
     var constructor_folder = path.resolve(__dirname, `../media/journals/${journal}.jrn`)
+    var folders = [constructor_folder, e_logs_folder]
+    console.log(from, to)
     try {
-        copyFileSync(e_logs_folder, constructor_folder);
+        console.log(folders[from], folders[to])
+        copyFileSync(folders[from], folders[to]);
         res.status(200).send()
     }
-    catch {
+    catch (err) {
+        console.log(err)
         res.status(500).send()
     }
 })
