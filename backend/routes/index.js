@@ -32,7 +32,7 @@ const getTableName = function (pathName) {
 router.get('/download', function(req, res){
   let hash = req.query.hash;
   if (hash.length > 0 ) {
-      let fileNamePath = path.resolve(__dirname, "../media") + '/journals/' + hash + '.journal';
+      let fileNamePath = path.resolve(__dirname, "../media") + '/journals/' + hash + '.jrn';
       console.log(fileNamePath);
 
       let filename = path.basename(fileNamePath);
@@ -50,8 +50,10 @@ router.get('/download', function(req, res){
 
 router.get('/get_journal', function(req, res){
     console.log('req', req.query.journal)
+    var plant = req.query.plant
+    var journal = req.query.journal
     try {
-        var zip = new AdmZip(path.resolve(__dirname, `../media/journals/${req.query.journal}.zip`));
+        var zip = new AdmZip(path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`));
         var zipEntries = zip.getEntries();
         let data = null
 
@@ -77,6 +79,31 @@ router.get('/get_journal', function(req, res){
     }
 
   });
+
+router.get("/transfer", function(req, res, next){
+    var plant = req.query.plant
+    var journal = req.query.journal
+    var hash = req.query.hash
+    var constructor_folder = path.resolve(__dirname, `../media/journals/`)
+    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/`)
+    var source_filepath = constructor_folder + `/${hash}.jrn`
+    var target_filepath = ''
+    if (plant && journal) {
+        target_filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`)
+    }
+    else {
+        target_filepath = path.resolve(e_logs_folder, `../temp/${hash}.jrn`)
+    }
+
+    try {
+        copyFileSync(source_filepath, target_filepath);
+        res.status(200).send()
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).send()
+    }
+})
 
 
 router.get("/copy_journal", function(req, res, next) {
@@ -105,7 +132,7 @@ router.get("/copy_journal", function(req, res, next) {
         console.log(err)
         res.status(500).send()
     }
-})
+});
 
 router.post('/save', function(req, res, next) {
     let data = req.body;
