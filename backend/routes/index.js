@@ -78,6 +78,22 @@ router.get('/get_journal', function(req, res){
 
   });
 
+
+router.get("/copy_journal", function(req, res, next) {
+    console.log(req.params)
+    var plant = req.query.plant
+    var journal = req.query.journal
+    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`)
+    var constructor_folder = path.resolve(__dirname, `../media/journals/${journal}.jrn`)
+    try {
+        copyFileSync(e_logs_folder, constructor_folder);
+        res.status(200).send()
+    }
+    catch {
+        res.status(500).send()
+    }
+})
+
 router.post('/save', function(req, res, next) {
     let data = req.body;
     let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
@@ -150,6 +166,7 @@ function copyFileSync( source, target ) {
     }
 
     fs.writeFileSync(targetFile, fs.readFileSync(source));
+    console.log("shpek")
 }
 
 function copyFolderRecursiveSync( source, target ) {
