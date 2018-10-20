@@ -32,13 +32,6 @@ export default {
       onHandleBack () {
           this.$router.back()
       },
-      onHandleImport () {
-        let url = 'http://localhost:8000/constructor/get_journal?journal=metals_compute';
-          let self = this;
-          axios.get(url).then( function (response) {
-              console.log("data", response.data);
-          });
-      },
       onHandleCreate (e) {
           if (this.title) {
               this.$store.commit('journalState/setJournal', {title: this.title, name: slugify(this.title, '_')})

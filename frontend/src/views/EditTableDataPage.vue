@@ -25,7 +25,7 @@
                         name: this.$route.params.tableName,
                     }
                 )
-                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}`)
+                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             },
             onHandleSave() {
                 $('.editor .cell').removeClass("selected")
@@ -35,8 +35,17 @@
                         html: formatFactory($('#editor-content').html())
                     }
                 )
-                this.$router.push(`/journal/${this.$route.params.journalName}`)
-            }
+                this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+            },
+            getUrlParams(name, url) {
+                if (!url) url = window.location.href;
+                name = name.replace(/[\[\]]/g, '\\$&');
+                var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                    results = regex.exec(url);
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, ' '));
+            },
         },
         components: {Editor},
     }

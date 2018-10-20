@@ -179,7 +179,7 @@ router.post('/save', function(req, res, next) {
         console.log("The meta.json was saved!");
     });
 
-    let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.journal';
+    let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.jrn';
 
     zipFolder(dirPath, journalPath, function(err) {
         if(err) {
