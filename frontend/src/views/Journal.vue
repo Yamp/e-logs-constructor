@@ -82,7 +82,7 @@ export default {
           });
           console.log(journal);
           window.journal = journal;
-          let url = 'http://localhost:8000/constructor/save';
+          let url = 'http://localhost:8000/constructor/save/';
           let self = this;
           axios.post(url, journal).then( function (response) {
               console.log("data", response.data);
@@ -135,7 +135,7 @@ export default {
   mounted () {
       let _this = this
       if (_this.getUrlParams('imported') == 'true') {
-          this.$store.dispatch('journalState/importJournal', this.$route.params.journalName)
+          this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
             .then(() => {
               let journalObserver = this.$store.getters['journalState/getJournal'];
               console.log(journalObserver);
