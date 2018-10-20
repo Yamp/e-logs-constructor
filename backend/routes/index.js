@@ -49,14 +49,31 @@ router.get('/download', function(req, res){
 });
 
 router.get('/get_journal', function(req, res){
+    console.log('eba')
     console.log('req', req.query.journal)
     var plant = req.query.plant
     var journal = req.query.journal
+    var hash = req.query.hash
+
+    var constructor_folder = path.resolve(__dirname, `../media/journals/`)
+    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/`)
+    var filepath = ''
+    if (plant && journal && !hash) {
+        filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`)
+    }
+    else if (!plant && !journal && hash) {
+        filepath = path.resolve(constructor_folder, `${hash}.jrn`)
+    }
+    else {
+        res.status(500).json("Ebat ty huynu otpravil")
+    }
+    console.log(filepath)
+
     try {
-        var zip = new AdmZip(path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`));
+        var zip = new AdmZip(filepath);
         var zipEntries = zip.getEntries();
         let data = null
-
+        console.log(zipEntries)
         zipEntries.forEach(function(zipEntry) {
             if (zipEntry.entryName == "meta.json") {
                 data = JSON.parse(zipEntry.getData().toString('utf8'))
@@ -75,6 +92,7 @@ router.get('/get_journal', function(req, res){
         res.status(200).json(data)
     }
     catch (err) {
+        console.log(err)
         res.status(500).json(err)
     }
 
@@ -145,10 +163,11 @@ router.post('/save', function(req, res, next) {
     data.version = "0.1";
 
     mkdirSync(dirPath);
+    mkdirSync(path.resolve(dirPath, "./templates"))
     let tables = data.tables;
     for (let table of tables) {
         table.name += ".html";
-        let filepath = dirPath + "/" + table.name;
+        let filepath = dirPath + "/templates/" + table.name;
         fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
             console.log("The "+ table.name + ".html was saved!");
