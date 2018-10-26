@@ -27,8 +27,8 @@
       <div>
         <p class="modal-title">Журнал успешно сохранен!</p>
         <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-        <!-- <button class="btn btn-primary modal-btn" @click="onSave">Сохранить</button>
-        <button class="btn btn-primary modal-btn" @click="onSaveAs">Сохранить как</button> -->
+        <button class="btn btn-primary modal-btn" v-if="getUrlParams('imported') == 'true'" @click="onSave">Сохранить</button>
+        <button class="btn btn-primary modal-btn" v-if="getUrlParams('imported') != 'true'" @click="onSaveAs">Сохранить как</button>
       </div>
     </modal>
   </div>
@@ -57,7 +57,15 @@ export default {
           });
       },
       onSaveAs () {
-
+          let url = `http://${window.location.hostname}:8000/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+          let self = this;
+          axios.get(url).then( function (response) {
+              self.isShowDownload = false;
+          })
+              .then(() => {
+                window.open(`http://${window.location.hostname}:8080/addjournal?hash=${this.getUrlParams('hash', this.downloadLink)}`,
+                  '_blank')
+                })
       },
       onHandleClick () {
           this.$store.getters['journalState/getJournalName'] ?
@@ -93,7 +101,7 @@ export default {
           });
           console.log(journal);
           window.journal = journal;
-          let url = 'http://localhost:8000/constructor/save/';
+          let url = 'http://127.0.0.1:8000/constructor/save/';
           let self = this;
           axios.post(url, journal).then( function (response) {
               console.log("data", response.data);
