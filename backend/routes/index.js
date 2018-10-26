@@ -66,6 +66,7 @@ router.get('/get_journal', function(req, res){
     }
     else {
         res.status(500).json("Ebat ty huynu otpravil")
+        return
     }
     console.log(filepath)
 
@@ -89,7 +90,7 @@ router.get('/get_journal', function(req, res){
             }
         });
 
-        res.status(200).json(data)
+        res.json(data)
     }
     catch (err) {
         console.log(err)
@@ -123,35 +124,6 @@ router.get("/transfer", function(req, res, next){
     }
 })
 
-
-router.get("/copy_journal", function(req, res, next) {
-    var plant = req.query.plant
-    var journal = req.query.journal
-    var to = req.query.to
-    var targets = ["constructor", "elog"]
-    var to_id = targets.indexOf(to)
-    var from_id = Math.abs(to_id - 1)
-    console.log(to_id, from_id)
-    var from = targets[from_id]
-
-    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`)
-    var constructor_folder = path.resolve(__dirname, `../media/journals/${journal}.jrn`)
-    var folders = {
-        constructor: constructor_folder,
-        elog: e_logs_folder,
-    }
-    console.log(from, to)
-    try {
-        console.log(folders[from], folders[to])
-        copyFileSync(folders[from], folders[to]);
-        res.status(200).send()
-    }
-    catch (err) {
-        console.log(err)
-        res.status(500).send()
-    }
-});
-
 router.post('/save', function(req, res, next) {
     let data = req.body;
     let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
@@ -179,7 +151,7 @@ router.post('/save', function(req, res, next) {
         console.log("The meta.json was saved!");
     });
 
-    let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.journal';
+    let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.jrn';
 
     zipFolder(dirPath, journalPath, function(err) {
         if(err) {
