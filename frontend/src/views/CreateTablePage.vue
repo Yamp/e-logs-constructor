@@ -152,7 +152,7 @@ export default {
                         // repeatable_row: this.repeatableRow
                     }
                 )
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data`)
+                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             }
             else if (!this.$store.getters['journalState/getJournalName']) {
                 this.$router.push('/')

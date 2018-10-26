@@ -27,7 +27,8 @@
       <div>
         <p class="modal-title">Журнал успешно сохранен!</p>
         <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-        <button class="btn btn-primary modal-btn">Добавить в E-logs</button>
+        <button class="btn btn-primary modal-btn" v-if="getUrlParams('imported') == 'true'" @click="onSave">Сохранить</button>
+        <button class="btn btn-primary modal-btn" v-if="getUrlParams('imported') != 'true'" @click="onSaveAs">Сохранить как</button>
       </div>
     </modal>
   </div>
@@ -48,9 +49,27 @@ export default {
   },
   components: {Modal, TableItem},
   methods: {
+      onSave () {
+          let url = `http://localhost:8000/constructor/transfer/?plant=${this.getUrlParams('plant')}&journal=${this.$route.params.journal}&hash=${this.getUrlParams('hash', this.downloadLink)}`;
+          let self = this;
+          axios.get(url).then( function (response) {
+              self.isShowDownload = false;
+          });
+      },
+      onSaveAs () {
+          let url = `http://${window.location.hostname}:8000/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+          let self = this;
+          axios.get(url).then( function (response) {
+              self.isShowDownload = false;
+          })
+              .then(() => {
+                window.open(`http://${window.location.hostname}:8080/addjournal?hash=${this.getUrlParams('hash', this.downloadLink)}`,
+                  '_blank')
+                })
+      },
       onHandleClick () {
           this.$store.getters['journalState/getJournalName'] ?
-              this.$router.push(`/journal/${this.$route.params.journalName}/table/create`)
+              this.$router.push(`/journal/${this.$route.params.journalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
               : this.$router.push('/')
       },
       getAllAttributes (node) {
@@ -82,7 +101,7 @@ export default {
           });
           console.log(journal);
           window.journal = journal;
-          let url = 'http://localhost:8000/constructor/save/';
+          let url = 'http://127.0.0.1:8000/constructor/save/';
           let self = this;
           axios.post(url, journal).then( function (response) {
               console.log("data", response.data);
