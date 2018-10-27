@@ -7,7 +7,7 @@
             </div>
             <div style="display: flex; align-items: center">
                 <img src="../assets/edit.svg" class="edit-icon" @click="editTable(table.name)">
-                <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
+                <!-- <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable"> -->
             </div>
         </div>
         <div class="body" v-html="table.html">
@@ -22,6 +22,7 @@ export default {
     methods: {
         deleteTable () {
             this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
+            console.log(this.$store.getters['journalState/getTables'])
         },
         editTable (tableName) {
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)
