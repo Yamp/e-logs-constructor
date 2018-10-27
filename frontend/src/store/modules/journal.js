@@ -162,7 +162,7 @@ const journalState = {
                 let field = table.fields.filter(item => item.cell === $(payload.cell).attr('id'))[0]
 
                 if (field) {
-                    field.field_name = payload.fields.field_name
+                    field.field_name = payload.field_name
                 }
 
         },

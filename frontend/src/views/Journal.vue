@@ -54,7 +54,11 @@ export default {
             let self = this;
             axios.get(url)
                 .then(() => {
-                    axios.post(`http://${window.location.hostname}:8000/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`)
+                    let formData = new FormData();
+
+                    formData.append("hash", this.hash);
+
+                    axios.post(`http://${window.location.hostname}:8000//api/constructor/upload/`, formData)
                 })
                 .then((response) => {
                     self.isShowDownload = false;

@@ -50,27 +50,25 @@
                 let repeatableNames = []
                 let hasReapitebleNames = false
 
-                // for(let i = 0; i < this.getTableCells; i++) {
-                //     for(let j = 0; j < this.getTableCells; j++) {
-                //         console.log(this.getTableCells[i].field_name, this.getTableCells[j].field_name)
-                //         if (i != j && this.getTableCells[i].field_name == this.getTableCells[j].field_name) {
-                //             hasReapitebleNames = true
-                //         }
-                //     }
-                // }
+                this.getTableCells.map(field => {
+                    $(`#${field.cell}`).removeClass('is-repeated')
+                })
+                
+                for(let index = 0; index < this.getTableCells.length - 1; index++) {
+                    if (this.getTableCells[index].field_name === this.getTableCells[index+1].field_name) {
+                        this.getTableCells.map(field => {
+                            if (this.getTableCells[index].field_name === field.field_name) {
+                                $(`#${field.cell}`).addClass('is-repeated')
+                            }
+                        })
+                        
+                        hasReapitebleNames = true
+                    }
+                }
 
-                // this.$store.getters['journalState/getTableCells'](this.$route.params.tableName).every((item1, index1) => {
-                //     this.$store.getters['journalState/getTableCells'](this.$route.params.tableName).every((item2, index2) => {
-                //         if (index1 !== index2) {
-                //             console.log(item1.field_name, item2.field_name)
-                //             return item1.field_name !== item2.field_name
-                //         }
-                //     })
-                // })
+                console.log('rc', hasReapitebleNames)
 
-                console.log(hasReapitebleNames)
-
-                if (hasAllNames) {
+                if (hasAllNames && !hasReapitebleNames) {
                     $('.editor .cell').removeClass("selected")
                     this.$store.commit('journalState/setTable',
                         {
@@ -80,12 +78,12 @@
                     )
                     this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                 }
+                else if (hasReapitebleNames) {
+                    this.error = 'Имена полей не должны повторяться!'
+                }
                 else if (!hasAllNames) {
                     this.error = 'Все имена полей должны быть заполнены!'
                 }
-                // else if (!hasReapitebleNames) {
-                //     this.error = 'Имена полей не должны повторяться!'
-                // }
             },
             getUrlParams(name, url) {
                 if (!url) url = window.location.href;
