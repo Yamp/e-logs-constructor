@@ -27,8 +27,8 @@
       <div>
         <p class="modal-title">Журнал успешно сохранен!</p>
         <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-        <button class="btn btn-primary modal-btn" v-if="getUrlParams('imported') == 'true'" @click="onSave">Сохранить</button>
-        <button class="btn btn-primary modal-btn" v-if="getUrlParams('imported') != 'true'" @click="onSaveAs">Сохранить как</button>
+        <button class="btn btn-primary modal-btn" v-if="getUrlParams('plant')" @click="onSave">Сохранить</button>
+        <button class="btn btn-primary modal-btn" v-if="!getUrlParams('plant')" @click="onSaveAs">Сохранить как</button>
       </div>
     </modal>
   </div>
@@ -56,9 +56,10 @@ export default {
                 .then(() => {
                     let formData = new FormData();
 
-                    formData.append("hash", this.hash);
+                    formData.append("hash", this.getUrlParams('hash', this.downloadLink));
+                    formData.append("plant", this.getUrlParams('plant'));
 
-                    axios.post(`http://${window.location.hostname}:8000//api/constructor/upload/`, formData)
+                    axios.post(`http://${window.location.hostname}:8000/api/constructor/upload/`, formData)
                 })
                 .then((response) => {
                     self.isShowDownload = false;
@@ -91,6 +92,8 @@ export default {
         },
         addCells (table_html) {
             let refactoredHtml = table_html
+            console.log($(table_html).find('table'))
+            // .addClass('elog-journal-table')
             refactoredHtml = refactoredHtml.split('div').join('cell')
             refactoredHtml = refactoredHtml.split('class="cell"').join('')
             return refactoredHtml

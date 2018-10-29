@@ -153,7 +153,8 @@ export default {
                     }
                 )
                 console.log('aaaaa', this.$store.getters['journalState/getTables'])
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                this.$router.push(`/journal/${this.$route.params.journalName}/table/${
+                    this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             }
             else if (!this.$store.getters['journalState/getJournalName']) {
                 this.$router.push('/')
@@ -259,9 +260,11 @@ export default {
                 $('#summernote').on('summernote.change', function (we, contents, $editable) {
                     console.log('summernote\'s content is changed.');
                     let table = $('.note-editable table:first')
+                    let tables = $('.note-editable table')
                     console.log('table', table)
                     if (table.length) {
                         table.attr('id', 'redipsTable')
+                        tables.addClass('elog-journal-table')
                         _this.redips.init()
                     }
 
