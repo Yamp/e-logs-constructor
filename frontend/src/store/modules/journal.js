@@ -140,7 +140,9 @@ const journalState = {
         },
         deleteTable(state, payload) {
             console.log(payload.tableName)
-            state.journal.tables = state.journal.tables.filter(item => item.name != payload.tableName)
+            console.log('prev', state.journal.tables)
+            state.journal = {...state.journal, tables: state.journal.tables.filter(item => item.name != payload.tableName)}
+            console.log('post', state.journal.tables)
         },
         setTable(state, payload) {
             let table = state.journal.tables.filter((item) => item.name === payload.name)[0]

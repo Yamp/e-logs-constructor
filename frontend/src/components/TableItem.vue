@@ -7,7 +7,7 @@
             </div>
             <div style="display: flex; align-items: center">
                 <img src="../assets/edit.svg" class="edit-icon" @click="editTable(table.name)">
-                <!-- <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable"> -->
+                <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
             </div>
         </div>
         <div class="body" v-html="table.html">

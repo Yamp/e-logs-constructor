@@ -42,7 +42,7 @@
                         name: this.$route.params.tableName,
                     }
                 )
-                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)
             },
             onHandleSave() {
                 let hasAllNames = this.$store.getters['journalState/getTableCells'](this.$route.params.tableName).every(item => item['field_name'])
