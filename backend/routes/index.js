@@ -138,8 +138,7 @@ router.post('/save', function(req, res, next) {
     mkdirSync(path.resolve(dirPath, "./templates"))
     let tables = data.tables;
     for (let table of tables) {
-        table.name += ".html";
-        let filepath = dirPath + "/templates/" + table.name;
+        let filepath = dirPath + "/templates/" + table.name + ".html";
         fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
             console.log("The "+ table.name + ".html was saved!");
