@@ -111,6 +111,7 @@ router.get("/transfer", function(req, res, next){
         target_filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`)
     }
     else {
+        mkdirSync(path.resolve(e_logs_folder), "../temp")
         target_filepath = path.resolve(e_logs_folder, `../temp/${hash}.jrn`)
     }
 
