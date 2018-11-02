@@ -22,6 +22,7 @@ export default {
     methods: {
         deleteTable () {
             this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
+            console.log(this.$store.getters['journalState/getTables'])
         },
         editTable (tableName) {
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)

@@ -73,6 +73,26 @@
                 let _this = this
 
                 $('#editor-content td').each(function () {
+
+                    // _this.$store.commit('journalState/setFieldName',
+                    //     {
+                    //         name: _this.$route.params.tableName,
+                    //         field_name: $(this).attr('field-name'),
+                    //         cell: $(this).attr('id'),
+                    //     }
+                    // )
+
+                    $(this).attr('field-name', _this.$store.getters['journalState/getCellName'](_this.$route.params.tableName, $(this).attr('id')))
+                    // if ($(this).attr('field-name')) {
+                    //     _this.$store.commit('journalState/setFieldName',
+                    //         {
+                    //             name: _this.$route.params.tableName,
+                    //             field_name: $(this).attr('field-name'),
+                    //             cell: $(this).attr('id'),
+                    //         }
+                    //     )
+                    // }
+
                     let cellItem = `<div 
                                         class="cell" 
                                         ${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}
@@ -96,8 +116,11 @@
                         }
                     }
                 })
+
                 $('.cell').each(function () {
+                    console.log('a')
                     if (!$(this).attr('id')) {
+                        console.log('b')
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         _this.cells.push({cell: id})
@@ -108,6 +131,16 @@
                         let id = shortid.generate()
                         $(this).attr('id', id)
                     }
+                })
+
+                let currentFieldsIDs = $('.cell').toArray().map(field => $(field).attr('id'))
+                console.log('currentFields', currentFieldsIDs)
+
+                let redundantFields = this.cells.filter(item => !currentFieldsIDs.includes(item.cell))
+
+                console.log('redundant', redundantFields)
+                redundantFields.map(field => {
+                    this.cells = this.cells.filter(item => item.cell !== field.cell)
                 })
 
                 this.$store.commit('journalState/setTable',
@@ -200,5 +233,8 @@ table th {
         background-color: #e3e3e3;
         cursor: pointer;
     }
+}
+.is-repeated {
+    outline: 1px solid rgb(245, 108, 108);
 }
 </style>

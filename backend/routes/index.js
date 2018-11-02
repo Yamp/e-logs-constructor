@@ -66,6 +66,7 @@ router.get('/get_journal', function(req, res){
     }
     else {
         res.status(500).json("Ebat ty huynu otpravil")
+        return
     }
     console.log(filepath)
 
@@ -89,7 +90,7 @@ router.get('/get_journal', function(req, res){
             }
         });
 
-        res.status(200).json(data)
+        res.json(data)
     }
     catch (err) {
         console.log(err)
@@ -110,6 +111,7 @@ router.get("/transfer", function(req, res, next){
         target_filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`)
     }
     else {
+        mkdirSync(path.resolve(e_logs_folder), "../temp")
         target_filepath = path.resolve(e_logs_folder, `../temp/${hash}.jrn`)
     }
 
@@ -122,35 +124,6 @@ router.get("/transfer", function(req, res, next){
         res.status(500).send()
     }
 })
-
-
-router.get("/copy_journal", function(req, res, next) {
-    var plant = req.query.plant
-    var journal = req.query.journal
-    var to = req.query.to
-    var targets = ["constructor", "elog"]
-    var to_id = targets.indexOf(to)
-    var from_id = Math.abs(to_id - 1)
-    console.log(to_id, from_id)
-    var from = targets[from_id]
-
-    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/${plant}/${journal}.jrn`)
-    var constructor_folder = path.resolve(__dirname, `../media/journals/${journal}.jrn`)
-    var folders = {
-        constructor: constructor_folder,
-        elog: e_logs_folder,
-    }
-    console.log(from, to)
-    try {
-        console.log(folders[from], folders[to])
-        copyFileSync(folders[from], folders[to]);
-        res.status(200).send()
-    }
-    catch (err) {
-        console.log(err)
-        res.status(500).send()
-    }
-});
 
 router.post('/save', function(req, res, next) {
     let data = req.body;
@@ -166,8 +139,7 @@ router.post('/save', function(req, res, next) {
     mkdirSync(path.resolve(dirPath, "./templates"))
     let tables = data.tables;
     for (let table of tables) {
-        table.name += ".html";
-        let filepath = dirPath + "/templates/" + table.name;
+        let filepath = dirPath + "/templates/" + table.name + ".html";
         fs.writeFile(filepath, table.html, (err) => {
             if (err) throw err;
             console.log("The "+ table.name + ".html was saved!");

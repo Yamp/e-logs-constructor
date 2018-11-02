@@ -57,6 +57,18 @@ const journalState = {
                 }
             }
         },
+        getCellName(state, getters) {
+            return function (tableName, cell) {
+                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+                let field = table.fields.filter(item => item.cell === cell)[0]
+                if (field && field.field_name) {
+                    return field.field_name
+                }
+                else {
+                    return ''
+                }
+            }
+        },
         getCellMinValue(state, getters) {
             return function (tableName, cell) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]
@@ -72,9 +84,7 @@ const journalState = {
         getCellMaxValue(state, getters) {
             return function (tableName, cell) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                console.log('ttttt', table)
                 let field = table.fields.filter(item => item.cell === cell)[0]
-                console.log('fff', field)
                 if (field && field.max_value) {
                     return field.max_value
                 }
@@ -129,19 +139,34 @@ const journalState = {
             state.journal.tables.push(payload)
         },
         deleteTable(state, payload) {
-            state.journal.tables = state.journal.tables.filter(item => item.name !== payload.tableName)
+            console.log(payload.tableName)
+            console.log('prev', state.journal.tables)
+            state.journal = {...state.journal, tables: state.journal.tables.filter(item => item.name != payload.tableName)}
+            console.log('post', state.journal.tables)
         },
         setTable(state, payload) {
             let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
+            console.log('prev', table)
             if (table) {
                 table = Object.assign(table, {...payload})
             }
             else {
                 state.journal.tables.push(payload)
             }
+            console.log('last', table)
         },
         setTablesList(state, payload) {
             state.journal.tables = payload.tables
+        },
+        setFieldName(state, payload) {
+            let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
+
+                let field = table.fields.filter(item => item.cell === $(payload.cell).attr('id'))[0]
+
+                if (field) {
+                    field.field_name = payload.field_name
+                }
+
         },
         setFields(state, payload) {
             let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
