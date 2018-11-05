@@ -209,11 +209,11 @@ export default {
 }
 .side-bar li div {
   display: inline-block;
-  width: 50%;
+  width: 88%;
 }
 .side-bar li div:last-child {
   display: inline-block;
-  width: 50%;
+  width: 12%;
   text-align: right;
 }
 .side-bar li .move-icon {

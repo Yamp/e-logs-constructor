@@ -19,7 +19,11 @@
                     <option value="date">Дата</option>
                     <option value="time">Время</option>
                     <option value="datetime">Дата со временем</option>
+                    <option value="formula">Формула</option>
                 </select>
+            </div>
+            <div class="form-group" v-if="type === 'formula'">
+                <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)">
             </div>
             <div class="form-group">
                 <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
@@ -38,7 +42,8 @@
                 minValue: '',
                 maxValue: '',
                 type: '',
-                units: ''
+                units: '',
+                formula: ''
             }
         },
         watch: {
@@ -49,6 +54,9 @@
                   this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
                   this.type = this.$store.getters['journalState/getCellType'](this.$route.params.tableName, this.cell)
                   this.units = this.$store.getters['journalState/getCellUnits'](this.$route.params.tableName, this.cell)
+                  console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
+                  this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
+                  console.log('formula', this.formula)
               }
               else if (value && this.cellTag === 'th') {
                   this.fieldName = $(`#${this.cell}`).text()
@@ -98,7 +106,8 @@
                                 min_value: this.minValue,
                                 max_value: this.maxValue,
                                 type: this.type,
-                                units: this.units
+                                units: this.units,
+                                formula: this.formula
                             }
                         }
                     )

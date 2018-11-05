@@ -116,6 +116,18 @@ const journalState = {
                     return ''
                 }
             }
+        },
+        getFormula(state, getters) {
+            return function (tableName, cell) {
+                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+                let field = table.fields.filter(item => item.cell === cell)[0]
+                if (field && field.formula) {
+                    return field.formula
+                }
+                else {
+                    return ''
+                }
+            }
         }
     },
     actions: {
@@ -180,6 +192,7 @@ const journalState = {
                     field.max_value = payload.fields.max_value
                     field.type = payload.fields.type
                     field.units = payload.fields.units
+                    field.formula = payload.fields.formula
                 }
             })
 
