@@ -50,7 +50,7 @@ export default {
     components: {Modal, TableItem},
     methods: {
         onSave () {
-            let url = `http://${window.location.hostname}:8000/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+            let url = `http://${window.location.hostname}:8000/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
             let self = this;
             axios.get(url)
                 .then(() => {
@@ -66,7 +66,7 @@ export default {
                 });
         },
         onSaveAs () {
-            let url = `http://${window.location.hostname}:8000/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+            let url = `http://${window.location.hostname}:8000/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
             let self = this;
             axios.get(url)
                 .then(() => {
@@ -110,7 +110,7 @@ export default {
             });
             console.log(journal);
             window.journal = journal;
-            let url = 'http://127.0.0.1:8000/constructor/save/';
+            let url = 'http://127.0.0.1:8000/api/constructor/save/';
             let self = this;
             axios.post(url, journal).then( function (response) {
                 console.log("data", response.data);

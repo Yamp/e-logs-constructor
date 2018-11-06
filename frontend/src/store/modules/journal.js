@@ -132,7 +132,7 @@ const journalState = {
     },
     actions: {
         importJournal: function ({commit, state, getters}, payload) {
-            let url = window.NODE_SERVER + '/get_journal?plant=${payload.plant}&journal=${payload.journal}';
+            let url = window.NODE_SERVER + `/api/constructor/get_journal?plant=${payload.plant}&journal=${payload.journal}`;
 
             return axios.get(url)
                 .then( function (response) {
