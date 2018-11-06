@@ -13,9 +13,9 @@ if (process.env.NODE_ENV == 'production') {
 }
 else {
   window.NODE_SERVER = 'http://' + window.location.hostname + ':8000'
+
+
 }
-
-
 new Vue({
   el: '#app',
   router,

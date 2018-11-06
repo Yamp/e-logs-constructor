@@ -136,7 +136,7 @@ const journalState = {
 
             return axios.get(url)
                 .then( function (response) {
-                    commit('setJournal', response.data)
+                    commit('setJournal', response.data) 
                 });
             }
     },
