@@ -8,6 +8,13 @@ import './registerServiceWorker';
 
 Vue.config.productionTip = false
 
+if (process.env.NODE_ENV == 'production') {
+  window.NODE_SERVER = 'https://' + window.location.hostname + ':3000'
+}
+else {
+  window.NODE_SERVER = 'http://' + window.location.hostname + ':3000'
+}
+
 new Vue({
   el: '#app',
   router,
