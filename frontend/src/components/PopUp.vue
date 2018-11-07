@@ -1,9 +1,12 @@
 <template>
     <div class="pop-up" v-bind:style="{display: display, left: x + 'px', top: y + 'px'}">
+        <div id="test">
+            
+        </div>
         <div class="form-group">
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
-        <template v-if="cellTag === 'td'">
+        <template v-show="cellTag === 'td'">
             <div class="form-group">
                 <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)">
             </div>
@@ -22,8 +25,12 @@
                     <option value="formula">Формула</option>
                 </select>
             </div>
-            <div class="form-group" v-if="type === 'formula'">
-                <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)">
+            <div class="form-group" v-show="type === 'formula'">
+                <img src="../assets/expand.svg" class="expand-icon">
+                <div id="formula-editor" class="form-control">
+                   
+                </div>
+<!--                 <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)"> -->
             </div>
             <div class="form-group">
                 <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
@@ -33,6 +40,10 @@
 </template>
 
 <script>
+    import * as ace from 'brace';
+    import 'brace/mode/javascript';
+    import 'brace/mode/vbscript'
+    import 'brace/theme/xcode';
     export default {
         name: "PopUp",
         props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedCells'],
@@ -43,7 +54,8 @@
                 maxValue: '',
                 type: '',
                 units: '',
-                formula: ''
+                formula: '',
+                editor: null,
             }
         },
         watch: {
@@ -107,13 +119,27 @@
                                 max_value: this.maxValue,
                                 type: this.type,
                                 units: this.units,
-                                formula: this.formula
+                                formula: this.editor.getValue()
                             }
                         }
                     )
                 }
                 console.log(this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell))
             }
+        },
+        mounted() {
+            this.editor = ace.edit("formula-editor");
+            this.editor.getSession().setMode('ace/mode/vbscript');
+            this.editor.setTheme('ace/theme/xcode');
+            this.editor.setOptions({
+                autoScrollEditorIntoView: true,
+                copyWithEmptySelection: true,
+                showGutter: false,
+                selectStyle: "text",
+                showPrintMargin: true,
+                highlightActiveLine: false,
+                // wrap: true,
+            });
         }
     }
 </script>
@@ -129,6 +155,7 @@
     background-color: #fff;
 }
 .form-group {
+    position: relative;
     margin-bottom: 15px;
 }
 .form-group select:invalid {
@@ -140,4 +167,25 @@
 .form-group select option:first-child{
     display: none;
 }
+
+#formula-editor { 
+    position: relative;
+}
+
+.expand-icon {
+    z-index: 1;
+    position: absolute;
+    width: 20px;
+    font-size: 36px;
+    opacity: 0.6;
+    right: 5px;
+    top: 6px;
+    text-align: right;
+    transition: 0.2s;
+}
+
+.expand-icon:active {
+    opacity: 0.2;
+}
+
 </style>
