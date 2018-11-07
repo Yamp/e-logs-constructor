@@ -2,7 +2,7 @@
     <div class="editor-container" >
         <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
-        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedCells="selectedCells"/>
+        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedCells="selectedCells":expandDirection="expandDirection"/>
     </div>
 </template>
 
@@ -21,7 +21,8 @@
               display: 'none',
               tableHtml: '',
               x: '0',
-              y: '0'
+              y: '0',
+              expandDirection: true,
           }
         },
         methods: {
@@ -37,10 +38,14 @@
                         _this.selectedCells.push(this)
                         e.stopPropagation()
                         _this.display = 'block'
-                        if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
+                        if (e.clientX + $('.pop-up').outerWidth() + 200>= $('#app').outerWidth()) {
                             _this.x = e.clientX - $('.pop-up').outerWidth()
+                            _this.expandDirection = "left"
                         }
-                        else _this.x = e.clientX
+                        else {
+                            _this.x = e.clientX
+                            _this.expandDirection = "right"
+                        }
                         _this.y = e.clientY
                         _this.currentCell = $(this).attr('id')
                         _this.currentCellTag = 'td'

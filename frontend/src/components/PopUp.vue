@@ -1,5 +1,5 @@
 <template>
-    <div class="pop-up" v-bind:style="{display: display, left: x + 'px', top: y + 'px'}">
+    <div v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{display: display, left: x + 'px', top: y + 'px', transition: '0.2s'}">
         <div id="test">
             
         </div>
@@ -26,8 +26,10 @@
                 </select>
             </div>
             <div class="form-group" v-show="type === 'formula'">
-                <img src="../assets/expand.svg" class="expand-icon">
-                <div id="formula-editor" class="form-control">
+                <img v-if="!expanded" src="../assets/expand.svg" class="expand-icon" @click="expandEditor">
+                <img v-if="expanded" src="../assets/compress.svg" class="expand-icon" @click="compressEditor">
+
+                <div id="formula-editor" :class="[{'expanded': expanded}, 'form-control', 'ace-editor', 'ace_editor', 'ace-xcode']">
                    
                 </div>
 <!--                 <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)"> -->
@@ -46,7 +48,7 @@
     import 'brace/theme/xcode';
     export default {
         name: "PopUp",
-        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedCells'],
+        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedCells', 'expandDirection'],
         data () {
             return {
                 fieldName: '',
@@ -56,6 +58,7 @@
                 units: '',
                 formula: '',
                 editor: null,
+                expanded: false,
             }
         },
         watch: {
@@ -92,8 +95,16 @@
               $('#units input').val(this.units)
           }
         },
+        watch: {
+            display: (newValue, oldValue) => {
+                if (newValue === "none") {
+                    expanded = false
+                }
+            }
+        },
         methods: {
             onHandleChange (data, input) {
+                console.log("onhandlechange")
                 if (data === 'fieldName') {
                     this.selectedCells.map(item => {
                         $(item).attr('field-name', input.target.value)
@@ -106,6 +117,10 @@
                             $(item).text(input.target.value)
                         })
                     }
+                }
+                console.log(data, input)
+                if (data === 'type') {
+                    this.compressEditor()
                 }
 
                 if (this.cellTag === 'td') {
@@ -125,6 +140,34 @@
                     )
                 }
                 console.log(this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell))
+            },
+            expandEditor () {
+                // document.getElementById("formula-editor").classList.add("expanded-formula-editor")
+                // document.getElementById("pop-up").classList.add("expanded-pop-up")
+                if (this.expandDirection == "left" && !this.expanded) {
+                    var popup = document.getElementById("pop-up")
+                    var left = parseInt(popup.style.left)
+                    var top = parseInt(popup.style.top)
+                    popup.style.left = `${left - 200}px`;
+                    console.log(`{left - 200}px`)
+                    console.log("left", popup.style.left)
+                }
+                this.expanded = true
+                setTimeout(() => {this.editor.resize()}, 1000)
+                this.editor.setOptions({wrap: true})
+            },
+            compressEditor () {
+                if (this.expandDirection == "left" && this.expanded) {
+                    var popup = document.getElementById("pop-up")
+                    var left = parseInt(popup.style.left)
+                    var top = parseInt(popup.style.top)
+                    popup.style.left = `${left + 200}px`;
+                    console.log(`{left - 200}px`)
+                    console.log("left", popup.style.left)
+                }
+                this.expanded = false
+                setTimeout(() => {this.editor.resize()}, 1000)
+                this.editor.setOptions({wrap: false})
             }
         },
         mounted() {
@@ -140,6 +183,9 @@
                 highlightActiveLine: false,
                 // wrap: true,
             });
+            this.editor.on("change", (e) => {
+                this.onHandleChange('formula', e)
+            })
         }
     }
 </script>
@@ -153,6 +199,7 @@
     padding: 10px;
     border-radius: 4px;
     background-color: #fff;
+    transition: 0.2s;
 }
 .form-group {
     position: relative;
@@ -170,6 +217,7 @@
 
 #formula-editor { 
     position: relative;
+    transition: 0.2s;
 }
 
 .expand-icon {
@@ -179,13 +227,24 @@
     font-size: 36px;
     opacity: 0.6;
     right: 5px;
-    top: 6px;
+    bottom: 6px;
     text-align: right;
     transition: 0.2s;
 }
 
 .expand-icon:active {
     opacity: 0.2;
+}
+
+
+.expanded.pop-up{
+    width: 400px;
+    transition: 0.2s;
+}
+
+.expanded#formula-editor {
+    height: 200px;
+    transition: 0.2s;
 }
 
 </style>
