@@ -21,7 +21,6 @@
                     <option value="datalist">Список</option>
                     <option value="date">Дата</option>
                     <option value="time">Время</option>
-                    <option value="datetime">Дата со временем</option>
                     <option value="formula">Формула</option>
                 </select>
             </div>
