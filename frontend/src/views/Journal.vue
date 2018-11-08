@@ -1,6 +1,12 @@
 <template>
   <div class="journal">
     <div class="side-bar">
+        <button
+            class="btn btn-primary home-btn"
+            @click="$router.push('/')"
+        >
+            На начальный экран
+        </button>
       <h3>Журнал <span style="font-weight: bold">{{this.$route.params.journalName}}</span></h3>
       <hr style="margin-bottom: 10px">
       <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
@@ -199,6 +205,12 @@ export default {
   color: #fff;
   padding: 20px;
   overflow-y: auto;
+}
+.side-bar .home-btn {
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 18px;
+    border-color: #fff;
 }
 .side-bar ul {
   list-style-type: decimal-leading-zero;
