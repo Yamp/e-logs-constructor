@@ -62,6 +62,7 @@
         },
         watch: {
           cell (value) {
+              console.log("cell changed")
               if (value && this.cellTag === 'td' && this.selectedCells.length === 1) {
                   this.fieldName = $(`#${this.cell}`).attr('field-name')
                   this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
@@ -92,14 +93,12 @@
               $('#maxValue input').val(this.maxValue)
               $('#type input').val(this.type)
               $('#units input').val(this.units)
-          }
-        },
-        watch: {
-            display: (newValue, oldValue) => {
-                if (newValue === "none") {
-                    expanded = false
+              },
+           display(newValue, oldValue) {
+              if (newValue === "none") {
+                    this.expanded = false
                 }
-            }
+            },
         },
         methods: {
             onHandleChange (data, input) {
