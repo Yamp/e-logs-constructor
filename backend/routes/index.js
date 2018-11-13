@@ -27,8 +27,9 @@ const mkdirSync = function (dirPath) {
 
 const getTableName = function (pathName) {
     return pathName.split('/')[1].split('.')[0]
-};
+}
 
+// TODO: Remove this function. Json is already on front
 router.get('/download', function(req, res){
   let hash = req.query.hash;
   if (hash.length > 0 ) {
@@ -131,37 +132,43 @@ router.post('/save', function(req, res, next) {
 
     console.log(__dirname);
     let relativeMediaPath = "../media";
-    let dirPath = path.resolve(__dirname, relativeMediaPath) + "/" + hash;
+    // let dirPath = path.resolve(__dirname, relativeMediaPath) + "/" + hash;
 
     data.version = "0.1";
 
-    mkdirSync(dirPath);
-    mkdirSync(path.resolve(dirPath, "./templates"))
-    let tables = data.tables;
-    for (let table of tables) {
-        let filepath = dirPath + "/templates/" + table.name + ".html";
-        fs.writeFile(filepath, table.html, (err) => {
-            if (err) throw err;
-            console.log("The "+ table.name + ".html was saved!");
-        });
-    }
+    // mkdirSync(dirPath);
+    // mkdirSync(path.resolve(dirPath, "./templates"))
+    // let tables = data.tables;
+    // for (let table of tables) {
+    //     let filepath = dirPath + "/templates/" + table.name + ".html";
+    //     fs.writeFile(filepath, table.html, (err) => {
+    //         if (err) throw err;
+    //         console.log("The "+ table.name + ".html was saved!");
+    //     });
+    // }
 
-    fs.writeFile(dirPath + "/meta.json", JSON.stringify(data), (err) => {
-        if (err) throw err;
-        console.log("The meta.json was saved!");
-    });
+
+    // fs.writeFile(dirPath + "/meta.json", JSON.stringify(data), (err) => {
+    //     if (err) throw err;
+    //     console.log("The meta.json was saved!");
+    // });
 
     let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.jrn';
 
-    zipFolder(dirPath, journalPath, function(err) {
-        if(err) {
-            console.log('oh no!', err);
-        } else {
-            console.log('Journal was saved');
-        }
-    });
+    // zipFolder(dirPath, journalPath, function(err) {
+    //     if(err) {
+    //         console.log('oh no!', err);
+    //     } else {
+    //         console.log('Journal was saved');
+    //     }
+    // });
 
-    let downloadLink = "http://localhost:8000/constructor/download?hash=" + hash;
+    fs.writeFile(journalPath, JSON.stringify(data), (err) => {
+        if (err) throw err;
+        console.log("The meta.json was saved!");
+    })
+
+    let downloadLink = "http://localhost:8000/api/constructor/download?hash=" + hash;
     res.status(200).json({hash: hash, download_link: '' + downloadLink });
 });
 
