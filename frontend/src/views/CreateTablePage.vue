@@ -152,7 +152,6 @@ export default {
                         // repeatable_row: this.repeatableRow
                     }
                 )
-                console.log('aaaaa', this.$store.getters['journalState/getTables'])
                 this.$router.push(`/journal/${this.$route.params.journalName}/table/${
                     this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             }
@@ -307,11 +306,9 @@ export default {
 
         if (this.getUrlParams('table')) {
             if (this.getUrlParams('imported') == 'true') {
-                console.log('imported')
                 this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
                     .then(() => {
                         let journalObserver = this.$store.getters['journalState/getJournal'];
-                        console.log(journalObserver);
                         let journal = JSON.parse(JSON.stringify(journalObserver));
                         journal.tables.map(item => {
                             item.html = this.removeCells(item.html)
@@ -326,7 +323,6 @@ export default {
                     })
             }
             else {
-                console.log('not imported')
                 tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
                 this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
                 this.initAll(tableHtml)

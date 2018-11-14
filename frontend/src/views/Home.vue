@@ -10,8 +10,24 @@
       <div v-show="error" class="error">
         Введите заголовок
       </div>
-      <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
-      <!-- <button class="btn btn-primary" @click="onHandleImport">Import</button> -->
+      <div class="buttons-container">
+        <button class="btn" @click="isShowImport = true">Загрузить журнал</button>
+        <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
+      </div>
+      <modal v-show="isShowImport" @close="isShowImport = false">
+            <div>
+                <p class="modal-title">Выберите файл для загрузки</p>
+                <div class="modal-form">
+                    <input 
+                        accept=".jrn" 
+                        type="file" 
+                        value="Обзор" 
+                        @change="(e) => {importFile = e.target.files[0]}"
+                    />
+                    <button class="btn btn-primary modal-btn" @click="onHandleImport">Загрузить</button>
+                </div>
+            </div>
+        </modal>
     </form>
   </div>
 </template>
@@ -20,18 +36,19 @@
 import slugify from 'slugify'
 import axios from 'axios'
 
+import Modal from "../components/Modal.vue";
+
 export default {
   name: "HomePage",
+  components: {Modal},
   data () {
       return {
           title: '',
+          isShowImport: false,
           error: ''
       }
   },
   methods: {
-      onHandleBack () {
-          this.$router.back()
-      },
       onHandleCreate (e) {
           if (this.title) {
               this.$store.commit('journalState/setJournal', {title: this.title, name: slugify(this.title, '_')})
@@ -41,7 +58,20 @@ export default {
       },
       onHandleChange (data) {
           data.target.value ? this.error = '' : this.error = true
-      }
+      },
+      onHandleImport () {
+            let self = this
+
+            let reader = new FileReader();
+
+            reader.onload = function(e) {
+                self.$store.commit('journalState/setJournal', JSON.parse(reader.result))
+                this.isShowImport = false
+                self.$router.push(`/journal/${self.$store.getters['journalState/getJournalName']}`)
+            }
+
+            reader.readAsText(this.importFile);
+        }
   }
 }
 </script>
@@ -80,5 +110,25 @@ export default {
   width: 300px;
   margin: 10px 0 0 0;
   text-align: center;
+}
+
+.buttons-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.modal-title {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+.modal-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+}
+.modal-btn {
+  margin-left: 10px;
 }
 </style>

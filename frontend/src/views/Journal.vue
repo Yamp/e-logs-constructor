@@ -7,7 +7,7 @@
         >
             На начальный экран
         </button>
-      <h3>Журнал <span style="font-weight: bold">{{this.$route.params.journalName}}</span></h3>
+      <h3>Журнал <span style="font-weight: bold">{{getJournalTitle}}</span></h3>
       <hr style="margin-bottom: 10px">
       <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
       <ul v-if="getTables.length" id="section-list">
@@ -17,7 +17,7 @@
     <div class="body">
       <div class="title">
         <h3>Текущие секции</h3>
-        <button class="btn btn-primary" @click.prevent="onHandleClick" type="submit">Добавить секцию</button>
+        <button class="btn btn-primary" @click.prevent="onHandleAdd" type="submit">Добавить секцию</button>
       </div>
       <div class="content">
         <template v-if="getTables.length">
@@ -33,8 +33,8 @@
       <div>
         <p class="modal-title">Журнал успешно сохранен!</p>
         <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-        <button class="btn btn-primary modal-btn" v-if="getUrlParams('plant')" @click="onSave">Сохранить</button>
-        <button class="btn btn-primary modal-btn" v-if="!getUrlParams('plant')" @click="onSaveAs">Сохранить как</button>
+        <button class="btn btn-primary modal-btn" v-if="imported" @click="onSave">Сохранить</button>
+        <button class="btn btn-primary modal-btn" v-if="imported" @click="onSaveAs">Сохранить как</button>
       </div>
     </modal>
   </div>
@@ -80,9 +80,9 @@ export default {
                     '_blank')
                 })
         },
-        onHandleClick () {
+        onHandleAdd () {
             this.$store.getters['journalState/getJournalName'] ?
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                 : this.$router.push('/')
         },
         getAllAttributes (node) {
@@ -164,15 +164,30 @@ export default {
     computed: {
         getTables () {
             return this.$store.getters['journalState/getTables']
+        },
+        getJournalTitle () {
+            return this.$store.getters['journalState/getJournalTitle']
+        },
+        getJournalName () {
+            return this.$store.getters['journalState/getJournalName']
+        },
+        imported () {
+            return this.$store.getters['journalState/getJournalImported']
         }
     },
     mounted () {
         let _this = this
-        if (_this.getUrlParams('imported') == 'true') {
+        console.log('journal', this.$store.getters['journalState/getJournal'])
+
+        if (_this.getUrlParams('imported') === 'true') {
+
+            this.$store.commit('journalState/setJournalImported', true)
+
+            if (!this.getUrlParams('plant')) return
+
             this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
                 .then(() => {
                     let journalObserver = this.$store.getters['journalState/getJournal'];
-                    console.log(journalObserver);
                     let journal = JSON.parse(JSON.stringify(journalObserver));
                     journal.tables.map(item => {
                         item.html = this.removeCells(item.html)

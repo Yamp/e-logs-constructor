@@ -4,7 +4,9 @@ const journalState = {
     namespaced: true,
     state: {
         journal: {
-            tables: []
+            tables: [],
+            currentTable: null,
+            imported: false
         }
     },
     getters: {
@@ -14,8 +16,14 @@ const journalState = {
         getJournalName(state, getters) {
             return state.journal.name
         },
+        getJournalTitle(state, getters) {
+            return state.journal.title
+        },
         getTables(state, getters) {
             return state.journal.tables
+        },
+        getJournalImported(state, getters) {
+            return state.journal.imported
         },
         getTableTitle(state, getters) {
             return function (tableName) {
@@ -132,7 +140,7 @@ const journalState = {
     },
     actions: {
         importJournal: function ({commit, state, getters}, payload) {
-            let url = window.NODE_SERVER + `/api/constructor/get_journal?plant=${payload.plant}&journal=${payload.journal}`;
+            let url = window.ELOGS_SERVER + `/api/constructor/get_journal?plant=${payload.plant}&journal=${payload.journal}`;
 
             return axios.get(url)
                 .then( function (response) {
@@ -146,6 +154,9 @@ const journalState = {
             if (!payload.tables) {
                 state.journal.tables = []
             }
+        },
+        setJournalImported(state, payload) {
+            state.journal.imported = payload
         },
         addTable(state, payload) {
             state.journal.tables.push(payload)
