@@ -27,8 +27,18 @@
         },
         methods: {
             setPopUpListeners () {
+
+                let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 280;
+                let appWidth = $('#app').outerWidth()
+                let popUpHeight = $('.pop-up').outerHeight() ? $('.pop-up').outerHeight() : 424;
+                let appHeight = $('#app').outerHeight()
+                let inputOffset = 4
+
                 let _this = this
+
                 $('.cell').click(function(e) {
+                    let currentElement = $(e.target)
+                    console.log(e.offsetX, e)
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected')
                         _this.selectedCells = _this.selectedCells.filter(item => $(item).attr('id') !== $(this).attr('id'))
@@ -38,15 +48,23 @@
                         _this.selectedCells.push(this)
                         e.stopPropagation()
                         _this.display = 'block'
-                        if (e.clientX + $('.pop-up').outerWidth() + 200>= $('#app').outerWidth()) {
-                            _this.x = e.clientX - $('.pop-up').outerWidth()
+
+                        if (e.clientX + popUpWidth + 200 >= appWidth) {
+                            _this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
                             _this.expandDirection = "left"
                         }
                         else {
-                            _this.x = e.clientX
+                            _this.x = e.clientX  - e.offsetX
                             _this.expandDirection = "right"
                         }
-                        _this.y = e.clientY
+
+                        if (e.clientY - e.offsetY + popUpHeight + currentElement.outerHeight() >= appHeight) {
+                            _this.y = e.clientY - popUpHeight - e.offsetY - inputOffset
+                        }
+                        else {
+                            _this.y = e.clientY - e.offsetY + inputOffset + currentElement.outerHeight()
+                        }
+
                         _this.currentCell = $(this).attr('id')
                         _this.currentCellTag = 'td'
                     }
@@ -202,7 +220,7 @@ table {
     display: flex;
     align-items: center;
     height: 100%;
-    transition: 0.2s;
+    transition: none;
     box-sizing: border-box;
     padding: 0px 4px;
     overflow: hidden;
