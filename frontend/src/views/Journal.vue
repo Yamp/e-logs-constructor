@@ -9,21 +9,21 @@
         </button>
       <h3>Журнал <span style="font-weight: bold">{{getJournalTitle}}</span></h3>
       <hr style="margin-bottom: 10px">
-      <span class="no-items-text" v-if="!getTables.length">Секций нет</span>
+      <span class="no-items-text" v-if="!getTables.length">Таблиц нет</span>
       <ul v-if="getTables.length" id="section-list">
         <li v-for="table in getTables" :key="table.name"><div><span>{{table.title}}</span></div><div><img class="move-icon" src="../assets/scroll.svg"></div></li>
       </ul>
     </div>
     <div class="body">
       <div class="title">
-        <h3>Текущие секции</h3>
-        <button class="btn btn-primary" @click.prevent="onHandleAdd" type="submit">Добавить секцию</button>
+        <h3>Текущие таблицы</h3>
+        <button class="btn btn-primary" @click.prevent="onHandleAdd" type="submit">Добавить таблицу</button>
       </div>
       <div class="content">
         <template v-if="getTables.length">
           <table-item v-for="table in getTables" :table="table" :key="table.name" style="margin-bottom: 18px"></table-item>
         </template>
-        <span class="no-items-text" v-if="!getTables.length">Пока что секций нет, вы можете добавить их</span>
+        <span class="no-items-text" v-if="!getTables.length">Пока что таблиц нет, вы можете добавить их</span>
       </div>
       <div class="btns" v-if="getTables.length">
         <button class="btn btn-primary" @click.prevent="showDownloadModal" type="submit">Отправить</button>
@@ -81,8 +81,10 @@ export default {
                 })
         },
         onHandleAdd () {
+            this.$store.commit('journalState/setCurrentTable', {})
             this.$store.getters['journalState/getJournalName'] ?
-                this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                // this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                this.$router.push(`/journal/${this.getJournalName}/table/create`)
                 : this.$router.push('/')
         },
         getAllAttributes (node) {

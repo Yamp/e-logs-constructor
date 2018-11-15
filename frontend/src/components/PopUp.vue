@@ -1,5 +1,5 @@
 <template>
-    <div v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{display: display, left: x + 'px', top: y + 'px', transition: '0.2s'}">
+    <div v-show="display" v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{left: x + 'px', top: y + 'px', transition: '0.2s'}">
         <div id="test">
             
         </div>
@@ -7,12 +7,12 @@
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
         <template v-show="cellTag === 'td'">
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)">
             </div>
             <div class="form-group">
                 <input type="text" id="maxValue" class="form-control" v-model="maxValue" placeholder="Максимальное значение" @input="(value) => onHandleChange('maxValue', value)">
-            </div>
+            </div> -->
             <div class="form-group">
                 <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
                     <option value="" selected disabled>Тип ячейки</option>
@@ -112,7 +112,7 @@
                     }
                     else {
                         this.selectedCells.map(item => {
-                            $(item).text(input.target.value)
+                            // $(item).text(input.target.value)
                         })
                     }
                 }
@@ -190,7 +190,7 @@
 
 <style scoped>
 .pop-up {
-    display: none;
+    /* display: none; */
     position: absolute;
     width: 200px;
     border: 1px solid rgba(0,0,0,0.4);

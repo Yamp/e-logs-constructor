@@ -2,7 +2,7 @@
     <div class="editor-container" >
         <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
-        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedCells="selectedCells":expandDirection="expandDirection"/>
+        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedCells="selectedCells" :expandDirection="expandDirection"/>
     </div>
 </template>
 
@@ -18,17 +18,22 @@
               selectedCells: [],
               currentCell: null,
               currentCellTag: null,
-              display: 'none',
+              display: false,
               tableHtml: '',
               x: '0',
               y: '0',
               expandDirection: true,
           }
         },
+        computed: {
+            getCurrentTable () {
+                return this.$store.getters['journalState/getCurrentTable']
+            }
+        },
         methods: {
             setPopUpListeners () {
 
-                let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 280;
+                let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 200;
                 let appWidth = $('#app').outerWidth()
                 let popUpHeight = $('.pop-up').outerHeight() ? $('.pop-up').outerHeight() : 424;
                 let appHeight = $('#app').outerHeight()
@@ -38,7 +43,7 @@
 
                 $('.cell').click(function(e) {
                     let currentElement = $(e.target)
-                    console.log(e.offsetX, e)
+                    console.log("$(this).hasClass('selected')", $(this).hasClass('selected'))
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected')
                         _this.selectedCells = _this.selectedCells.filter(item => $(item).attr('id') !== $(this).attr('id'))
@@ -47,14 +52,17 @@
                         $(this).addClass('selected')
                         _this.selectedCells.push(this)
                         e.stopPropagation()
-                        _this.display = 'block'
+                        
+                        _this.display = true
+                        console.log('display', _this.display)
 
                         if (e.clientX + popUpWidth + 200 >= appWidth) {
                             _this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
+                            console.log(_this.x, e.clientX, e.offsetX, popUpWidth, currentElement.outerWidth())
                             _this.expandDirection = "left"
                         }
                         else {
-                            _this.x = e.clientX  - e.offsetX
+                            _this.x = e.clientX - e.offsetX
                             _this.expandDirection = "right"
                         }
 
@@ -73,7 +81,7 @@
                     e.stopPropagation()
                     _this.selectedCells = []
                     $('.selected').removeClass('selected')
-                    _this.display = 'block'
+                    _this.display = true
                     if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
                         _this.x = e.clientX - $('.pop-up').outerWidth()
                     }
@@ -84,10 +92,12 @@
                 })
                 $('.pop-up').click(function(e) {
                     e.stopPropagation()
-                    _this.display = 'block'
+                    console.log('popup')
+                    _this.display = true
                 })
                 $('#app').click(function(e) {
-                    _this.display = 'none'
+                    console.log('app')
+                    _this.display = false
                     _this.currentCell = null
                     _this.currentCellTag = null
                 })
@@ -105,7 +115,8 @@
                     //     }
                     // )
 
-                    $(this).attr('field-name', _this.$store.getters['journalState/getCellName'](_this.$route.params.tableName, $(this).attr('id')))
+                    // $(this).attr('field-name', _this.$store.getters['journalState/getCellName'](_this.$route.params.tableName, $(this).attr('id')))
+                    
                     // if ($(this).attr('field-name')) {
                     //     _this.$store.commit('journalState/setFieldName',
                     //         {
@@ -121,7 +132,7 @@
                                         ${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}
                                         field-name="${$(this).attr('field-name') ? $(this).attr('field-name') : ''}" 
                                         ${$(this).attr('row-index') ? `row-index="${$(this).attr("row-index")}"` : $(this).attr(':row-index') ? `:row-index="${$(this).attr(":row-index")}"` : 'row-index="0"'}
-                                    >${$(this).attr('field-name') ? $(this).attr('field-name') : ''}</div>`
+                                    ></div>`
                     
                     $(this)[0].removeAttribute('id')
                     $(this)[0].removeAttribute('field-name')
@@ -157,11 +168,9 @@
                 })
 
                 let currentFieldsIDs = $('.cell').toArray().map(field => $(field).attr('id'))
-                console.log('currentFields', currentFieldsIDs)
 
                 let redundantFields = this.cells.filter(item => !currentFieldsIDs.includes(item.cell))
 
-                console.log('redundant', redundantFields)
                 redundantFields.map(field => {
                     this.cells = this.cells.filter(item => item.cell !== field.cell)
                 })
@@ -176,9 +185,9 @@
             }
         },
         mounted () {
-            this.tableHtml = this.$store.getters['journalState/getTableHTML'](this.$route.params.tableName)
-            this.cells = this.$store.getters['journalState/getTableCells'](this.$route.params.tableName)
-            console.log(this.cells)
+            console.log('currentTable', this.getCurrentTable)
+            this.tableHtml = this.getCurrentTable.html
+            this.cells = this.getCurrentTable.fields
             setTimeout(() => this.setCells(), 0)
             setTimeout(() => this.setPopUpListeners(), 0)
         }

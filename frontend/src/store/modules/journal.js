@@ -22,6 +22,9 @@ const journalState = {
         getTables(state, getters) {
             return state.journal.tables
         },
+        getCurrentTable(state, getters) {
+            return state.journal.currentTable
+        },
         getJournalImported(state, getters) {
             return state.journal.imported
         },
@@ -69,8 +72,8 @@ const journalState = {
             return function (tableName, cell) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]
                 let field = table.fields.filter(item => item.cell === cell)[0]
-                if (field && field.field_name) {
-                    return field.field_name
+                if (field && field.name) {
+                    return field.name
                 }
                 else {
                     return ''
@@ -155,6 +158,12 @@ const journalState = {
                 state.journal.tables = []
             }
         },
+        setCurrentTable(state, payload) {
+            state.journal.currentTable = payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload
+        },
+        updateCurrentTable(state, payload) {
+            state.journal.currentTable = {...state.currentTable, ...payload}
+        },
         setJournalImported(state, payload) {
             state.journal.imported = payload
         },
@@ -187,7 +196,7 @@ const journalState = {
                 let field = table.fields.filter(item => item.cell === $(payload.cell).attr('id'))[0]
 
                 if (field) {
-                    field.field_name = payload.field_name
+                    field.name = payload.name
                 }
 
         },
@@ -198,7 +207,7 @@ const journalState = {
                 let field = table.fields.filter(item => item.cell === $(cell).attr('id'))[0]
 
                 if (field) {
-                    field.field_name = payload.fields.field_name
+                    field.name = payload.fields.name
                     field.min_value = payload.fields.min_value
                     field.max_value = payload.fields.max_value
                     field.type = payload.fields.type

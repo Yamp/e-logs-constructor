@@ -24,40 +24,45 @@
             }
         },
         computed: {
+            getCurrentTable () {
+                return this.$store.getters['journalState/getCurrentTable']
+            },
             getTableCells () {
                 return this.$store.getters['journalState/getTableCells'](this.$route.params.tableName)
             }
         },
         methods: {
             onHandleBack() {
-                this.$store.commit('journalState/setTable',
-                    {
-                        name: this.$route.params.tableName,
-                        html: formatFactory($('#editor-content').html())
-                    }
-                )
+                // this.$store.commit('journalState/setTable',
+                //     {
+                //         name: this.$route.params.tableName,
+                //         html: formatFactory($('#editor-content').html())
+                //     }
+                // )
 
-                this.$store.commit('journalState/recoverFields',
-                    {
-                        name: this.$route.params.tableName,
-                    }
-                )
-                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)
+                // this.$store.commit('journalState/recoverFields',
+                //     {
+                //         name: this.$route.params.tableName,
+                //     }
+                // )
+                // this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)
+                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}`)
             },
             onHandleSave() {
-                let hasAllNames = this.$store.getters['journalState/getTableCells'](this.$route.params.tableName).every(item => item['field_name'])
+                console.log(this.getCurrentTable)
+                let hasAllNames = this.getCurrentTable.fields.every(item => item['name'])
 
                 let repeatableNames = []
                 let hasReapitebleNames = false
 
-                this.getTableCells.map(field => {
+                this.getCurrentTable.fields.map(field => {
                     $(`#${field.cell}`).removeClass('is-repeated')
                 })
                 
-                for(let index = 0; index < this.getTableCells.length - 1; index++) {
-                    if (this.getTableCells[index].field_name === this.getTableCells[index+1].field_name) {
-                        this.getTableCells.map(field => {
-                            if (this.getTableCells[index].field_name === field.field_name) {
+                for(let index = 0; index < this.getCurrentTable.fields.length - 1; index++) {
+                    if (this.getCurrentTable.fields[index].name === this.getCurrentTable.fields[index+1].name) {
+                        this.getCurrentTable.fields.map(field => {
+                            if (this.getCurrentTable.fields[index].name === field.name) {
                                 $(`#${field.cell}`).addClass('is-repeated')
                             }
                         })
@@ -66,23 +71,29 @@
                     }
                 }
 
-                console.log('rc', hasReapitebleNames)
-
                 if (hasAllNames && !hasReapitebleNames) {
                     $('.editor .cell').removeClass("selected")
-                    this.$store.commit('journalState/setTable',
+                    // this.$store.commit('journalState/setTable',
+                    //     {
+                    //         name: this.$route.params.tableName,
+                    //         html: formatFactory($('#editor-content').html())
+                    //     }
+                    // )
+
+                    this.$store.commit('journalState/updateCurrentTable',
                         {
-                            name: this.$route.params.tableName,
+                            name: this.getUrlParams('table'),
                             html: formatFactory($('#editor-content').html())
                         }
                     )
-                    this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
-                }
-                else if (hasReapitebleNames) {
-                    this.error = 'Имена полей не должны повторяться!'
+                    // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                    this.$router.push(`/journal/${this.$route.params.journalName}`)
                 }
                 else if (!hasAllNames) {
                     this.error = 'Все имена полей должны быть заполнены!'
+                }
+                else if (hasReapitebleNames) {
+                    this.error = 'Имена полей не должны повторяться!'
                 }
             },
             getUrlParams(name, url) {

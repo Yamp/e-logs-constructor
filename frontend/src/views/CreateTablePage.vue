@@ -123,6 +123,11 @@ export default {
             }
         }
     },
+    computed: {
+        getCurrentTable () {
+            return this.$store.getters['journalState/getCurrentTable']
+        }
+    },
     methods: {
         getUrlParams(name, url) {
             if (!url) url = window.location.href;
@@ -134,6 +139,9 @@ export default {
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         },
         onHandleBack () {
+            $('.note-popover').css({display: 'none'})
+            $('.note-editable td').removeAttr('style')
+            this.$store.commit('journalState/setCurrentTable', null)
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
         },
         onHandleChange (data) {
@@ -143,7 +151,7 @@ export default {
             $('.note-popover').css({display: 'none'})
             $('.note-editable td').removeAttr('style')
             if ((this.title && !this.getUrlParams('table') || this.getUrlParams('table')) && this.$store.getters['journalState/getJournalName']) {
-                this.$store.commit('journalState/setTable',
+                this.$store.commit('journalState/updateCurrentTable',
                     {
                         title: this.title,
                         name: this.getUrlParams('table') ? this.getUrlParams('table') : slugify(this.title, '_'),
@@ -152,8 +160,9 @@ export default {
                         // repeatable_row: this.repeatableRow
                     }
                 )
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/${
-                    this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                console.log(this.$store.getters['journalState/getCurrentTable'])
+                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data`)
+                    // this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             }
             else if (!this.$store.getters['journalState/getJournalName']) {
                 this.$router.push('/')
@@ -304,6 +313,8 @@ export default {
     mounted () {
         let tableHtml = ''
 
+        console.log('currentTable', this.getCurrentTable)
+
         if (this.getUrlParams('table')) {
             if (this.getUrlParams('imported') == 'true') {
                 this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
@@ -314,17 +325,18 @@ export default {
                             item.html = this.removeCells(item.html)
                         });
                         this.$store.commit('journalState/setJournal', journal)
+                        this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
                     })
                     .then(() => {
-                        tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
-                        this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
+                        tableHtml = this.getCurrentTable.html
+                        this.title = this.getCurrentTable.title
 
                         this.initAll(tableHtml)
                     })
             }
             else {
-                tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
-                this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
+                tableHtml = this.getCurrentTable.html
+                this.title = this.getCurrentTable.title
                 this.initAll(tableHtml)
             }
         }
