@@ -1,13 +1,10 @@
+import Vue from 'vue'
 import axios from 'axios'
 
 const journalState = {
     namespaced: true,
     state: {
-        journal: {
-            tables: [],
-            currentTable: null,
-            imported: false
-        }
+        journal: null
     },
     getters: {
         getJournal(state, getters) {
@@ -153,19 +150,22 @@ const journalState = {
     },
     mutations: {
         setJournal(state, payload) {
-            state.journal = {...payload}
-            if (!payload.tables) {
-                state.journal.tables = []
-            }
+            Vue.set(state, 'journal', {...payload, tables: payload.tables || []})
+            // state.journal = {...state.journal, ...payload}
+            // if (!payload.tables) {
+            //     state.journal.tables = []
+            // }
         },
         setCurrentTable(state, payload) {
-            state.journal.currentTable = payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload
+            Vue.set(state.journal, 'currentTable', payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload)
+            // state.journal.currentTable = payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload
         },
         updateCurrentTable(state, payload) {
             state.journal.currentTable = {...state.currentTable, ...payload}
         },
         setJournalImported(state, payload) {
-            state.journal.imported = payload
+            Vue.set(state.journal, 'imported', payload)
+            // state.journal.imported = payload
         },
         addTable(state, payload) {
             state.journal.tables.push(payload)
@@ -201,19 +201,23 @@ const journalState = {
 
         },
         setFields(state, payload) {
-            let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
+            // let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
 
-            payload.fields.cells.map(cell => {
-                let field = table.fields.filter(item => item.cell === $(cell).attr('id'))[0]
+            payload.cells.map(cell => {
+                state.journal.currentTable.fields = state.journal.currentTable.fields.map(item => {
+                    item.cell === $(cell).attr('id')
+                }) // make it works !!!!!
 
-                if (field) {
-                    field.name = payload.fields.name
-                    field.min_value = payload.fields.min_value
-                    field.max_value = payload.fields.max_value
-                    field.type = payload.fields.type
-                    field.units = payload.fields.units
-                    field.formula = payload.fields.formula
-                }
+                field = {...payload.fields}
+
+                // if (field) {
+                //     field.name = payload.fields.name
+                //     field.min_value = payload.fields.min_value
+                //     field.max_value = payload.fields.max_value
+                //     field.type = payload.fields.type
+                //     field.units = payload.fields.units
+                //     field.formula = payload.fields.formula
+                // }
             })
 
         },

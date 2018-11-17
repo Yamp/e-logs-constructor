@@ -61,41 +61,41 @@
             }
         },
         watch: {
-          cell (value) {
-              console.log("cell changed")
-              if (value && this.cellTag === 'td' && this.selectedCells.length === 1) {
-                  this.fieldName = $(`#${this.cell}`).attr('field-name')
-                  this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
-                  this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
-                  this.type = this.$store.getters['journalState/getCellType'](this.$route.params.tableName, this.cell)
-                  this.units = this.$store.getters['journalState/getCellUnits'](this.$route.params.tableName, this.cell)
-                  console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
-                  this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
-                  console.log('formula', this.formula)
-              }
-              else if (value && this.cellTag === 'th') {
-                  this.fieldName = $(`#${this.cell}`).text()
-                  this.minValue = ''
-                  this.maxValue = ''
-                  this.type = ''
-                  this.units = ''
-              }
-              else {
-                  this.fieldName = ''
-                  this.minValue = ''
-                  this.maxValue = ''
-                  this.type = ''
-                  this.units = ''
-              }
+            cell (value) {
+                console.log("cell changed")
+                if (value && this.cellTag === 'td' && this.selectedCells.length === 1) {
+                    this.fieldName = $(`#${this.cell}`).attr('field-name')
+                    //   this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
+                    //   this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
+                    this.type = this.$store.getters['journalState/getCellType'](this.$route.params.tableName, this.cell)
+                    this.units = this.$store.getters['journalState/getCellUnits'](this.$route.params.tableName, this.cell)
+                    //   console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
+                    this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
+                    //   console.log('formula', this.formula)
+                }
+                else if (value && this.cellTag === 'th') {
+                    this.fieldName = $(`#${this.cell}`).text()
+                    //   this.minValue = ''
+                    //   this.maxValue = ''
+                    this.type = ''
+                    this.units = ''
+                }
+                else {
+                    this.fieldName = ''
+                    //   this.minValue = ''
+                    //   this.maxValue = ''
+                    this.type = ''
+                    this.units = ''
+                }
 
-              $('#name input').val(this.fieldName)
-              $('#minValue input').val(this.minValue)
-              $('#maxValue input').val(this.maxValue)
-              $('#type input').val(this.type)
-              $('#units input').val(this.units)
-              },
-           display(newValue, oldValue) {
-              if (newValue === "none") {
+                // $('#name input').val(this.fieldName)
+                // $('#minValue input').val(this.minValue)
+                // $('#maxValue input').val(this.maxValue)
+                // $('#type input').val(this.type)
+                // $('#units input').val(this.units)
+            },
+            display(newValue, oldValue) {
+                if (newValue === "none") {
                     this.expanded = false
                 }
             },
@@ -124,20 +124,17 @@
                 if (this.cellTag === 'td') {
                     this.$store.commit('journalState/setFields',
                         {
-                            name: this.$route.params.tableName,
-                            fields: {
-                                field_name: this.fieldName,
-                                cells: this.selectedCells,
-                                min_value: this.minValue,
-                                max_value: this.maxValue,
-                                type: this.type,
-                                units: this.units,
-                                formula: this.editor.getValue()
-                            }
+                            name: this.fieldName,
+                            cells: this.selectedCells,
+                            // min_value: this.minValue,
+                            // max_value: this.maxValue,
+                            type: this.type,
+                            units: this.units,
+                            formula: this.editor.getValue()
                         }
                     )
                 }
-                console.log(this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell))
+                console.log(this.$store.getters['journalState/getCurrentTable'])
             },
             expandEditor () {
                 // document.getElementById("formula-editor").classList.add("expanded-formula-editor")

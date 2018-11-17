@@ -81,7 +81,13 @@ export default {
                 })
         },
         onHandleAdd () {
-            this.$store.commit('journalState/setCurrentTable', {})
+            this.$store.commit('journalState/setCurrentTable', {
+                title: '',
+                name: '',
+                fields: [],
+                html: '',
+                // repeatable_row: false
+            })
             this.$store.getters['journalState/getJournalName'] ?
                 // this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                 this.$router.push(`/journal/${this.getJournalName}/table/create`)
