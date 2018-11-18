@@ -6,6 +6,7 @@
 
 <style lang="scss">
 @import '~bootstrap3/dist/css/bootstrap.min.css';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
 /*@import '~bootstrap3/dist/css/bootstrap-theme.min.css';*/
 html, body {
   padding: 0;

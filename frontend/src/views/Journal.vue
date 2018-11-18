@@ -11,7 +11,7 @@
       <hr style="margin-bottom: 10px">
       <span class="no-items-text" v-if="!getTables.length">Таблиц нет</span>
       <ul v-if="getTables.length" id="section-list">
-        <li v-for="table in getTables" :key="table.name"><div><span>{{table.title}}</span></div><div><img class="move-icon" src="../assets/scroll.svg"></div></li>
+        <li v-for="table in getTables" :key="table.name"><div><span>{{table.title}}</span></div><div><img class="move-icon" src="../assets/icons/scroll.svg"></div></li>
       </ul>
     </div>
     <div class="body">

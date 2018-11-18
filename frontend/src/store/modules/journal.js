@@ -162,7 +162,13 @@ const journalState = {
             // state.journal.imported = payload
         },
         addTable(state, payload) {
-            state.journal.tables.push(payload)
+            let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
+            if (table) {
+                table = {...table, ...payload}
+            }
+            else {
+                state.journal.tables.push(payload)
+            }
         },
         deleteTable(state, payload) {
             console.log(payload.tableName)

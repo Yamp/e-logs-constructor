@@ -6,8 +6,8 @@
                 <p><span style="opacity: 0.6;">Название:</span> {{table.name}}</p>
             </div>
             <div style="display: flex; align-items: center">
-                <img src="../assets/edit.svg" class="edit-icon" @click="editTable(table.name)">
-                <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
+                <img src="../assets/icons/edit.svg" class="edit-icon" @click="editTable(table.name)">
+                <img src="../assets/icons/trash.svg" class="delete-icon" @click="deleteTable">
             </div>
         </div>
         <div class="body" v-html="table.html">

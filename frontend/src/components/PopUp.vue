@@ -25,8 +25,8 @@
                 </select>
             </div>
             <div class="form-group" v-show="type === 'formula'">
-                <img v-if="!expanded" src="../assets/expand.svg" class="expand-icon" @click="expandEditor">
-                <img v-if="expanded" src="../assets/compress.svg" class="expand-icon" @click="compressEditor">
+                <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon" @click="expandEditor">
+                <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor">
 
                 <div id="formula-editor" :class="[{'expanded': expanded}, 'form-control', 'ace-editor', 'ace_editor', 'ace-xcode']">
                    
@@ -112,13 +112,26 @@
                     }
                     else {
                         this.selectedFields.map(item => {
-                            // $(item).text(input.target.value)
+                            input.target.value ? 
+                                $(`#${item}`).addClass('has-name')
+                                : $(`#${item}`).removeClass('has-name')
                         })
                     }
                 }
                 console.log(data, input)
                 if (data === 'type') {
                     this.compressEditor()
+                    this.selectedFields.map(item => {
+                        $(`#${item}`).addClass('has-type')
+                    })
+                }
+
+                if (data === 'units') {
+                    this.selectedFields.map(item => {
+                        input.target.value ? 
+                            $(`#${item}`).addClass('has-units')
+                            : $(`#${item}`).removeClass('has-units')
+                    })
                 }
 
                 if (this.cellTag === 'td') {

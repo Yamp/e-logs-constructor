@@ -127,7 +127,19 @@
                                         ${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}
                                         field-name="${$(this).attr('field-name') ? $(this).attr('field-name') : ''}" 
                                         ${$(this).attr('row-index') ? `row-index="${$(this).attr("row-index")}"` : $(this).attr(':row-index') ? `:row-index="${$(this).attr(":row-index")}"` : 'row-index="0"'}
-                                    ></div>`
+                                    >
+                                        <div class='data-icons-container'>
+                                            <div class='data-icon name'>
+                                                <i class="fas fa-font"></i>
+                                            </div>
+                                            <div class='data-icon type'>
+                                                <i class="fas fa-sliders-h"></i>
+                                            </div>
+                                            <div class='data-icon units'>
+                                                <i class="fas fa-pencil-ruler"></i>
+                                            </div>
+                                        </div>
+                                    </div>`
                     
                     $(this)[0].removeAttribute('id')
                     $(this)[0].removeAttribute('field-name')
@@ -223,6 +235,7 @@ table {
 }
 .cell {
     display: flex;
+    position: relative;
     align-items: center;
     height: 100%;
     transition: none;
@@ -231,6 +244,33 @@ table {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    .data-icons-container {
+        display: flex;
+        position: absolute;
+        top: 4px;
+        left: 4px;
+    }
+
+    .data-icon {
+        display: none;
+
+        &:not(:last-child) {
+            margin-right: 4px;
+        }
+    }
+
+    &.has-name .name {
+        display: block;
+    }
+
+    &.has-type .type {
+        display: block;
+    }
+
+    &.has-units .units {
+        display: block;
+    }
 
     &:hover {
         cursor: pointer;
