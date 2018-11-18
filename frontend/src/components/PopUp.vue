@@ -47,7 +47,7 @@
     import 'brace/theme/xcode';
     export default {
         name: "PopUp",
-        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedCells', 'expandDirection'],
+        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedFields', 'expandDirection'],
         data () {
             return {
                 fieldName: '',
@@ -62,13 +62,13 @@
         },
         watch: {
             cell (value) {
-                console.log("cell changed")
-                if (value && this.cellTag === 'td' && this.selectedCells.length === 1) {
-                    this.fieldName = $(`#${this.cell}`).attr('field-name')
+                console.log("cell changed", value)
+                if (value && this.cellTag === 'td' && this.selectedFields.length === 1) {
+                    this.fieldName = this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, this.cell)
                     //   this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
                     //   this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
-                    this.type = this.$store.getters['journalState/getCellType'](this.$route.params.tableName, this.cell)
-                    this.units = this.$store.getters['journalState/getCellUnits'](this.$route.params.tableName, this.cell)
+                    this.type = this.$store.getters['journalState/getFieldType'](this.$route.params.tableName, this.cell)
+                    this.units = this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, this.cell)
                     //   console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
                     this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
                     //   console.log('formula', this.formula)
@@ -104,14 +104,14 @@
             onHandleChange (data, input) {
                 console.log("onhandlechange")
                 if (data === 'fieldName') {
-                    this.selectedCells.map(item => {
+                    this.selectedFields.map(item => {
                         $(item).attr('field-name', input.target.value)
                     })
                     if (this.cellTag === 'th') {
                         $(`#${this.cell}`).text(input.target.value)
                     }
                     else {
-                        this.selectedCells.map(item => {
+                        this.selectedFields.map(item => {
                             // $(item).text(input.target.value)
                         })
                     }
@@ -125,7 +125,7 @@
                     this.$store.commit('journalState/setFields',
                         {
                             name: this.fieldName,
-                            cells: this.selectedCells,
+                            fieldsIds: this.selectedFields,
                             // min_value: this.minValue,
                             // max_value: this.maxValue,
                             type: this.type,

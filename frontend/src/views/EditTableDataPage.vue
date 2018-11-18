@@ -80,12 +80,7 @@
                     //     }
                     // )
 
-                    this.$store.commit('journalState/updateCurrentTable',
-                        {
-                            name: this.getUrlParams('table'),
-                            html: formatFactory($('#editor-content').html())
-                        }
-                    )
+                    this.$store.commit('journalState/addTable', this.getCurrentTable)
                     // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                     this.$router.push(`/journal/${this.$route.params.journalName}`)
                 }

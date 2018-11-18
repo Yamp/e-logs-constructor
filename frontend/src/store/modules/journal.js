@@ -65,10 +65,9 @@ const journalState = {
                 }
             }
         },
-        getCellName(state, getters) {
+        getFieldName(state, getters) {
             return function (tableName, cell) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                let field = table.fields.filter(item => item.cell === cell)[0]
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.name) {
                     return field.name
                 }
@@ -79,8 +78,7 @@ const journalState = {
         },
         getCellMinValue(state, getters) {
             return function (tableName, cell) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                let field = table.fields.filter(item => item.cell === cell)[0]
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.min_value) {
                     return field.min_value
                 }
@@ -91,8 +89,7 @@ const journalState = {
         },
         getCellMaxValue(state, getters) {
             return function (tableName, cell) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                let field = table.fields.filter(item => item.cell === cell)[0]
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.max_value) {
                     return field.max_value
                 }
@@ -101,10 +98,9 @@ const journalState = {
                 }
             }
         },
-        getCellType(state, getters) {
+        getFieldType(state, getters) {
             return function (tableName, cell) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                let field = table.fields.filter(item => item.cell === cell)[0]
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.type) {
                     return field.type
                 }
@@ -113,10 +109,9 @@ const journalState = {
                 }
             }
         },
-        getCellUnits(state, getters) {
+        getFieldUnits(state, getters) {
             return function (tableName, cell) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                let field = table.fields.filter(item => item.cell === cell)[0]
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.units) {
                     return field.units
                 }
@@ -127,8 +122,7 @@ const journalState = {
         },
         getFormula(state, getters) {
             return function (tableName, cell) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                let field = table.fields.filter(item => item.cell === cell)[0]
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.formula) {
                     return field.formula
                 }
@@ -202,22 +196,20 @@ const journalState = {
         },
         setFields(state, payload) {
             // let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
-
-            payload.cells.map(cell => {
+            console.log('payload', payload)
+            console.log('state.journal.currentTable.fields', state.journal.currentTable.fields)
+            payload.fieldsIds.map(id => {
                 state.journal.currentTable.fields = state.journal.currentTable.fields.map(item => {
-                    item.cell === $(cell).attr('id')
-                }) // make it works !!!!!
-
-                field = {...payload.fields}
-
-                // if (field) {
-                //     field.name = payload.fields.name
-                //     field.min_value = payload.fields.min_value
-                //     field.max_value = payload.fields.max_value
-                //     field.type = payload.fields.type
-                //     field.units = payload.fields.units
-                //     field.formula = payload.fields.formula
-                // }
+                    console.log(item.cell, id)
+                    if (item.cell === id) {
+                        let {fieldsIds, ...currentField} = payload
+                        console.log('currentField', currentField)
+                        return {...item, ...currentField}
+                    } 
+                    else {
+                        return item
+                    }
+                })
             })
 
         },

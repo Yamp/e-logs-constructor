@@ -2,7 +2,7 @@
     <div class="editor-container" >
         <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
-        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedCells="selectedCells" :expandDirection="expandDirection"/>
+        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedFields="selectedFields" :expandDirection="expandDirection"/>
     </div>
 </template>
 
@@ -15,7 +15,7 @@
         data () {
           return {
               cells: [],
-              selectedCells: [],
+              selectedFields: [],
               currentCell: null,
               currentCellTag: null,
               display: false,
@@ -43,22 +43,19 @@
 
                 $('.cell').click(function(e) {
                     let currentElement = $(e.target)
-                    console.log("$(this).hasClass('selected')", $(this).hasClass('selected'))
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected')
-                        _this.selectedCells = _this.selectedCells.filter(item => $(item).attr('id') !== $(this).attr('id'))
+                        _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                     }
                     else {
                         $(this).addClass('selected')
-                        _this.selectedCells.push(this)
+                        _this.selectedFields.push($(this).attr('id'))
                         e.stopPropagation()
                         
                         _this.display = true
-                        console.log('display', _this.display)
 
                         if (e.clientX + popUpWidth + 200 >= appWidth) {
                             _this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
-                            console.log(_this.x, e.clientX, e.offsetX, popUpWidth, currentElement.outerWidth())
                             _this.expandDirection = "left"
                         }
                         else {
@@ -79,7 +76,7 @@
                 })
                 $('#editor-content th').click(function(e) {
                     e.stopPropagation()
-                    _this.selectedCells = []
+                    _this.selectedFields = []
                     $('.selected').removeClass('selected')
                     _this.display = true
                     if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
@@ -92,11 +89,9 @@
                 })
                 $('.pop-up').click(function(e) {
                     e.stopPropagation()
-                    console.log('popup')
                     _this.display = true
                 })
                 $('#app').click(function(e) {
-                    console.log('app')
                     _this.display = false
                     _this.currentCell = null
                     _this.currentCellTag = null
@@ -175,13 +170,14 @@
                     this.cells = this.cells.filter(item => item.cell !== field.cell)
                 })
 
-                this.$store.commit('journalState/setTable',
-                    {
-                        name: _this.$route.params.tableName,
-                        fields: _this.cells,
-                        recoveryFields: JSON.parse(JSON.stringify(_this.cells))
-                    }
-                )
+                // this.$store.commit('journalState/setTable',
+                //     {
+                //         name: _this.$route.params.tableName,
+                //         fields: _this.cells,
+                //         recoveryFields: JSON.parse(JSON.stringify(_this.cells))
+                //     }
+                // )
+                console.log('journal', this.$store.getters['journalState/getJournal'])
             }
         },
         mounted () {
