@@ -184,17 +184,6 @@
             this.editor = ace.edit("formula-editor");
             this.editor.getSession().setMode('ace/mode/vbscript');
             this.editor.setTheme('ace/theme/xcode');
-            this.editor.setOptions({
-                autoScrollEditorIntoView: true,
-                copyWithEmptySelection: true,
-                showGutter: false,
-                selectStyle: "text",
-                showPrintMargin: true,
-                highlightActiveLine: false,
-                // enableBasicAutocompletion: true,
-                enableLiveAutocompletion: true,
-                indentedSoftWrap: false,
-            });
             this.editor.renderer.setScrollMargin(6, 6)
             this.editor.on("change", (e) => {
                 this.onHandleChange('formula', e)
@@ -216,6 +205,17 @@
             }
             langTools.addCompleter(rhymeCompleter);
             langTools.keyWordCompleter = null;
+            this.editor.setOptions({
+                autoScrollEditorIntoView: true,
+                copyWithEmptySelection: true,
+                showGutter: false,
+                selectStyle: "text",
+                showPrintMargin: true,
+                highlightActiveLine: false,
+                // enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                indentedSoftWrap: false,
+            });
             console.log(langTools)
         }
     }

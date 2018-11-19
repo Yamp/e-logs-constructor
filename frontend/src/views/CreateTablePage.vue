@@ -23,7 +23,7 @@
             <div class="btns">
                 <button class="btn btn-primary" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
                 <div>
-                    <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+                    <button class="btn btn-secondary" @click="onHandleCancel" style="margin-right: 14px">Отмена</button>
                     <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
                 </div>
             </div>
@@ -138,7 +138,7 @@ export default {
             if (!results[2]) return '';
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         },
-        onHandleBack () {
+        onHandleCancel () {
             $('.note-popover').css({display: 'none'})
             $('.note-editable td').removeAttr('style')
             this.$store.commit('journalState/setCurrentTable', null)

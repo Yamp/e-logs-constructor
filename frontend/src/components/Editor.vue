@@ -43,11 +43,12 @@
 
                 $('.cell').click(function(e) {
                     let currentElement = $(e.target)
-                    if ($(this).hasClass('selected')) {
+                    
+                    if ($(this).hasClass('selected') && currentElement.hasClass('cell')) {
                         $(this).removeClass('selected')
                         _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                     }
-                    else {
+                    else if (!$(this).hasClass('selected') && currentElement.hasClass('cell')) {
                         $(this).addClass('selected')
                         _this.selectedFields.push($(this).attr('id'))
                         e.stopPropagation()
