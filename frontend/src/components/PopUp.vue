@@ -45,6 +45,8 @@
     import 'brace/mode/javascript';
     import 'brace/mode/vbscript'
     import 'brace/theme/xcode';
+    import 'brace/ext/language_tools';
+    
     export default {
         name: "PopUp",
         props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedFields', 'expandDirection'],
@@ -189,11 +191,32 @@
                 selectStyle: "text",
                 showPrintMargin: true,
                 highlightActiveLine: false,
-                // wrap: true,
+                // enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                indentedSoftWrap: false,
             });
+            this.editor.renderer.setScrollMargin(6, 6)
             this.editor.on("change", (e) => {
                 this.onHandleChange('formula', e)
             })
+            var langTools = ace.acequire("ace/ext/language_tools");
+            var rhymeCompleter = {
+                getCompletions: function(editor, session, pos, prefix, callback) {
+                    console.log(prefix, pos)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    $.getJSON(
+                        "http://rhymebrain.com/talk?function=getRhymes&word=" + prefix,
+                        function(wordList) {
+                            // wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
+                            callback(null, wordList.map(function(ea) {
+                                return {name: ea.word, value: ea.word, score: ea.score, meta: "rhyme"}
+                            }));
+                        })
+                }
+            }
+            langTools.addCompleter(rhymeCompleter);
+            langTools.keyWordCompleter = null;
+            console.log(langTools)
         }
     }
 </script>
