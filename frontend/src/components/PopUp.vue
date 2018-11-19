@@ -106,8 +106,9 @@
             onHandleChange (data, input) {
                 console.log("onhandlechange")
                 if (data === 'fieldName') {
+                    console.log('input', input.target.value)
                     this.selectedFields.map(item => {
-                        $(item).attr('field-name', input.target.value)
+                        $(`#${item}`).attr('field-name', input.target.value)
                     })
                     if (this.cellTag === 'th') {
                         $(`#${this.cell}`).text(input.target.value)

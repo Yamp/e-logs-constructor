@@ -160,7 +160,7 @@ export default {
                         // repeatable_row: this.repeatableRow
                     }
                 )
-                console.log(this.$store.getters['journalState/getCurrentTable'])
+
                 this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data`)
                     // this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             }
@@ -269,7 +269,7 @@ export default {
                     console.log('summernote\'s content is changed.');
                     let table = $('.note-editable table:first')
                     let tables = $('.note-editable table')
-                    console.log('table', table)
+
                     if (table.length) {
                         table.attr('id', 'redipsTable')
                         tables.addClass('elog-journal-table')
@@ -313,8 +313,6 @@ export default {
     mounted () {
         let tableHtml = ''
 
-        console.log('currentTable', this.getCurrentTable)
-
         if (this.getUrlParams('table')) {
             if (this.getUrlParams('imported') == 'true') {
                 this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
@@ -335,6 +333,7 @@ export default {
                     })
             }
             else {
+                this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
                 tableHtml = this.getCurrentTable.html
                 this.title = this.getCurrentTable.title
                 this.initAll(tableHtml)
@@ -343,6 +342,7 @@ export default {
         else {
             this.initAll(tableHtml)
         }
+        console.log('currentTable', this.getCurrentTable)
     }
 }
 </script>

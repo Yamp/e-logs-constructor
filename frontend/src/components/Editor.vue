@@ -9,6 +9,8 @@
 <script>
     import shortid from 'shortid'
     import PopUp from './PopUp.vue'
+    import formatFactory from '../utils/formatFactory.js'
+
     export default {
         name: "Editor",
         components: {PopUp},
@@ -123,29 +125,36 @@
                     //     )
                     // }
 
-                    let cellItem = `<div 
-                                        class="cell" 
-                                        ${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}
-                                        field-name="${$(this).attr('field-name') ? $(this).attr('field-name') : ''}" 
-                                        ${$(this).attr('row-index') ? `row-index="${$(this).attr("row-index")}"` : $(this).attr(':row-index') ? `:row-index="${$(this).attr(":row-index")}"` : 'row-index="0"'}
-                                    >
-                                        <div class='data-icons-container'>
-                                            <div class='data-icon name'>
-                                                <i class="fas fa-font"></i>
-                                            </div>
-                                            <div class='data-icon type'>
-                                                <i class="fas fa-sliders-h"></i>
-                                            </div>
-                                            <div class='data-icon units'>
-                                                <i class="fas fa-pencil-ruler"></i>
-                                            </div>
-                                        </div>
-                                    </div>`
-                    
-                    $(this)[0].removeAttribute('id')
-                    $(this)[0].removeAttribute('field-name')
-                    $(this)[0].removeAttribute('row-index')
-                    $(this)[0].removeAttribute(':row-index')
+                    let cellItem = '<div ' +
+                                        'class="cell ' +
+                                            `${_this.getFieldName($(this).attr('id')) ? 'has-name' : ''}` +
+                                            ` ${_this.getFieldType($(this).attr('id')) ? 'has-type' : ''}` + 
+                                            ` ${_this.getFieldUnits($(this).attr('id')) ? 'has-units' : ''}` +
+                                        '"' +
+                                        `${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}` +
+                                        `${$(this).attr('field-name') ? `field-name="${$(this).attr('field-name')}"` : ''}` +
+                                        `${$(this).attr('row-index') ? 
+                                            `row-index="${$(this).attr("row-index")}"` 
+                                            : $(this).attr(':row-index') ? 
+                                                `:row-index="${$(this).attr(":row-index")}"` 
+                                                : 'row-index="0"'}` +
+                                    '>' +
+                                        '<div class="data-icons-container">' +
+                                            '<div class="data-icon name">' +
+                                                '<i class="fas fa-font"></i>' +
+                                            '</div>' +
+                                            '<div class="data-icon type">' +
+                                                '<i class="fas fa-sliders-h"></i>' +
+                                            '</div>' +
+                                            '<div class="data-icon units">' + 
+                                                '<i class="fas fa-pencil-ruler"></i>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>';
+
+                    [...$(this)[0].attributes].forEach((attr) => {
+                        $(this)[0].removeAttribute(attr.name)
+                    })
 
                     if ($(this).children('table').length) {
                         if (!$(this).children('table td').children('.cell').length) {
@@ -160,9 +169,7 @@
                 })
 
                 $('.cell').each(function () {
-                    console.log('a')
                     if (!$(this).attr('id')) {
-                        console.log('b')
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         _this.cells.push({cell: id})
@@ -183,14 +190,22 @@
                     this.cells = this.cells.filter(item => item.cell !== field.cell)
                 })
 
-                // this.$store.commit('journalState/setTable',
-                //     {
-                //         name: _this.$route.params.tableName,
-                //         fields: _this.cells,
-                //         recoveryFields: JSON.parse(JSON.stringify(_this.cells))
-                //     }
-                // )
+                this.$store.commit('journalState/updateCurrentTable',
+                    {
+                        fields: this.cells,
+                        html: formatFactory($('#editor-content').html())
+                    }
+                )
                 console.log('journal', this.$store.getters['journalState/getJournal'])
+            },
+            getFieldName(cell) {
+                return this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, cell)
+            },
+            getFieldType(cell) {
+                return this.$store.getters['journalState/getFieldType'](this.$route.params.tableName, cell)
+            },
+            getFieldUnits(cell) {
+                return this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, cell)
             }
         },
         mounted () {

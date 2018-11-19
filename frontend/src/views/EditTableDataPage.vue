@@ -37,7 +37,6 @@
                 this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
             },
             onHandleSave() {
-                console.log(this.getCurrentTable)
                 let hasAllNames = this.getCurrentTable.fields.every(item => item['name'])
 
                 let repeatableNames = []
@@ -61,14 +60,15 @@
 
                 if (hasAllNames && !hasReapitebleNames) {
                     $('.editor .cell').removeClass("selected")
-                    // this.$store.commit('journalState/setTable',
-                    //     {
-                    //         name: this.$route.params.tableName,
-                    //         html: formatFactory($('#editor-content').html())
-                    //     }
-                    // )
+                    
+                    this.$store.commit('journalState/updateCurrentTable',
+                        {
+                            html: formatFactory($('#editor-content').html())
+                        }
+                    )
 
                     this.$store.commit('journalState/addTable', this.getCurrentTable)
+                    this.$store.commit('journalState/setCurrentTable', null)
                     // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                     this.$router.push(`/journal/${this.$route.params.journalName}`)
                 }
