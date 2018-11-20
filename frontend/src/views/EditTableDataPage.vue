@@ -60,7 +60,11 @@
 
                 if (hasAllNames && !hasReapitebleNames) {
                     $('.editor .cell').removeClass("selected")
-                    
+
+                    this.getCurrentTable.fields.map(field => {
+                        $(`#${field.cell}`).attr('class', 'cell')
+                    })
+
                     this.$store.commit('journalState/updateCurrentTable',
                         {
                             html: formatFactory($('#editor-content').html())

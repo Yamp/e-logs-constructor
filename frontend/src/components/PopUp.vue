@@ -3,17 +3,19 @@
         <div id="test">
             
         </div>
-        <div class="form-group">
+        <div class="form-group input-container">
+            <i class="fas fa-font data-icon"></i>
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
-        <template v-show="cellTag === 'td'">
+        <div v-show="cellTag === 'td'">
             <!-- <div class="form-group">
                 <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)">
             </div>
             <div class="form-group">
                 <input type="text" id="maxValue" class="form-control" v-model="maxValue" placeholder="Максимальное значение" @input="(value) => onHandleChange('maxValue', value)">
             </div> -->
-            <div class="form-group">
+            <div class="form-group input-container">
+                <i class="fas fa-sliders-h data-icon"></i>
                 <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
                     <option value="" selected disabled>Тип ячейки</option>
                     <option value="text">Текст</option>
@@ -24,7 +26,7 @@
                     <option value="formula">Формула</option>
                 </select>
             </div>
-            <div class="form-group" v-show="type === 'formula'">
+            <div class="form-group input-container" v-show="type === 'formula'">
                 <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon" @click="expandEditor">
                 <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor">
 
@@ -33,10 +35,11 @@
                 </div>
 <!--                 <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)"> -->
             </div>
-            <div class="form-group">
+            <div class="form-group input-container">
+                <i class="fas fa-pencil-ruler data-icon"></i>
                 <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
             </div>
-        </template>
+        </div>
     </div>
 </template>
 
@@ -226,7 +229,7 @@
 .pop-up {
     /* display: none; */
     position: absolute;
-    width: 200px;
+    width: 220px;
     border: 1px solid rgba(0,0,0,0.4);
     padding: 10px;
     border-radius: 4px;
@@ -234,8 +237,14 @@
     transition: 0.2s;
 }
 .form-group {
+    display: flex;
+    align-items: center;
     position: relative;
     margin-bottom: 15px;
+}
+.form-group .data-icon {
+    font-size: 18px;
+    margin-right: 10px;
 }
 .form-group select:invalid {
     color: #999;
