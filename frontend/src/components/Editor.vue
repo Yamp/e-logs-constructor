@@ -34,61 +34,55 @@
         },
         methods: {
             setPopUpListeners () {
-
-                let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 200;
-                let appWidth = $('#app').outerWidth()
-                let popUpHeight = $('.pop-up').outerHeight() ? $('.pop-up').outerHeight() : 424;
-                let appHeight = $('#app').outerHeight()
-                let inputOffset = 4
-
                 let _this = this
 
                 $('.cell').click(function(e) {
+                    let isCtrlPressed = false
+
+                    if (e.metaKey || e.ctrlKey) {
+                        isCtrlPressed = true
+                    }
+
                     let currentElement = $(e.target)
                     
                     if ($(this).hasClass('selected') && currentElement.hasClass('cell')) {
-                        $(this).removeClass('selected')
-                        _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
+                        if (isCtrlPressed) {
+                            $(this).removeClass('selected')
+                            _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
+                        }
+                        else {
+                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            _this.selectedFields = []
+                            _this.selectedFields.push($(this).attr('id'))
+
+                            if (_this.currentCell !== $(this).attr('id')) {
+                                _this.togglePopUp(e, true, $(this).attr('id'), 'td')
+                            }
+                        }
                     }
                     else if (!$(this).hasClass('selected') && currentElement.hasClass('cell')) {
-                        $(this).addClass('selected')
-                        _this.selectedFields.push($(this).attr('id'))
-                        e.stopPropagation()
-                        
-                        _this.display = true
-
-                        if (e.clientX + popUpWidth + 200 >= appWidth) {
-                            _this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
-                            _this.expandDirection = "left"
+                        if (isCtrlPressed) {
+                            $(this).addClass('selected')
+                            _this.selectedFields.push($(this).attr('id'))
                         }
                         else {
-                            _this.x = e.clientX - e.offsetX
-                            _this.expandDirection = "right"
+                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            _this.selectedFields = []
+                            _this.selectedFields.push($(this).attr('id'))
                         }
 
-                        if (e.clientY - e.offsetY + popUpHeight + currentElement.outerHeight() >= appHeight) {
-                            _this.y = e.clientY - popUpHeight - e.offsetY - inputOffset
+                        if (_this.currentCell !== $(this).attr('id')) {
+                            _this.togglePopUp(e, true, $(this).attr('id'), 'td')
                         }
-                        else {
-                            _this.y = e.clientY - e.offsetY + inputOffset + currentElement.outerHeight()
-                        }
-
-                        _this.currentCell = $(this).attr('id')
-                        _this.currentCellTag = 'td'
                     }
                 })
                 $('#editor-content th').click(function(e) {
-                    e.stopPropagation()
                     _this.selectedFields = []
                     $('.selected').removeClass('selected')
-                    _this.display = true
-                    if (e.clientX + $('.pop-up').outerWidth() >= $('#app').outerWidth()) {
-                        _this.x = e.clientX - $('.pop-up').outerWidth()
+
+                    if (_this.currentCell !== $(this).attr('id')) {
+                        _this.togglePopUp(e, true, $(this).attr('id'), 'th')
                     }
-                    else _this.x = e.clientX
-                    _this.y = e.clientY
-                    _this.currentCell = $(this).attr('id')
-                    _this.currentCellTag = 'th'
                 })
                 $('.pop-up').click(function(e) {
                     e.stopPropagation()
@@ -98,7 +92,41 @@
                     _this.display = false
                     _this.currentCell = null
                     _this.currentCellTag = null
+                    _this.selectedFields = []
                 })
+            },
+            togglePopUp (e, display, currentCell, currentCellTag) {
+
+                let currentElement = $(e.target)
+
+                let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 200;
+                let appWidth = $('#app').outerWidth()
+                let popUpHeight = $('.pop-up').outerHeight() ? $('.pop-up').outerHeight() : 424;
+                let appHeight = $('#app').outerHeight()
+                let inputOffset = 4
+
+                e.stopPropagation()
+
+                this.display = display
+
+                if (e.clientX + popUpWidth + 200 >= appWidth) {
+                    this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
+                    this.expandDirection = "left"
+                }
+                else {
+                    this.x = e.clientX - e.offsetX
+                    this.expandDirection = "right"
+                }
+
+                if (e.clientY - e.offsetY + popUpHeight + currentElement.outerHeight() >= appHeight) {
+                    this.y = e.clientY - popUpHeight - e.offsetY - inputOffset
+                }
+                else {
+                    this.y = e.clientY - e.offsetY + inputOffset + currentElement.outerHeight()
+                }
+
+                this.currentCell = currentCell
+                this.currentCellTag = currentCellTag
             },
             setCells () {
                 let _this = this
