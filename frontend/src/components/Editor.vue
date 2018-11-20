@@ -43,36 +43,34 @@
                         isCtrlPressed = true
                     }
 
-                    let currentElement = $(e.target)
-                    
-                    if ($(this).hasClass('selected') && currentElement.hasClass('cell')) {
+                    if ($(this).hasClass('selected') && $(e.target).hasClass('cell')) {
                         if (isCtrlPressed) {
                             $(this).removeClass('selected')
                             _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                         }
                         else {
-                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            $(`.cell`).removeClass('selected')
                             _this.selectedFields = []
                             _this.selectedFields.push($(this).attr('id'))
 
                             if (_this.currentCell !== $(this).attr('id')) {
-                                _this.togglePopUp(e, true, $(this).attr('id'), 'td')
+                                _this.openPopUp(e, $(this).attr('id'), 'td')
                             }
                         }
                     }
-                    else if (!$(this).hasClass('selected') && currentElement.hasClass('cell')) {
+                    else if (!$(this).hasClass('selected') && $(e.target).hasClass('cell')) {
                         if (isCtrlPressed) {
-                            $(this).addClass('selected')
                             _this.selectedFields.push($(this).attr('id'))
+                            _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
                         }
                         else {
-                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            $(`.cell`).removeClass('selected')
                             _this.selectedFields = []
                             _this.selectedFields.push($(this).attr('id'))
                         }
 
                         if (_this.currentCell !== $(this).attr('id')) {
-                            _this.togglePopUp(e, true, $(this).attr('id'), 'td')
+                            _this.openPopUp(e, $(this).attr('id'), 'td')
                         }
                     }
                 })
@@ -81,7 +79,7 @@
                     $('.selected').removeClass('selected')
 
                     if (_this.currentCell !== $(this).attr('id')) {
-                        _this.togglePopUp(e, true, $(this).attr('id'), 'th')
+                        _this.openPopUp(e, $(this).attr('id'), 'th')
                     }
                 })
                 $('.pop-up').click(function(e) {
@@ -95,9 +93,14 @@
                     _this.selectedFields = []
                 })
             },
-            togglePopUp (e, display, currentCell, currentCellTag) {
+            openPopUp (e, currentCell, currentCellTag) {
 
                 let currentElement = $(e.target)
+
+                // if (!currentElement.hasClass('cell')) {
+                //     console.log(e)
+                //     document.elementFromPoint(e.screenX, e.screenY).click()
+                // }
 
                 let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 200;
                 let appWidth = $('#app').outerWidth()
@@ -107,7 +110,7 @@
 
                 e.stopPropagation()
 
-                this.display = display
+                this.display = true
 
                 if (e.clientX + popUpWidth + 200 >= appWidth) {
                     this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
