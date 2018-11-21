@@ -6,8 +6,8 @@
                 <p><span style="opacity: 0.6;">Название:</span> {{table.name}}</p>
             </div>
             <div style="display: flex; align-items: center">
-                <img src="../assets/edit.svg" class="edit-icon" @click="editTable(table.name)">
-                <img src="../assets/trash.svg" class="delete-icon" @click="deleteTable">
+                <img src="../assets/icons/edit.svg" class="edit-icon" @click="editTable(table.name)">
+                <img src="../assets/icons/trash.svg" class="delete-icon" @click="deleteTable">
             </div>
         </div>
         <div class="body" v-html="table.html">
@@ -19,13 +19,23 @@
 export default {
     name: "TableItem",
     props: ['table'],
+    computed: {
+        getJournalName () {
+            return this.$store.getters['journalState/getJournalName']
+        }
+    },
     methods: {
         deleteTable () {
             this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
             console.log(this.$store.getters['journalState/getTables'])
         },
         editTable (tableName) {
-            this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)
+            this.$router.push(
+                `/journal/${this.getJournalName}/table/create?table=${tableName}`
+            )
+            // this.$router.push(
+            //     `/journal/${this.getJournalName}/table/create?table=${tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`
+            // )
         },
         getUrlParams(name, url) {
             if (!url) url = window.location.href;

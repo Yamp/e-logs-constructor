@@ -1,42 +1,43 @@
 <template>
-    <div v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{display: display, left: x + 'px', top: y + 'px', transition: '0.2s'}">
+    <div v-show="display" v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{left: x + 'px', top: y + 'px', transition: '0.2s'}">
         <div id="test">
             
         </div>
-        <div class="form-group">
+        <div class="form-group input-container" style="margin-top: 0;">
+            <i class="fas fa-font data-icon"></i>
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
-        <template v-show="cellTag === 'td'">
-            <div class="form-group">
-                <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)">
-            </div>
-            <div class="form-group">
-                <input type="text" id="maxValue" class="form-control" v-model="maxValue" placeholder="Максимальное значение" @input="(value) => onHandleChange('maxValue', value)">
-            </div>
-            <div class="form-group">
-                <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
-                    <option value="" selected disabled>Тип ячейки</option>
-                    <option value="text">Текст</option>
-                    <option value="number">Число</option>
-                    <option value="datalist">Список</option>
-                    <option value="date">Дата</option>
-                    <option value="time">Время</option>
-                    <option value="formula">Формула</option>
-                </select>
-            </div>
-            <div class="form-group" v-show="type === 'formula'">
-                <img v-if="!expanded" src="../assets/expand.svg" class="expand-icon" @click="expandEditor">
-                <img v-if="expanded" src="../assets/compress.svg" class="expand-icon" @click="compressEditor">
+        <!-- <div class="form-group">
+            <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)">
+        </div>
+        <div class="form-group">
+            <input type="text" id="maxValue" class="form-control" v-model="maxValue" placeholder="Максимальное значение" @input="(value) => onHandleChange('maxValue', value)">
+        </div> -->
+        <div class="form-group input-container" v-show="cellTag === 'td'">
+            <i class="fas fa-sliders-h data-icon"></i>
+            <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
+                <option value="" selected disabled>Тип ячейки</option>
+                <option value="text">Текст</option>
+                <option value="number">Число</option>
+                <option value="datalist">Список</option>
+                <option value="date">Дата</option>
+                <option value="time">Время</option>
+                <option value="formula">Формула</option>
+            </select>
+        </div>
+        <div class="form-group input-container" v-show="type === 'formula' && cellTag === 'td'">
+            <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon" @click="expandEditor">
+            <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor">
 
-                <div id="formula-editor" :class="[{'expanded': expanded}, 'form-control', 'ace-editor', 'ace_editor', 'ace-xcode']">
-                   
-                </div>
+            <div id="formula-editor" :class="[{'expanded': expanded}, 'form-control', 'ace-editor', 'ace_editor', 'ace-xcode']">
+                
+            </div>
 <!--                 <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)"> -->
-            </div>
-            <div class="form-group">
-                <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
-            </div>
-        </template>
+        </div>
+        <div class="form-group input-container" v-show="cellTag === 'td'">
+            <i class="fas fa-pencil-ruler data-icon"></i>
+            <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
+        </div>
     </div>
 </template>
 
@@ -45,9 +46,11 @@
     import 'brace/mode/javascript';
     import 'brace/mode/vbscript'
     import 'brace/theme/xcode';
+    import 'brace/ext/language_tools';
+    
     export default {
         name: "PopUp",
-        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedCells', 'expandDirection'],
+        props: ['display', 'x', 'y', 'cell', 'cellTag', 'selectedFields', 'expandDirection'],
         data () {
             return {
                 fieldName: '',
@@ -61,41 +64,41 @@
             }
         },
         watch: {
-          cell (value) {
-              console.log("cell changed")
-              if (value && this.cellTag === 'td' && this.selectedCells.length === 1) {
-                  this.fieldName = $(`#${this.cell}`).attr('field-name')
-                  this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
-                  this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
-                  this.type = this.$store.getters['journalState/getCellType'](this.$route.params.tableName, this.cell)
-                  this.units = this.$store.getters['journalState/getCellUnits'](this.$route.params.tableName, this.cell)
-                  console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
-                  this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
-                  console.log('formula', this.formula)
-              }
-              else if (value && this.cellTag === 'th') {
-                  this.fieldName = $(`#${this.cell}`).text()
-                  this.minValue = ''
-                  this.maxValue = ''
-                  this.type = ''
-                  this.units = ''
-              }
-              else {
-                  this.fieldName = ''
-                  this.minValue = ''
-                  this.maxValue = ''
-                  this.type = ''
-                  this.units = ''
-              }
+            cell (value) {
+                console.log("cell changed", value)
+                if (value && this.cellTag === 'td' && this.selectedFields.length === 1) {
+                    this.fieldName = this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, this.cell)
+                    //   this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
+                    //   this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
+                    this.type = this.$store.getters['journalState/getFieldType'](this.$route.params.tableName, this.cell)
+                    this.units = this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, this.cell)
+                    //   console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
+                    this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
+                    //   console.log('formula', this.formula)
+                }
+                else if (value && this.cellTag === 'th') {
+                    this.fieldName = $(`#${this.cell}`).text()
+                    //   this.minValue = ''
+                    //   this.maxValue = ''
+                    this.type = ''
+                    this.units = ''
+                }
+                else {
+                    this.fieldName = ''
+                    //   this.minValue = ''
+                    //   this.maxValue = ''
+                    this.type = ''
+                    this.units = ''
+                }
 
-              $('#name input').val(this.fieldName)
-              $('#minValue input').val(this.minValue)
-              $('#maxValue input').val(this.maxValue)
-              $('#type input').val(this.type)
-              $('#units input').val(this.units)
-              },
-           display(newValue, oldValue) {
-              if (newValue === "none") {
+                // $('#name input').val(this.fieldName)
+                // $('#minValue input').val(this.minValue)
+                // $('#maxValue input').val(this.maxValue)
+                // $('#type input').val(this.type)
+                // $('#units input').val(this.units)
+            },
+            display(newValue, oldValue) {
+                if (newValue === "none") {
                     this.expanded = false
                 }
             },
@@ -104,40 +107,51 @@
             onHandleChange (data, input) {
                 console.log("onhandlechange")
                 if (data === 'fieldName') {
-                    this.selectedCells.map(item => {
-                        $(item).attr('field-name', input.target.value)
+                    console.log('input', input.target.value)
+                    this.selectedFields.map(item => {
+                        $(`#${item}`).attr('field-name', input.target.value)
                     })
                     if (this.cellTag === 'th') {
                         $(`#${this.cell}`).text(input.target.value)
                     }
                     else {
-                        this.selectedCells.map(item => {
-                            $(item).text(input.target.value)
+                        this.selectedFields.map(item => {
+                            input.target.value ? 
+                                $(`#${item}`).addClass('has-name')
+                                : $(`#${item}`).removeClass('has-name')
                         })
                     }
                 }
                 console.log(data, input)
                 if (data === 'type') {
                     this.compressEditor()
+                    this.selectedFields.map(item => {
+                        $(`#${item}`).addClass('has-type')
+                    })
+                }
+
+                if (data === 'units') {
+                    this.selectedFields.map(item => {
+                        input.target.value ? 
+                            $(`#${item}`).addClass('has-units')
+                            : $(`#${item}`).removeClass('has-units')
+                    })
                 }
 
                 if (this.cellTag === 'td') {
                     this.$store.commit('journalState/setFields',
                         {
-                            name: this.$route.params.tableName,
-                            fields: {
-                                field_name: this.fieldName,
-                                cells: this.selectedCells,
-                                min_value: this.minValue,
-                                max_value: this.maxValue,
-                                type: this.type,
-                                units: this.units,
-                                formula: this.editor.getValue()
-                            }
+                            name: this.fieldName,
+                            fieldsIds: this.selectedFields,
+                            // min_value: this.minValue,
+                            // max_value: this.maxValue,
+                            type: this.type,
+                            units: this.units,
+                            formula: this.editor.getValue()
                         }
                     )
                 }
-                console.log(this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell))
+                console.log(this.$store.getters['journalState/getCurrentTable'])
             },
             expandEditor () {
                 // document.getElementById("formula-editor").classList.add("expanded-formula-editor")
@@ -172,6 +186,27 @@
             this.editor = ace.edit("formula-editor");
             this.editor.getSession().setMode('ace/mode/vbscript');
             this.editor.setTheme('ace/theme/xcode');
+            this.editor.renderer.setScrollMargin(6, 6)
+            this.editor.on("change", (e) => {
+                this.onHandleChange('formula', e)
+            })
+            var langTools = ace.acequire("ace/ext/language_tools");
+            var rhymeCompleter = {
+                getCompletions: function(editor, session, pos, prefix, callback) {
+                    console.log(prefix, pos)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    $.getJSON(
+                        "http://rhymebrain.com/talk?function=getRhymes&word=" + prefix,
+                        function(wordList) {
+                            // wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
+                            callback(null, wordList.map(function(ea) {
+                                return {name: ea.word, value: ea.word, score: ea.score, meta: "rhyme"}
+                            }));
+                        })
+                }
+            }
+            langTools.addCompleter(rhymeCompleter);
+            langTools.keyWordCompleter = null;
             this.editor.setOptions({
                 autoScrollEditorIntoView: true,
                 copyWithEmptySelection: true,
@@ -179,20 +214,20 @@
                 selectStyle: "text",
                 showPrintMargin: true,
                 highlightActiveLine: false,
-                // wrap: true,
+                // enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                indentedSoftWrap: false,
             });
-            this.editor.on("change", (e) => {
-                this.onHandleChange('formula', e)
-            })
+            console.log(langTools)
         }
     }
 </script>
 
 <style scoped>
 .pop-up {
-    display: none;
+    /* display: none; */
     position: absolute;
-    width: 200px;
+    width: 220px;
     border: 1px solid rgba(0,0,0,0.4);
     padding: 10px;
     border-radius: 4px;
@@ -200,14 +235,18 @@
     transition: 0.2s;
 }
 .form-group {
+    display: flex;
+    align-items: center;
     position: relative;
-    margin-bottom: 15px;
+    margin-top: 15px;
+    margin-bottom: 0;
+}
+.form-group .data-icon {
+    font-size: 18px;
+    margin-right: 10px;
 }
 .form-group select:invalid {
     color: #999;
-}
-.form-group:last-child {
-    margin-bottom: 0;
 }
 .form-group select option:first-child{
     display: none;

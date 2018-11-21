@@ -23,7 +23,7 @@
             <div class="btns">
                 <button class="btn btn-primary" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
                 <div>
-                    <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+                    <button class="btn btn-secondary" @click="onHandleCancel" style="margin-right: 14px">Отмена</button>
                     <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
                 </div>
             </div>
@@ -123,6 +123,11 @@ export default {
             }
         }
     },
+    computed: {
+        getCurrentTable () {
+            return this.$store.getters['journalState/getCurrentTable']
+        }
+    },
     methods: {
         getUrlParams(name, url) {
             if (!url) url = window.location.href;
@@ -133,7 +138,10 @@ export default {
             if (!results[2]) return '';
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         },
-        onHandleBack () {
+        onHandleCancel () {
+            $('.note-popover').css({display: 'none'})
+            $('.note-editable td').removeAttr('style')
+            this.$store.commit('journalState/setCurrentTable', null)
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
         },
         onHandleChange (data) {
@@ -143,7 +151,7 @@ export default {
             $('.note-popover').css({display: 'none'})
             $('.note-editable td').removeAttr('style')
             if ((this.title && !this.getUrlParams('table') || this.getUrlParams('table')) && this.$store.getters['journalState/getJournalName']) {
-                this.$store.commit('journalState/setTable',
+                this.$store.commit('journalState/updateCurrentTable',
                     {
                         title: this.title,
                         name: this.getUrlParams('table') ? this.getUrlParams('table') : slugify(this.title, '_'),
@@ -152,8 +160,9 @@ export default {
                         // repeatable_row: this.repeatableRow
                     }
                 )
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/${
-                    this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+
+                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data`)
+                    // this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
             }
             else if (!this.$store.getters['journalState/getJournalName']) {
                 this.$router.push('/')
@@ -260,7 +269,7 @@ export default {
                     console.log('summernote\'s content is changed.');
                     let table = $('.note-editable table:first')
                     let tables = $('.note-editable table')
-                    console.log('table', table)
+
                     if (table.length) {
                         table.attr('id', 'redipsTable')
                         tables.addClass('elog-journal-table')
@@ -314,23 +323,26 @@ export default {
                             item.html = this.removeCells(item.html)
                         });
                         this.$store.commit('journalState/setJournal', journal)
+                        this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
                     })
                     .then(() => {
-                        tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
-                        this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
+                        tableHtml = this.getCurrentTable.html
+                        this.title = this.getCurrentTable.title
 
                         this.initAll(tableHtml)
                     })
             }
             else {
-                tableHtml = this.$store.getters['journalState/getTableHTML'](this.getUrlParams('table'))
-                this.title = this.$store.getters['journalState/getTableTitle'](this.getUrlParams('table'))
+                this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
+                tableHtml = this.getCurrentTable.html
+                this.title = this.getCurrentTable.title
                 this.initAll(tableHtml)
             }
         }
         else {
             this.initAll(tableHtml)
         }
+        console.log('currentTable', this.getCurrentTable)
     }
 }
 </script>
