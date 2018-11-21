@@ -67,7 +67,7 @@ export default {
             reader.onload = function(e) {
                 self.$store.commit('journalState/setJournal', JSON.parse(reader.result))
                 this.isShowImport = false
-                self.$router.push(`/journal/${self.$store.getters['journalState/getJournalName']}`)
+                self.$router.push(`/journal/${self.$store.getters['journalState/getJournalName']}?imported=true`)
             }
 
             reader.readAsText(this.importFile);

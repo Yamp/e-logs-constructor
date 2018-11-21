@@ -191,20 +191,19 @@ export default {
 
             this.$store.commit('journalState/setJournalImported', true)
 
-            if (!this.getUrlParams('plant')) return
+            if (this.getUrlParams('plant')) {
+                this.$store.dispatch('journalState/importJournal', {
+                    plant: this.getUrlParams('plant'), 
+                    journal: this.$route.params.journalName
+                })    
+            }
 
-            this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
-                .then(() => {
-                    let journalObserver = this.$store.getters['journalState/getJournal'];
-                    let journal = JSON.parse(JSON.stringify(journalObserver));
-                    journal.tables.map(item => {
-                        item.html = this.removeCells(item.html)
-                    });
-                    this.$store.commit('journalState/setJournal', journal)
-                })
-                .then(() => {
-                    _this.initSectionList()
-                })
+            let journalObserver = this.$store.getters['journalState/getJournal'];
+            let journal = JSON.parse(JSON.stringify(journalObserver));
+            journal.tables.map(item => {
+                item.html = this.removeCells(item.html)
+            });
+            this.$store.commit('journalState/setJournal', journal)
         }
 
         this.initSectionList()
