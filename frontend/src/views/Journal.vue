@@ -33,8 +33,8 @@
       <div>
         <p class="modal-title">Журнал успешно сохранен!</p>
         <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-        <button class="btn btn-primary modal-btn" @click="onSave">Сохранить</button>
-        <button class="btn btn-primary modal-btn" @click="onSaveAs">Сохранить как</button>
+        <button class="btn btn-primary modal-btn" v-if="imported" @click="onSave">Сохранить</button>
+        <button class="btn btn-primary modal-btn" v-if="imported" @click="onSaveAs">Сохранить как</button>
       </div>
     </modal>
   </div>
@@ -187,22 +187,15 @@ export default {
         let _this = this
         console.log('journal', this.$store.getters['journalState/getJournal'])
 
-        if (this.getUrlParams('imported') === 'true') {
+        if (_this.getUrlParams('imported') === 'true') {
+
             this.$store.commit('journalState/setJournalImported', true)
 
             if (this.getUrlParams('plant')) {
                 this.$store.dispatch('journalState/importJournal', {
                     plant: this.getUrlParams('plant'), 
                     journal: this.$route.params.journalName
-                })
-                    .then(() => {
-                        let journalObserver = this.$store.getters['journalState/getJournal'];
-                        let journal = JSON.parse(JSON.stringify(journalObserver));
-                        journal.tables.map(item => {
-                            item.html = this.removeCells(item.html)
-                        });
-                        this.$store.commit('journalState/setJournal', journal)
-                    })
+                })    
             }
 
             let journalObserver = this.$store.getters['journalState/getJournal'];

@@ -4,7 +4,7 @@ import axios from 'axios'
 const journalState = {
     namespaced: true,
     state: {
-        journal: {}
+        journal: null
     },
     getters: {
         getJournal(state, getters) {
@@ -14,10 +14,10 @@ const journalState = {
             return state.journal.name
         },
         getJournalTitle(state, getters) {
-            return state.journal ? state.journal.title : ''
+            return state.journal.title
         },
         getTables(state, getters) {
-            return state.journal ? state.journal.tables : []
+            return state.journal.tables
         },
         getCurrentTable(state, getters) {
             return state.journal.currentTable
