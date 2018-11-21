@@ -200,8 +200,46 @@
                         })
                 }
             }
-            langTools.addCompleter(rhymeCompleter);
-            langTools.keyWordCompleter = null;
+            var self = this;
+            var JournalCompleter = {
+                getCompletions: (editor, session, pos, prefix, callback) => {
+                    console.log(prefix, pos)
+                    console.log("Bolshie soabaki))))", self)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    var completions = self.$store.getters['journalState/getJournalCompletions'](prefix)
+                    callback(null, completions.map(function(word) {
+                        return {name: word, value: word, score: 500, meta: "Журнал"}
+                    }))
+                }
+            }
+
+            var TableCompleter = {
+                getCompletions: (editor, session, pos, prefix, callback) => {
+                    console.log(prefix, pos)
+                    console.log("Bolshie soabaki))))", self)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    var completions = self.$store.getters['journalState/getTableCompletions'](prefix)
+                    callback(null, completions.map(function(word) {
+                        return {name: word, value: word, score: 400, meta: "Таблица"}
+                    }))
+                }
+            }
+
+            var FieldCompleter = {
+                getCompletions: (editor, session, pos, prefix, callback) => {
+                    console.log(prefix, pos)
+                    console.log("Bolshie soabaki))))", self)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    var completions = self.$store.getters['journalState/getFieldCompletions'](prefix)
+                    callback(null, completions.map(function(word) {
+                        return {name: word, value: word, score: 300, meta: "Поле"}
+                    }))
+                }
+            }
+
+
+            langTools.setCompleters([JournalCompleter, TableCompleter, FieldCompleter]);
+            // langTools.keyWordCompleter = null;
             this.editor = ace.edit("formula-editor");
             this.editor.getSession().setMode('ace/mode/vbscript');
             this.editor.setTheme('ace/theme/xcode');
@@ -235,6 +273,7 @@
     background-color: #fff;
     transition: 0.2s;
 }
+
 .form-group {
     display: flex;
     align-items: center;
@@ -242,13 +281,16 @@
     margin-top: 15px;
     margin-bottom: 0;
 }
+
 .form-group .data-icon {
     font-size: 18px;
     margin-right: 10px;
 }
+
 .form-group select:invalid {
     color: #999;
 }
+
 .form-group select option:first-child{
     display: none;
 }
