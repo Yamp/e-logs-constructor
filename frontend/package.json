@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "PORT=8085 vue-cli-service serve & npm start --prefix ../backend",
+    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-css:watch": "node-sass ./src/assets/scss/tables.scss -wo ./public/css/style.css",
     "build-css": "node-sass ./src/assets/scss/tables.scss ./public/css/style.css"
