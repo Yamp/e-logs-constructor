@@ -13,16 +13,18 @@ var docxMimeType = 'application/vnd.openxmlformats-officedocument.wordprocessing
 var htmlMimeType = 'text/html';
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/', function (req, res, next) {
+    res.render('index', {
+        title: 'Express'
+    });
 });
 
 const mkdirSync = function (dirPath) {
-  try {
-    fs.mkdirSync(dirPath)
-  } catch (err) {
-    if (err.code !== 'EEXIST') throw err
-  }
+    try {
+        fs.mkdirSync(dirPath)
+    } catch (err) {
+        if (err.code !== 'EEXIST') throw err
+    }
 };
 
 const getTableName = function (pathName) {
@@ -30,77 +32,60 @@ const getTableName = function (pathName) {
 }
 
 // TODO: Remove this function. Json is already on front
-router.get('/download', function(req, res){
-  let hash = req.query.hash;
-  if (hash.length > 0 ) {
-      let fileNamePath = path.resolve(__dirname, "../media") + '/journals/' + hash + '.jrn';
-      console.log(fileNamePath);
+router.get('/download', function (req, res) {
+    let hash = req.query.hash;
+    if (hash.length > 0) {
+        let fileNamePath = path.resolve(__dirname, "../media") + '/journals/' + hash + '.jrn';
+        console.log(fileNamePath);
 
-      let filename = path.basename(fileNamePath);
-      let mimetype = mime.lookup(fileNamePath);
-      let filestream = fs.createReadStream(fileNamePath);
+        let filename = path.basename(fileNamePath);
+        let mimetype = mime.lookup(fileNamePath);
+        let filestream = fs.createReadStream(fileNamePath);
 
-      res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-      res.setHeader('Content-type', mimetype);
+        res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+        res.setHeader('Content-type', mimetype);
 
-      filestream.pipe(res);
-  } else {
-      res.status(200).json({name: 'hash not found' });
-  }
+        filestream.pipe(res);
+    } else {
+        res.status(200).json({
+            name: 'hash not found'
+        });
+    }
 });
 
-router.get('/get_journal', function(req, res){
-    console.log('eba')
-    console.log('req', req.query.journal)
-    var plant = req.query.plant
-    var journal = req.query.journal
-    var hash = req.query.hash
+router.get('/get_journal', function (req, res) {
+    console.log('eba');
+    console.log('req', req.query.journal);
+    var plant = req.query.plant;
+    var journal = req.query.journal;
+    var hash = req.query.hash;
 
-    var constructor_folder = path.resolve(__dirname, `../media/journals/`)
-    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/`)
+    var constructor_folder = path.resolve(__dirname, `../media/journals/`);
+    var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/`);
     var filepath = ''
     if (plant && journal && !hash) {
-        filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`)
+        filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`);
+    } else if (!plant && !journal && hash) {
+        filepath = path.resolve(constructor_folder, `${hash}.jrn`);
+    } else {
+        res.status(500).json("Ebat ty huynu otpravil");
+        return;
     }
-    else if (!plant && !journal && hash) {
-        filepath = path.resolve(constructor_folder, `${hash}.jrn`)
-    }
-    else {
-        res.status(500).json("Ebat ty huynu otpravil")
-        return
-    }
-    console.log(filepath)
-
+    console.log(filepath);
     try {
-        var zip = new AdmZip(filepath);
-        var zipEntries = zip.getEntries();
-        let data = null
-        console.log(zipEntries)
-        zipEntries.forEach(function(zipEntry) {
-            if (zipEntry.entryName == "meta.json") {
-                data = JSON.parse(zipEntry.getData().toString('utf8'))
-                //  console.log(data.tables);
-            }
+        fs.readFile(filepath, "utf8", (err, content) => {
+            if (err) throw err;
+            data = JSON.parse(content);
+            res.json(data);
         });
-
-        zipEntries.forEach(function(zipEntry) {
-            if (zipEntry.entryName != "meta.json") {
-                let tableHtml = zipEntry.getData().toString('utf8')
-                data.tables = data.tables.map(item => item.name == getTableName(zipEntry.entryName) ? {...item, html: tableHtml} : item)
-                console.log(data);
-            }
-        });
-
-        res.json(data)
-    }
-    catch (err) {
-        console.log(err)
-        res.status(500).json(err)
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err);
     }
 
-  });
+});
 
-router.get("/transfer", function(req, res, next){
+router.get("/transfer", function (req, res, next) {
     var plant = req.query.plant
     var journal = req.query.journal
     var hash = req.query.hash
@@ -110,8 +95,7 @@ router.get("/transfer", function(req, res, next){
     var target_filepath = ''
     if (plant && journal) {
         target_filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`)
-    }
-    else {
+    } else {
         mkdirSync(path.resolve(e_logs_folder), "../temp")
         target_filepath = path.resolve(e_logs_folder, `../temp/${hash}.jrn`)
     }
@@ -119,14 +103,13 @@ router.get("/transfer", function(req, res, next){
     try {
         copyFileSync(source_filepath, target_filepath);
         res.status(200).send()
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err)
         res.status(500).send()
     }
 })
 
-router.post('/save', function(req, res, next) {
+router.post('/save', function (req, res, next) {
     let data = req.body;
     let hash = crypto.createHash('md5').update(JSON.stringify(data)).digest('hex');
 
@@ -153,7 +136,7 @@ router.post('/save', function(req, res, next) {
     //     console.log("The meta.json was saved!");
     // });
 
-    let journalPath = path.resolve(__dirname, relativeMediaPath) +  "/journals/" + hash + '.jrn';
+    let journalPath = path.resolve(__dirname, relativeMediaPath) + "/journals/" + hash + '.jrn';
 
     // zipFolder(dirPath, journalPath, function(err) {
     //     if(err) {
@@ -169,12 +152,15 @@ router.post('/save', function(req, res, next) {
     })
 
     let downloadLink = "http://localhost:8000/api/constructor/download?hash=" + hash;
-    res.status(200).json({hash: hash, download_link: '' + downloadLink });
+    res.status(200).json({
+        hash: hash,
+        download_link: '' + downloadLink
+    });
 });
 
 
 function xlsxToHtml(filepath) {
-    if(typeof require !== 'undefined') XLSX = require('xlsx');
+    if (typeof require !== 'undefined') XLSX = require('xlsx');
     var workbook = XLSX.readFile(filepath);
     var first_sheet_name = workbook.SheetNames[0];
 
@@ -186,20 +172,22 @@ function xlsxToHtml(filepath) {
 
 function docxToHtml(filepath) {
     var mammoth = require("mammoth");
-    return mammoth.convertToHtml({path: filepath})
+    return mammoth.convertToHtml({
+        path: filepath
+    })
 }
 
 function isPromise(obj) {
-    return typeof(obj.then) == 'function'
+    return typeof (obj.then) == 'function'
 }
 
-function copyFileSync( source, target ) {
+function copyFileSync(source, target) {
 
     var targetFile = target;
 
-    if ( fs.existsSync( target ) ) {
-        if ( fs.lstatSync( target ).isDirectory() ) {
-            targetFile = path.join( target, path.basename( source ) );
+    if (fs.existsSync(target)) {
+        if (fs.lstatSync(target).isDirectory()) {
+            targetFile = path.join(target, path.basename(source));
         }
     }
 
@@ -207,28 +195,28 @@ function copyFileSync( source, target ) {
     console.log("shpek")
 }
 
-function copyFolderRecursiveSync( source, target ) {
+function copyFolderRecursiveSync(source, target) {
     var files = [];
 
-    var targetFolder = path.join( target, path.basename( source ) );
-    if ( !fs.existsSync( targetFolder ) ) {
-        fs.mkdirSync( targetFolder );
+    var targetFolder = path.join(target, path.basename(source));
+    if (!fs.existsSync(targetFolder)) {
+        fs.mkdirSync(targetFolder);
     }
 
-    if ( fs.lstatSync( source ).isDirectory() ) {
-        files = fs.readdirSync( source );
-        files.forEach( function ( file ) {
-            var curSource = path.join( source, file );
-            if ( fs.lstatSync( curSource ).isDirectory() ) {
-                copyFolderRecursiveSync( curSource, targetFolder );
+    if (fs.lstatSync(source).isDirectory()) {
+        files = fs.readdirSync(source);
+        files.forEach(function (file) {
+            var curSource = path.join(source, file);
+            if (fs.lstatSync(curSource).isDirectory()) {
+                copyFolderRecursiveSync(curSource, targetFolder);
             } else {
-                copyFileSync( curSource, targetFolder );
+                copyFileSync(curSource, targetFolder);
             }
-        } );
+        });
     }
 }
 
-router.post('/import', function(req, res, next) {
+router.post('/import', function (req, res, next) {
     let file = req.files.data
     let filepath;
     let html;
@@ -242,7 +230,7 @@ router.post('/import', function(req, res, next) {
         try {
             fs.writeFileSync(filepath, file.data, "binary")
         } catch (err) {
-          console.log(err)
+            console.log(err)
         }
         html = xlsxToHtml(filepath)
     }
@@ -259,8 +247,7 @@ router.post('/import', function(req, res, next) {
             console.log(html.length)
             res.send(html)
         })
-    }
-    else {
+    } else {
         res.send(html);
     }
 

@@ -36,6 +36,12 @@
             setPopUpListeners () {
                 let _this = this
 
+                $('.data-icons-container').click(function(e) {
+                    console.log(e)
+                    e.stopPropagation()
+                    // document.elementFromPoint(e.screenX+20, e.screenY).click()
+                })
+
                 $('.cell').click(function(e) {
                     let isCtrlPressed = false
 
@@ -43,7 +49,7 @@
                         isCtrlPressed = true
                     }
 
-                    if ($(this).hasClass('selected') && $(e.target).hasClass('cell')) {
+                    if ($(this).hasClass('selected')) {
                         if (isCtrlPressed) {
                             $(this).removeClass('selected')
                             _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
@@ -58,7 +64,7 @@
                             }
                         }
                     }
-                    else if (!$(this).hasClass('selected') && $(e.target).hasClass('cell')) {
+                    else if (!$(this).hasClass('selected')) {
                         if (isCtrlPressed) {
                             _this.selectedFields.push($(this).attr('id'))
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
@@ -96,11 +102,6 @@
             openPopUp (e, currentCell, currentCellTag) {
 
                 let currentElement = $(e.target)
-
-                // if (!currentElement.hasClass('cell')) {
-                //     console.log(e)
-                //     document.elementFromPoint(e.screenX, e.screenY).click()
-                // }
 
                 let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 200;
                 let appWidth = $('#app').outerWidth()
@@ -203,7 +204,17 @@
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
                         $(this).attr('id', id)
-                        _this.cells.push({cell: id})
+                        if ($(this).attr('field-name')) {
+                            _this.cells = _this.cells.map(item => {
+                                if (item.name === $(this).attr('field-name')) {
+                                    return {...item, cell: $(this).attr('id')}
+                                }
+                                else return item
+                            })
+                        }
+                        else {
+                            _this.cells.push({cell: id})
+                        }
                     }
                 })
                 $('#editor-content th').each(function () {
