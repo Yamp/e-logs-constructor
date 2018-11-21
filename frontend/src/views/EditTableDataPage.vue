@@ -6,7 +6,7 @@
         </div>
         <editor class="editor"></editor>
         <div class="btns">
-            <button class="btn btn-secondary" @click="onHandleBack" style="margin-right: 14px">Назад</button>
+            <button class="btn btn-secondary" @click="onHandleCancel" style="margin-right: 14px">Отмена</button>
             <button class="btn btn-primary" @click.prevent="onHandleSave" type="submit">Сохранить</button>
         </div>
     </div>
@@ -32,24 +32,11 @@
             }
         },
         methods: {
-            onHandleBack() {
-                // this.$store.commit('journalState/setTable',
-                //     {
-                //         name: this.$route.params.tableName,
-                //         html: formatFactory($('#editor-content').html())
-                //     }
-                // )
-
-                // this.$store.commit('journalState/recoverFields',
-                //     {
-                //         name: this.$route.params.tableName,
-                //     }
-                // )
-                // this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}${this.getUrlParams('plant') ? '&plant=' + this.getUrlParams('plant') : ''}`)
-                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}/table/create?table=${this.$route.params.tableName}`)
+            onHandleCancel() {
+                this.$store.commit('journalState/setCurrentTable', null)
+                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
             },
             onHandleSave() {
-                console.log(this.getCurrentTable)
                 let hasAllNames = this.getCurrentTable.fields.every(item => item['name'])
 
                 let repeatableNames = []
@@ -73,14 +60,19 @@
 
                 if (hasAllNames && !hasReapitebleNames) {
                     $('.editor .cell').removeClass("selected")
-                    // this.$store.commit('journalState/setTable',
-                    //     {
-                    //         name: this.$route.params.tableName,
-                    //         html: formatFactory($('#editor-content').html())
-                    //     }
-                    // )
+
+                    this.getCurrentTable.fields.map(field => {
+                        $(`#${field.cell}`).attr('class', 'cell')
+                    })
+
+                    this.$store.commit('journalState/updateCurrentTable',
+                        {
+                            html: formatFactory($('#editor-content').html())
+                        }
+                    )
 
                     this.$store.commit('journalState/addTable', this.getCurrentTable)
+                    this.$store.commit('journalState/setCurrentTable', null)
                     // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                     this.$router.push(`/journal/${this.$route.params.journalName}`)
                 }

@@ -155,7 +155,7 @@ const journalState = {
             // state.journal.currentTable = payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload
         },
         updateCurrentTable(state, payload) {
-            state.journal.currentTable = {...state.currentTable, ...payload}
+            state.journal.currentTable = {...state.journal.currentTable, ...payload}
         },
         setJournalImported(state, payload) {
             Vue.set(state.journal, 'imported', payload)
@@ -164,7 +164,14 @@ const journalState = {
         addTable(state, payload) {
             let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
             if (table) {
-                table = {...table, ...payload}
+                state.journal.tables = state.journal.tables.map((item) => {
+                    if (item.name === payload.name) {
+                        return payload
+                    }
+                    else {
+                        return item
+                    }
+                })
             }
             else {
                 state.journal.tables.push(payload)
