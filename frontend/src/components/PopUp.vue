@@ -1,7 +1,7 @@
 <template>
     <div v-show="display" v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{left: x + 'px', top: y + 'px', transition: '0.2s'}">
         <div id="test">
-            
+            {{ cell }}
         </div>
         <div class="form-group input-container" style="margin-top: 0;">
             <i class="fas fa-font data-icon"></i>
@@ -68,27 +68,23 @@
                 console.log("cell changed", value)
                 if (value && this.cellTag === 'td' && this.selectedFields.length === 1) {
                     this.fieldName = this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, this.cell)
-                    //   this.minValue = this.$store.getters['journalState/getCellMinValue'](this.$route.params.tableName, this.cell)
-                    //   this.maxValue = this.$store.getters['journalState/getCellMaxValue'](this.$route.params.tableName, this.cell)
                     this.type = this.$store.getters['journalState/getFieldType'](this.$route.params.tableName, this.cell)
                     this.units = this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, this.cell)
-                    //   console.log('getter', this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell))
                     this.formula = this.$store.getters['journalState/getFormula'](this.$route.params.tableName, this.cell)
-                    //   console.log('formula', this.formula)
+                    this.editor.resize(true)
+                    this.editor.getSession().setValue(this.formula)
+                    console.log("setted value")
                 }
                 else if (value && this.cellTag === 'th') {
                     this.fieldName = $(`#${this.cell}`).text()
-                    //   this.minValue = ''
-                    //   this.maxValue = ''
                     this.type = ''
                     this.units = ''
                 }
                 else {
                     this.fieldName = ''
-                    //   this.minValue = ''
-                    //   this.maxValue = ''
                     this.type = ''
                     this.units = ''
+                    this.editor.getSession().setValue("")
                 }
 
                 // $('#name input').val(this.fieldName)
@@ -96,6 +92,13 @@
                 // $('#maxValue input').val(this.maxValue)
                 // $('#type input').val(this.type)
                 // $('#units input').val(this.units)
+            },
+            type (value) {
+                this.compressEditor()
+                if (value === 'formula') {
+                    console.log("secretly ya ebu bolshih sobak)00))0")
+                    this.editor.resize(true);
+                }
             },
             display(newValue, oldValue) {
                 if (newValue === "none") {
@@ -124,7 +127,6 @@
                 }
                 console.log(data, input)
                 if (data === 'type') {
-                    this.compressEditor()
                     this.selectedFields.map(item => {
                         $(`#${item}`).addClass('has-type')
                     })
@@ -183,13 +185,6 @@
             }
         },
         mounted() {
-            this.editor = ace.edit("formula-editor");
-            this.editor.getSession().setMode('ace/mode/vbscript');
-            this.editor.setTheme('ace/theme/xcode');
-            this.editor.renderer.setScrollMargin(6, 6)
-            this.editor.on("change", (e) => {
-                this.onHandleChange('formula', e)
-            })
             var langTools = ace.acequire("ace/ext/language_tools");
             var rhymeCompleter = {
                 getCompletions: function(editor, session, pos, prefix, callback) {
@@ -205,8 +200,49 @@
                         })
                 }
             }
-            langTools.addCompleter(rhymeCompleter);
-            langTools.keyWordCompleter = null;
+            var self = this;
+            var JournalCompleter = {
+                getCompletions: (editor, session, pos, prefix, callback) => {
+                    console.log(prefix, pos)
+                    console.log("Bolshie soabaki))))", self)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    var completions = self.$store.getters['journalState/getJournalCompletions'](prefix)
+                    callback(null, completions.map(function(word) {
+                        return {name: word, value: word, score: 500, meta: "Журнал"}
+                    }))
+                }
+            }
+
+            var TableCompleter = {
+                getCompletions: (editor, session, pos, prefix, callback) => {
+                    console.log(prefix, pos)
+                    console.log("Bolshie soabaki))))", self)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    var completions = self.$store.getters['journalState/getTableCompletions'](prefix)
+                    callback(null, completions.map(function(word) {
+                        return {name: word, value: word, score: 400, meta: "Таблица"}
+                    }))
+                }
+            }
+
+            var FieldCompleter = {
+                getCompletions: (editor, session, pos, prefix, callback) => {
+                    console.log(prefix, pos)
+                    console.log("Bolshie soabaki))))", self)
+                    if (prefix.length === 0) { callback(null, []); return }
+                    var completions = self.$store.getters['journalState/getFieldCompletions'](prefix)
+                    callback(null, completions.map(function(word) {
+                        return {name: word, value: word, score: 300, meta: "Поле"}
+                    }))
+                }
+            }
+
+
+            langTools.setCompleters([JournalCompleter, TableCompleter, FieldCompleter]);
+            // langTools.keyWordCompleter = null;
+            this.editor = ace.edit("formula-editor");
+            this.editor.getSession().setMode('ace/mode/vbscript');
+            this.editor.setTheme('ace/theme/xcode');
             this.editor.setOptions({
                 autoScrollEditorIntoView: true,
                 copyWithEmptySelection: true,
@@ -214,10 +250,13 @@
                 selectStyle: "text",
                 showPrintMargin: true,
                 highlightActiveLine: false,
-                // enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true,
                 indentedSoftWrap: false,
             });
+            this.editor.renderer.setScrollMargin(6, 6)
+            this.editor.on("change", (e) => {
+                this.onHandleChange('formula', e)
+            })
             console.log(langTools)
         }
     }
@@ -234,6 +273,7 @@
     background-color: #fff;
     transition: 0.2s;
 }
+
 .form-group {
     display: flex;
     align-items: center;
@@ -241,13 +281,16 @@
     margin-top: 15px;
     margin-bottom: 0;
 }
+
 .form-group .data-icon {
     font-size: 18px;
     margin-right: 10px;
 }
+
 .form-group select:invalid {
     color: #999;
 }
+
 .form-group select option:first-child{
     display: none;
 }

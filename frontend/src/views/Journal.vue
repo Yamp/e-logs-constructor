@@ -214,6 +214,14 @@ export default {
         }
 
         this.initSectionList()
+
+
+        var ThirdPartyAPI = window.ELOGS_SERVER + '/api';
+        axios.get(ThirdPartyAPI + '/scheme').then((response) => {
+            var data = response.data;
+            this.$store.commit('journalState/setScheme', data)
+        })
+
     }
 }
 </script>
