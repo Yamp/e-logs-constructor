@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.splitV', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Split V<b>',
-                        tooltip:  'Split vertically',
+                        contents: '<b>Разделить |<b>',
+                        tooltip:  'Разделить вертикально',
                         click:function (e) {
                             self.splitV();
                         }

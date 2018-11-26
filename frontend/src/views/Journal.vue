@@ -204,13 +204,14 @@ export default {
                         this.$store.commit('journalState/setJournal', journal)
                     })
             }
-
-            let journalObserver = this.$store.getters['journalState/getJournal'];
-            let journal = JSON.parse(JSON.stringify(journalObserver));
-            journal.tables.map(item => {
-                item.html = this.removeCells(item.html)
-            });
-            this.$store.commit('journalState/setJournal', journal)
+            else {
+                let journalObserver = this.$store.getters['journalState/getJournal'];
+                let journal = JSON.parse(JSON.stringify(journalObserver));
+                journal.tables.map(item => {
+                    item.html = this.removeCells(item.html)
+                });
+                this.$store.commit('journalState/setJournal', journal)
+            }
         }
 
         this.initSectionList()

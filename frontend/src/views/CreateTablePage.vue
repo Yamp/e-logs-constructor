@@ -258,21 +258,32 @@ export default {
                     ],
                     popover: {
                         table: [
-                            ['add', ['addColumnPlugin', 'addRowPlugin']],
-                            ['delete', ['removeColumnPlugin', 'removeRowPlugin']],
+                            ['row', ['addRowPlugin', 'removeRowPlugin']],
+                            ['column', ['addColumnPlugin', 'removeColumnPlugin']],
                             ['split', ['splitH', 'splitV']],
                             ['custom', ['cellHeader', 'mergeCells']]
                         ],
                     },
                 });
+
+
                 $('#summernote').on('summernote.change', function (we, contents, $editable) {
                     console.log('summernote\'s content is changed.');
                     let table = $('.note-editable table:first')
                     let tables = $('.note-editable table')
 
-                    if (table.length) {
-                        table.attr('id', 'redipsTable')
+                    table.attr('id', 'redipsTable')
+
+                    if (tables.length) {
                         tables.addClass('elog-journal-table')
+
+                        $('table').on('click', function (e) {
+                            $('table').each(function () {
+                                $(this)[0].removeAttribute('id')
+                            })
+                            $(this).attr('id', 'redipsTable')
+                        })
+
                         _this.redips.init()
                     }
 
@@ -329,20 +340,19 @@ export default {
                         tableHtml = this.getCurrentTable.html
                         this.title = this.getCurrentTable.title
 
-                        this.initAll(tableHtml)
+                        setTimeout(() => this.initAll(tableHtml), 0)
                     })
             }
             else {
                 this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
                 tableHtml = this.getCurrentTable.html
                 this.title = this.getCurrentTable.title
-                this.initAll(tableHtml)
+                setTimeout(() => this.initAll(tableHtml), 0)
             }
         }
         else {
-            this.initAll(tableHtml)
+            setTimeout(() => this.initAll(tableHtml), 0)
         }
-        console.log('currentTable', this.getCurrentTable)
     }
 }
 </script>

@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.removeRowPlugin', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Row -<b>',
-                        tooltip:  'Remove row',
+                        contents: '<b>Строка -<b>',
+                        tooltip:  'Удалить строку',
                         click:function (e) {
                             self.removeRow();
                         }

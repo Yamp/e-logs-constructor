@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.cellHeader', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Header<b>',
-                        tooltip:  'Toggle header',
+                        contents: '<b>Заголовок<b>',
+                        tooltip:  'Переключить заголовок',
                         click:function (e) {
                             self.toggleCellHeader();
                         }

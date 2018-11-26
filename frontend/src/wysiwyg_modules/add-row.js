@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.addRowPlugin', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Row +<b>',
-                        tooltip:  'Add row',
+                        contents: '<b>Строка +<b>',
+                        tooltip:  'Добавить строку',
                         click:function (e) {
                             self.addRow();
                         }

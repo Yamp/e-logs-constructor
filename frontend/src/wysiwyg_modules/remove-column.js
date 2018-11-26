@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.removeColumnPlugin', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Col -<b>',
-                        tooltip:  'Remove column',
+                        contents: '<b>Колонка -<b>',
+                        tooltip:  'Удалить колонку',
                         click:function (e) {
                             self.removeColumn();
                         }
