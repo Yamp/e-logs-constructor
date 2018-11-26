@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.mergeCells', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Merge<b>',
-                        tooltip:  'Merge cells',
+                        contents: '<b>Объединить<b>',
+                        tooltip:  'Объединить ячейки',
                         click:function (e) {
                             self.mergeCells();
                         }

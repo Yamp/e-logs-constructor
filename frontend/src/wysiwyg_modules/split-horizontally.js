@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.splitH', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Split H<b>',
-                        tooltip:  'Split horizontally',
+                        contents: '<b>Разделить &#8212;<b>',
+                        tooltip:  'Разделить горизонтально',
                         click:function (e) {
                             self.splitH();
                         }

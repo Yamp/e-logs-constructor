@@ -11,8 +11,8 @@ export default function () {
             context.memo('button.addColumnPlugin', function () {
                 return ui.buttonGroup([
                     ui.button({
-                        contents: '<b>Col +<b>',
-                        tooltip:  'Add column',
+                        contents: '<b>Колонка +<b>',
+                        tooltip:  'Добавить колонку',
                         click:function (e) {
                             self.addColumn();
                         }

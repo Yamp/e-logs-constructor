@@ -184,8 +184,11 @@
                                         '</div>' +
                                     '</div>';
 
+
                     [...$(this)[0].attributes].forEach((attr) => {
-                        $(this)[0].removeAttribute(attr.name)
+                        if (!(attr.name === 'rowspan' || attr.name === 'colspan')) {
+                            $(this)[0].removeAttribute(attr.name)
+                        }
                     })
 
                     if ($(this).children('table').length) {

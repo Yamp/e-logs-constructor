@@ -12,16 +12,16 @@ const journalState = {
             return state.journal
         },
         getJournalName(state, getters) {
-            return state.journal.name
+            return state.journal.name || ''
         },
         getJournalTitle(state, getters) {
-            return state.journal ? state.journal.title : ''
+            return state.journal.title || ''
         },
         getTables(state, getters) {
-            return state.journal ? state.journal.tables : []
+            return state.journal.tables || []
         },
         getCurrentTable(state, getters) {
-            return state.journal.currentTable
+            return state.journal.currentTable || {}
         },
         getJournalImported(state, getters) {
             return state.journal.imported
