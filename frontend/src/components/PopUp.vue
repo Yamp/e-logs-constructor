@@ -7,12 +7,6 @@
             <i class="fas fa-font data-icon"></i>
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
-        <!-- <div class="form-group">
-            <input type="text" id="minValue" class="form-control" v-model="minValue" placeholder="Минимальное значение" @input="(value) => onHandleChange('minValue', value)">
-        </div>
-        <div class="form-group">
-            <input type="text" id="maxValue" class="form-control" v-model="maxValue" placeholder="Максимальное значение" @input="(value) => onHandleChange('maxValue', value)">
-        </div> -->
         <div class="form-group input-container" v-show="cellTag === 'td'">
             <i class="fas fa-sliders-h data-icon"></i>
             <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
@@ -26,15 +20,23 @@
             </select>
         </div>
         <div class="form-group input-container" v-show="type === 'formula' && cellTag === 'td'">
-            <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon" @click="expandEditor">
-            <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor">
 
             <div id="formula-editor" :class="[{'expanded': expanded}, 'form-control', 'ace-editor', 'ace_editor', 'ace-xcode']">
                 
             </div>
 <!--                 <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)"> -->
         </div>
-        <div class="form-group input-container" v-show="cellTag === 'td'">
+
+        <div class="button-container form-group" v-if="type == 'formula'">
+            <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon icon" @click="expandEditor">
+            <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon icon" @click="compressEditor">
+            <img src="../assets/icons/hand-pointer.svg" class="icon" @click="toggleFieldsSelectors">
+            <!-- <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor">
+            <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon" @click="expandEditor">
+            <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor"> -->
+        </div>
+
+        <div class="form-group" v-show="cellTag === 'td'">
             <i class="fas fa-pencil-ruler data-icon"></i>
             <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
         </div>
@@ -47,6 +49,7 @@
     import 'brace/mode/vbscript'
     import 'brace/theme/xcode';
     import 'brace/ext/language_tools';
+    import {eventBus} from '../main.js'
     
     export default {
         name: "PopUp",
@@ -66,6 +69,7 @@
         watch: {
             cell (value) {
                 console.log("cell changed", value)
+                eventBus.$emit("removeFieldsSelectors")
                 if (value && this.cellTag === 'td' && this.selectedFields.length === 1) {
                     this.fieldName = this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, this.cell)
                     this.type = this.$store.getters['journalState/getFieldType'](this.$route.params.tableName, this.cell)
@@ -95,6 +99,7 @@
             },
             type (value) {
                 this.compressEditor()
+                eventBus.$emit("removeFieldsSelectors")
                 if (value === 'formula') {
                     console.log("secretly ya ebu bolshih sobak)00))0")
                     this.editor.resize(true);
@@ -182,9 +187,20 @@
                 this.expanded = false
                 setTimeout(() => {this.editor.resize()}, 1000)
                 this.editor.setOptions({wrap: false})
+            },
+            toggleFieldsSelectors () {
+                eventBus.$emit('toggleFieldsSelectors')
+            },
+            insertCellIntoFormula (cell) {
+                let name = this.$store.getters["journalState/getFieldName"](this.$route.params.tableName, cell);
+                this.editor.session.insert(this.editor.getCursorPosition(), `$("${name}")`);
+                this.editor.focus();
             }
+
         },
         mounted() {
+
+            eventBus.$on("insertCellIntoFormula", this.insertCellIntoFormula);
             var langTools = ace.acequire("ace/ext/language_tools");
             var rhymeCompleter = {
                 getCompletions: function(editor, session, pos, prefix, callback) {
@@ -274,6 +290,7 @@
     transition: 0.2s;
 }
 
+
 .form-group {
     display: flex;
     align-items: center;
@@ -300,20 +317,22 @@
     transition: 0.2s;
 }
 
-.expand-icon {
-    z-index: 1;
-    position: absolute;
+.icon {
     width: 20px;
     font-size: 36px;
     opacity: 0.6;
-    right: 5px;
-    bottom: 6px;
     text-align: right;
-    transition: 0.2s;
 }
 
-.expand-icon:active {
+.icon:active {
     opacity: 0.2;
+}
+.icon:hover {
+    cursor: pointer;
+}
+
+.expand-icon {
+    transition: 0.2s;
 }
 
 
@@ -325,6 +344,16 @@
 .expanded#formula-editor {
     height: 200px;
     transition: 0.2s;
+}
+
+.button-container{
+    margin-top: 5px;
+    display: flex;
+    flex-direction: row-reverse;
+}
+.button-container>img{
+    margin-left: 8px;
+    float: right;
 }
 
 </style>

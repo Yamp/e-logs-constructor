@@ -6,14 +6,18 @@
     </div>
 </template>
 
+
 <script>
     import shortid from 'shortid'
     import PopUp from './PopUp.vue'
+    import FieldSelector from './FieldSelector.vue'
     import formatFactory from '../utils/formatFactory.js'
+    import {eventBus} from '../main.js'
+    import toggleHeader from '../wysiwyg_modules/toggle-header';
 
     export default {
         name: "Editor",
-        components: {PopUp},
+        components: {PopUp, FieldSelector},
         data () {
           return {
               cells: [],
@@ -25,6 +29,7 @@
               x: '0',
               y: '0',
               expandDirection: true,
+              fieldSelectionMode: false,
           }
         },
         computed: {
@@ -36,7 +41,7 @@
             setPopUpListeners () {
                 let _this = this
 
-                $('.data-icons-container').click(function(e) {
+                $('.data-icon').click(function(e) {
                     console.log(e)
                     e.stopPropagation()
                     // document.elementFromPoint(e.screenX+20, e.screenY).click()
@@ -44,6 +49,7 @@
 
                 $('.cell').click(function(e) {
                     let isCtrlPressed = false
+                    console.log(e)
 
                     if (e.metaKey || e.ctrlKey) {
                         isCtrlPressed = true
@@ -181,6 +187,7 @@
                                             '<div class="data-icon units">' + 
                                                 '<i class="fas fa-pencil-ruler"></i>' +
                                             '</div>' +
+                                            '<field-selector></field-selector>' +
                                         '</div>' +
                                     '</div>';
 
@@ -251,14 +258,51 @@
             },
             getFieldUnits(cell) {
                 return this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, cell)
+            },
+            toggleFieldsSelectors () {
+                console.log("ya ya hiunya");
+                if (!this.fieldSelectionMode) {
+                    this.addFeildsSelectors()
+                }
+                else {
+                    this.removeFieldsSelectors()
+                }
+                // this.$compile()
+                // this.$forceUpdate()
+                console.log('pisadadadadadadad');
+            },
+            addFeildsSelectors () {
+                this.fieldSelectionMode = true;
+                for (var elem of $(".cell")) {
+                    let id = $(elem).attr("id");
+                    let fieldName = this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, id)
+                    console.log(fieldName, id)
+                    let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
+                    if (fieldName) {
+                        $(elem).find(".data-icons-container").append(fieldSelectorElement);
+                    }
+                }
+                $('.field-selector').on("click", (e) => {
+                    e.stopPropagation();
+                    let cell = $(e.target).parents(".cell");
+                    eventBus.$emit("insertCellIntoFormula", cell.attr("id"))
+                })
+            },
+            removeFieldsSelectors () {
+                this.fieldSelectionMode = false;
+                $('.field-selector').remove()
             }
+
         },
         mounted () {
+            console.log(this._compile)
             console.log('currentTable', this.getCurrentTable)
             this.tableHtml = this.getCurrentTable.html
             this.cells = this.getCurrentTable.fields
             setTimeout(() => this.setCells(), 0)
             setTimeout(() => this.setPopUpListeners(), 0)
+            eventBus.$on("toggleFieldsSelectors", this.toggleFieldsSelectors)
+            eventBus.$on("removeFieldsSelectors", this.removeFieldsSelectors)
         }
     }
 </script>
@@ -301,16 +345,15 @@ table {
     height: 100%;
     transition: none;
     box-sizing: border-box;
-    padding: 0px 4px;
+    padding: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 
     .data-icons-container {
         display: flex;
-        position: absolute;
-        top: 4px;
-        left: 4px;
+        width: 100%;
+        height: 100%;
     }
 
     .data-icon {

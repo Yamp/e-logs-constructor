@@ -16,9 +16,15 @@ else {
     window.NODE_SERVER = 'http://' + window.location.hostname + ':3000'
     window.ELOGS_SERVER = 'http://' + window.location.hostname + ':8000'
 }
-new Vue({
+
+
+export const eventBus = new Vue()
+
+var app = new Vue({
   el: '#app',
   router,
   store,
   render: h => h(App)
 })
+
+app.$compile = app._compile
