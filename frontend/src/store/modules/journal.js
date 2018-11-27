@@ -132,6 +132,16 @@ const journalState = {
                 }
             }
         },
+        getJournalNames(state, getters) {
+            return function() {
+                return Object.keys(state.scheme);
+            }
+        },
+        getJournalTableNames(state, getters) {
+            return function (journalName) {
+                return Object.keys(state.scheme[journalName])
+            }
+        },
         getJournalCompletions(state, getters) {
             return function (prefix) {
                 let journal_names = Object.keys(state.scheme)
@@ -156,6 +166,11 @@ const journalState = {
                 }).flat();
                 return table_names.filter(name => name.includes(prefix))
             }
+        },
+        getTableHTML(state, getters) {
+            return function (journal, table) {
+                return state.scheme[journal][table].html
+            }
         }
     },
     actions: {
@@ -166,7 +181,16 @@ const journalState = {
                 .then( function (response) {
                     commit('setJournal', response.data) 
                 });
-            }
+        },
+        importTable: function ({commit, state, getters}, payload) {
+            var ThirdPartyAPI = window.ELOGS_SERVER + '/api';
+            let url = ThirdPartyAPI + `/table?journal=${payload.journal}&table=${payload.table}`;
+            return axios.get(url)
+                .then( function (response) {
+                    commit('setTableHtml', {...payload, html: response.data}) 
+                });
+        }
+        
     },
     mutations: {
         setJournal(state, payload) {
@@ -175,6 +199,9 @@ const journalState = {
             // if (!payload.tables) {
             //     state.journal.tables = []
             // }
+        },
+        setTableHTML(state, payload) {
+            Vue.set(state.scheme[payload.journal][payload.table], 'html', payload.html )
         },
         setScheme(state, payload) {
             Vue.set(state, 'scheme', payload)

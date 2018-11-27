@@ -28,12 +28,10 @@
         </div>
 
         <div class="button-container form-group" v-if="type == 'formula'">
-            <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon icon" @click="expandEditor">
-            <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon icon" @click="compressEditor">
-            <img src="../assets/icons/hand-pointer.svg" class="icon" @click="toggleFieldsSelectors">
-            <!-- <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor">
-            <img v-if="!expanded" src="../assets/icons/expand.svg" class="expand-icon" @click="expandEditor">
-            <img v-if="expanded" src="../assets/icons/compress.svg" class="expand-icon" @click="compressEditor"> -->
+            <img v-if="!expanded" src="../assets/icons/expand.svg"  alt="Развернуть" class="expand-icon icon" @click="expandEditor">
+            <img v-if="expanded" src="../assets/icons/compress.svg" alt="Свернуть" class="expand-icon icon" @click="compressEditor">
+            <img src="../assets/icons/hand-pointer.svg" class="icon" alt="Выбиралка" @click="toggleFieldsSelectors">
+            <img src="../assets/icons/list.svg" class="icon" alt="Визард" @click="openWizard">
         </div>
 
         <div class="form-group" v-show="cellTag === 'td'">
@@ -191,10 +189,15 @@
             toggleFieldsSelectors () {
                 eventBus.$emit('toggleFieldsSelectors')
             },
+            
             insertCellIntoFormula (cell) {
                 let name = this.$store.getters["journalState/getFieldName"](this.$route.params.tableName, cell);
                 this.editor.session.insert(this.editor.getCursorPosition(), `$("${name}")`);
                 this.editor.focus();
+            },
+            openWizard () {
+                console.log("open wizard");
+                eventBus.$emit("openWizard");
             }
 
         },

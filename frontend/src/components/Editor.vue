@@ -2,7 +2,8 @@
     <div class="editor-container" >
         <div id="editor-content" class="editor-body" v-html="tableHtml">
         </div>
-        <pop-up :display="display" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedFields="selectedFields" :expandDirection="expandDirection"/>
+        <pop-up :display="popupDisplay" :x="x" :y="y" :cell="currentCell" :cellTag="currentCellTag" :selectedFields="selectedFields" :expandDirection="expandDirection"/>
+        <formula-wizard :display="wizardDisplay"></formula-wizard>
     </div>
 </template>
 
@@ -10,21 +11,22 @@
 <script>
     import shortid from 'shortid'
     import PopUp from './PopUp.vue'
-    import FieldSelector from './FieldSelector.vue'
+    import FormulaWizard from './FormulaWizard.vue'
     import formatFactory from '../utils/formatFactory.js'
     import {eventBus} from '../main.js'
     import toggleHeader from '../wysiwyg_modules/toggle-header';
 
     export default {
         name: "Editor",
-        components: {PopUp, FieldSelector},
+        components: {PopUp, FormulaWizard},
         data () {
           return {
               cells: [],
               selectedFields: [],
               currentCell: null,
               currentCellTag: null,
-              display: false,
+              popupDisplay: false,
+              wizardDisplay: false,
               tableHtml: '',
               x: '0',
               y: '0',
@@ -96,10 +98,10 @@
                 })
                 $('.pop-up').click(function(e) {
                     e.stopPropagation()
-                    _this.display = true
+                    _this.popupDisplay = true
                 })
                 $('#app').click(function(e) {
-                    _this.display = false
+                    _this.popupDisplay = false
                     _this.currentCell = null
                     _this.currentCellTag = null
                     _this.selectedFields = []
@@ -117,7 +119,7 @@
 
                 e.stopPropagation()
 
-                this.display = true
+                this.popupDisplay = true
 
                 if (e.clientX + popUpWidth + 200 >= appWidth) {
                     this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
@@ -187,7 +189,6 @@
                                             '<div class="data-icon units">' + 
                                                 '<i class="fas fa-pencil-ruler"></i>' +
                                             '</div>' +
-                                            '<field-selector></field-selector>' +
                                         '</div>' +
                                     '</div>';
 
@@ -260,8 +261,10 @@
                 return this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, cell)
             },
             toggleFieldsSelectors () {
+                console.log(eventBus)
                 console.log("ya ya hiunya");
                 if (!this.fieldSelectionMode) {
+                    console.log('addddddddddddd')
                     this.addFeildsSelectors()
                 }
                 else {
@@ -291,6 +294,12 @@
             removeFieldsSelectors () {
                 this.fieldSelectionMode = false;
                 $('.field-selector').remove()
+            },
+            openWizard () {
+                this.wizardDisplay = true;   
+            },
+            closeWizard () {
+                this.wizardDisplay = false;
             }
 
         },
@@ -301,8 +310,14 @@
             this.cells = this.getCurrentTable.fields
             setTimeout(() => this.setCells(), 0)
             setTimeout(() => this.setPopUpListeners(), 0)
-            eventBus.$on("toggleFieldsSelectors", this.toggleFieldsSelectors)
-            eventBus.$on("removeFieldsSelectors", this.removeFieldsSelectors)
+            eventBus.$on("toggleFieldsSelectors", () => this.toggleFieldsSelectors())
+            eventBus.$on("removeFieldsSelectors", () => this.removeFieldsSelectors())
+            eventBus.$on("openWizard", this.openWizard)
+            eventBus.$on("closeWizard", this.closeWizard)
+        },
+        beforeDestroy () {
+            eventBus.$off('toggleFieldsSelectors')
+            console.log("Editor destoyred")
         }
     }
 </script>
@@ -409,4 +424,20 @@ table th {
 .is-repeated {
     outline: 1px solid rgb(245, 108, 108);
 }
+
+.field-selector {
+    flex-grow: 1;
+    background-color: #007DB4;
+    color: white;
+    border-radius: 5px;
+    font-weight: 700;
+    text-align: center;
+    padding-top: 2px;
+    opacity: 0.8;
+}
+
+.field-selector:active {
+    opacity: 1;
+}
+
 </style>
