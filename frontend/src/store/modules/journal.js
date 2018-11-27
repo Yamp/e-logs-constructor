@@ -4,7 +4,8 @@ import axios from 'axios'
 const journalState = {
     namespaced: true,
     state: {
-        journal: {}
+        journal: null,
+        scheme: null,
     },
     getters: {
         getJournal(state, getters) {
@@ -130,6 +131,31 @@ const journalState = {
                     return ''
                 }
             }
+        },
+        getJournalCompletions(state, getters) {
+            return function (prefix) {
+                let journal_names = Object.keys(state.scheme)
+                return journal_names.filter(name => name.includes(prefix))
+            }
+        },
+        getTableCompletions(state, getters) {
+            return function (prefix) {
+                console.log("U sobak bolshie hui", state.scheme)
+                let table_names = Object.values(state.scheme).map(function(tables) {
+                    return Object.keys(tables)
+                }).flat();
+                return table_names.filter(name => name.includes(prefix))
+            }
+        },
+        getFieldCompletions(state, getters) {
+            return function (prefix) {
+                console.log("U sobak bolshie hui", state.scheme)
+                let table_names = Object.values(state.scheme).map(function(tables) {
+                    let fields_names = Object.values(tables);
+                    return fields_names.flat()
+                }).flat();
+                return table_names.filter(name => name.includes(prefix))
+            }
         }
     },
     actions: {
@@ -149,6 +175,9 @@ const journalState = {
             // if (!payload.tables) {
             //     state.journal.tables = []
             // }
+        },
+        setScheme(state, payload) {
+            Vue.set(state, 'scheme', payload)
         },
         setCurrentTable(state, payload) {
             Vue.set(state.journal, 'currentTable', payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload)
