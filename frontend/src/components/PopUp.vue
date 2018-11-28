@@ -190,9 +190,17 @@
                 eventBus.$emit('toggleFieldsSelectors')
             },
             
-            insertCellIntoFormula (cell) {
-                let name = this.$store.getters["journalState/getFieldName"](this.$route.params.tableName, cell);
-                this.editor.session.insert(this.editor.getCursorPosition(), `$("${name}")`);
+            insertCellIntoFormula (payload) {
+                // console.log()
+                // console.log(Object.keys(payload), "journal" in Object.keys(payload))
+                if  (Object.keys(payload).indexOf("journal") >= 0 && Object.keys(payload).indexOf("table") >= 0) {
+                    var formula = `$("${payload.journal}", "CURRENT_SHIFT", "${payload.table}", "${payload.field}")`
+                }
+                else {
+                    var formula = `$("${payload.field}")`
+                }
+                console.log(formula)
+                this.editor.session.insert(this.editor.getCursorPosition(), formula);
                 this.editor.focus();
             },
             openWizard () {

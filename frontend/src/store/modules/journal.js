@@ -176,7 +176,6 @@ const journalState = {
     actions: {
         importJournal: function ({commit, state, getters}, payload) {
             let url = window.ELOGS_SERVER + `/api/constructor/get_journal?plant=${payload.plant}&journal=${payload.journal}`;
-
             return axios.get(url)
                 .then( function (response) {
                     commit('setJournal', response.data) 
@@ -184,10 +183,23 @@ const journalState = {
         },
         importTable: function ({commit, state, getters}, payload) {
             var ThirdPartyAPI = window.ELOGS_SERVER + '/api';
-            let url = ThirdPartyAPI + `/table?journal=${payload.journal}&table=${payload.table}`;
+            let url = ThirdPartyAPI + `/templates/tables/?journal_name=${payload.journal}&table_name=${payload.table}`;
             return axios.get(url)
                 .then( function (response) {
-                    commit('setTableHtml', {...payload, html: response.data}) 
+                    let htmlDoc = $.parseHTML("<div>" + response.data + "</div>")
+                    console.log(response.data)
+                    let $html = $(htmlDoc)
+                    let cells = $html.find("cell");
+                    console.log(cells)
+                    for (var cell of cells) {
+                        let fieldName = $(cell).attr("field-name")
+                        let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
+                        $(cell).text("")
+                        $(cell).append(fieldSelectorElement)
+                    }
+                    // console.log($html.html())
+
+                    commit('setTableHTML', {...payload, html: $html.html()}) 
                 });
         }
         
@@ -201,7 +213,9 @@ const journalState = {
             // }
         },
         setTableHTML(state, payload) {
-            Vue.set(state.scheme[payload.journal][payload.table], 'html', payload.html )
+            console.log(payload)
+            console.log(state.scheme[payload.journal][payload.table])
+            Vue.set(state.scheme[payload.journal][payload.table], 'html', "<div>" + payload.html + "</div>")
         },
         setScheme(state, payload) {
             Vue.set(state, 'scheme', payload)
@@ -292,3 +306,4 @@ const journalState = {
 }
 
 export default journalState
+
