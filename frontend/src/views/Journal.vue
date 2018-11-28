@@ -105,22 +105,30 @@ export default {
             return refactoredHtml
         },
         addCells (table_html) {
-            let refactoredHtml = table_html
-            console.log($(table_html).find('table'))
-            // .addClass('elog-journal-table')
-            refactoredHtml = refactoredHtml.split('div').join('cell')
-            refactoredHtml = refactoredHtml.split('class="cell"').join('')
-            return refactoredHtml
+            let $html = $('<div>' + table_html + '</div>')
+            $html.find('.cell').replaceWith(function () {
+                return `<cell ` +
+                    `${$(this).attr('field-name') ? `field-name="${$(this).attr('field-name')}"` : ''}` +
+                    `${$(this).attr('row-index') ?
+                        `row-index="${$(this).attr("row-index")}"`
+                          : $(this).attr(':row-index') ?
+                            `:row-index="${$(this).attr(":row-index")}"`
+                            : 'row-index="0"'}` +
+                                `></cell>`
+            })
+
+            return $html.html()
         },
         showDownloadModal() {
             this.onHandleSend();
         },
         onHandleSend () {
+
             let journalObserver = this.$store.getters['journalState/getJournal'];
             console.log(journalObserver);
             let journal = JSON.parse(JSON.stringify(journalObserver));
             journal.tables.map(item => {
-                item.html = this.addCells(item.html)
+                item.html = this.addCells(item.html).replace(/(\sid=\".+\")/gmi, '')
             });
             console.log(journal);
             window.journal = journal;

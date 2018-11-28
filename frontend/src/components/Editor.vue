@@ -143,34 +143,15 @@
             setCells () {
                 let _this = this
 
-                $('#editor-content td').each(function () {
+                let $editorContent = $('#editor-content')
 
-                    // _this.$store.commit('journalState/setFieldName',
-                    //     {
-                    //         name: _this.$route.params.tableName,
-                    //         field_name: $(this).attr('field-name'),
-                    //         cell: $(this).attr('id'),
-                    //     }
-                    // )
+                $editorContent.find('th').each(function () {
+                    $(this)[0].removeAttribute('style')
+                })
 
-                    // $(this).attr('field-name', _this.$store.getters['journalState/getCellName'](_this.$route.params.tableName, $(this).attr('id')))
-                    
-                    // if ($(this).attr('field-name')) {
-                    //     _this.$store.commit('journalState/setFieldName',
-                    //         {
-                    //             name: _this.$route.params.tableName,
-                    //             field_name: $(this).attr('field-name'),
-                    //             cell: $(this).attr('id'),
-                    //         }
-                    //     )
-                    // }
-
+                $editorContent.find('td').each(function () {
                     let cellItem = '<div ' +
-                                        'class="cell ' +
-                                            `${_this.getFieldName($(this).attr('id')) ? 'has-name' : ''}` +
-                                            ` ${_this.getFieldType($(this).attr('id')) ? 'has-type' : ''}` + 
-                                            ` ${_this.getFieldUnits($(this).attr('id')) ? 'has-units' : ''}` +
-                                        '"' +
+                                        'class="cell"' +
                                         `${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}` +
                                         `${$(this).attr('field-name') ? `field-name="${$(this).attr('field-name')}"` : ''}` +
                                         `${$(this).attr('row-index') ? 
@@ -212,6 +193,7 @@
                 })
 
                 $('.cell').each(function () {
+                    console.log('start')
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
                         $(this).attr('id', id)
@@ -226,6 +208,23 @@
                         else {
                             _this.cells.push({cell: id})
                         }
+                    }
+                    else {
+                        console.log('not-have-id')
+                        if (_this.getFieldName($(this).attr('id')))
+                            $(this).addClass('has-name')
+                        else
+                            $(this).removeClass('has-name')
+
+                        if (_this.getFieldType($(this).attr('id')))
+                            $(this).addClass('has-type')
+                        else
+                            $(this).removeClass('has-type')
+
+                        if (_this.getFieldUnits($(this).attr('id')))
+                            $(this).addClass('has-units')
+                        else
+                            $(this).removeClass('has-units')
                     }
                 })
                 $('#editor-content th').each(function () {
@@ -249,7 +248,23 @@
                         html: formatFactory($('#editor-content').html())
                     }
                 )
+
+                this.attachDataIcons()
                 console.log('journal', this.$store.getters['journalState/getJournal'])
+            },
+            attachDataIcons () {
+                let _this = this
+
+                $('.cell').each(function () {
+                    if (_this.getFieldName($(this).attr('id')))
+                        $(this).addClass('has-name')
+
+                    if (_this.getFieldType($(this).attr('id')))
+                        $(this).addClass('has-type')
+
+                    if (_this.getFieldUnits($(this).attr('id')))
+                        $(this).addClass('has-units')
+                })
             },
             getFieldName(cell) {
                 return this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, cell)
