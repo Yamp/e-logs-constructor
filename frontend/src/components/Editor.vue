@@ -303,7 +303,9 @@
                 $('.field-selector').on("click", (e) => {
                     e.stopPropagation();
                     let cell = $(e.target).parents(".cell");
-                    eventBus.$emit("insertCellIntoFormula", cell.attr("id"))
+                    let id = cell.attr("id")
+                    let name = this.$store.getters["journalState/getFieldName"](this.$route.params.tableName, id);
+                    eventBus.$emit("insertCellIntoFormula", {field: name})
                 })
             },
             removeFieldsSelectors () {
@@ -447,6 +449,9 @@ table th {
 
 .field-selector {
     flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #007DB4;
     color: white;
     border-radius: 5px;
@@ -454,10 +459,22 @@ table th {
     text-align: center;
     padding-top: 2px;
     opacity: 0.8;
+    height: 100%;
 }
+.field-selector > span {
+    width: 100%;
+}
+
 
 .field-selector:active {
     opacity: 1;
 }
 
+.field-selector:hover {
+    cursor: pointer;
+}
+
+td, th {
+    min-width: 20px;
+}
 </style>

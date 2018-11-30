@@ -42,7 +42,7 @@ td:focus {
   .table td, .table th {
     border: 1px solid #EAEAEA !important;
     vertical-align: bottom !important;
-    min-width: 20px;
+    min-width: 50px;
     min-height: 30px; }
   .table thead th {
     padding: 12px 4px 12px 3px !important;

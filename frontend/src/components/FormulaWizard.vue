@@ -17,7 +17,6 @@
             </div>
             <div v-if='currentTable && currentJournal'>
                 <selection-table :journal='currentJournal' :table='currentTable'></selection-table>
-                <button class="btn btn-primary insert-field-button">Вставить</button>
             </div>
             
         </div>
@@ -42,8 +41,10 @@ export default {
     },
     watch: {
         currentJournal(value) {
-            this.tables = this.$store.getters["journalState/getJournalTableNames"](value)
+            this.currentTable = null;
+            this.tables = this.$store.getters["journalState/getJournalTableNames"](value);
         }
+
     },
     methods: {
         closeWizard () {
@@ -70,7 +71,6 @@ export default {
 
 .formula-wizard {
     width: 500px;
-    height: 300px;
     background-color: white;
     padding: 10px;
     border-radius: 5px;
@@ -120,6 +120,13 @@ export default {
   left: 50%;
   /* bring your own prefixes */
   transform: translate(-50%, -50%);
+}
+
+cell {
+    position: relative;
+    height: 100%;
+    display: block;
+    padding: 4px;
 }
 
 </style>
