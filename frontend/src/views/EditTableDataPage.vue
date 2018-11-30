@@ -45,17 +45,16 @@
                 this.getCurrentTable.fields.map(field => {
                     $(`#${field.cell}`).removeClass('is-repeated')
                 })
-                
-                for(let index = 0; index < this.getCurrentTable.fields.length - 1; index++) {
-                    if (this.getCurrentTable.fields[index].name === this.getCurrentTable.fields[index+1].name) {
-                        this.getCurrentTable.fields.map(field => {
-                            if (this.getCurrentTable.fields[index].name === field.name) {
-                                $(`#${field.cell}`).addClass('is-repeated')
-                            }
-                        })
-                        
-                        hasReapitebleNames = true
-                    }
+
+                console.log('currentFields', this.getCurrentTable.fields)
+
+                for(let index = 0; index < this.getCurrentTable.fields.length; index++) {
+                    this.getCurrentTable.fields.map((field, i) => {
+                        if (index != i && this.getCurrentTable.fields[index].name === field.name) {
+                            $(`#${field.cell}`).addClass('is-repeated')
+                            hasReapitebleNames = true
+                        }
+                    })
                 }
 
                 if (hasAllNames && !hasReapitebleNames) {

@@ -368,6 +368,11 @@ table {
     width: 100%;
     border-collapse: collapse;
 }
+
+th table, td table {
+    margin-bottom: 0 !important;
+}
+
 .cell {
     display: flex;
     position: relative;
