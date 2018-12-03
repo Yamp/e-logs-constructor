@@ -443,7 +443,7 @@ table th {
         cursor: pointer;
     }
 }
-.is-repeated {
+.is-repeated, .is-empty {
     outline: 1px solid rgb(245, 108, 108);
 }
 

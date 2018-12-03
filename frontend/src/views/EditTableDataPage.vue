@@ -40,16 +40,24 @@
                 this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
             },
             onHandleSave() {
-                let hasAllNames = this.getCurrentTable.fields.every(item => item['name'])
-
-                let repeatableNames = []
                 let hasReapitebleNames = false
+                let hasAllNames = true
 
                 this.getCurrentTable.fields.map(field => {
-                    $(`#${field.cell}`).removeClass('is-repeated')
+                    $(`#${field.cell}`).removeClass('is-repeated').removeClass('is-empty')
                 })
 
-                console.log('currentFields', this.getCurrentTable.fields)
+                this.getCurrentTable.fields.map(field => {
+                    if (!field['name']) {
+                        $(`#${field.cell}`).addClass('is-empty')
+                        hasAllNames = false
+                    }
+                })
+
+                if (!hasAllNames) {
+                    this.error = 'Все имена полей должны быть заполнены!'
+                    return;
+                }
 
                 for(let index = 0; index < this.getCurrentTable.fields.length; index++) {
                     this.getCurrentTable.fields.map((field, i) => {
@@ -60,30 +68,28 @@
                     })
                 }
 
-                if (hasAllNames && !hasReapitebleNames) {
-                    $('.editor .cell').removeClass("selected")
-
-                    this.getCurrentTable.fields.map(field => {
-                        $(`#${field.cell}`).attr('class', 'cell')
-                    })
-
-                    this.$store.commit('journalState/updateCurrentTable',
-                        {
-                            html: formatFactory($('#editor-content').html())
-                        }
-                    )
-
-                    this.$store.commit('journalState/addTable', this.getCurrentTable)
-                    this.$store.commit('journalState/setCurrentTable', null)
-                    // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
-                    this.$router.push(`/journal/${this.$route.params.journalName}${this.plant ? '?plant=' + this.plant : ''}`)
-                }
-                else if (!hasAllNames) {
-                    this.error = 'Все имена полей должны быть заполнены!'
-                }
-                else if (hasReapitebleNames) {
+                if (hasReapitebleNames) {
                     this.error = 'Имена полей не должны повторяться!'
+                    return;
                 }
+
+                // If everything is ok
+                $('.editor .cell').removeClass("selected")
+
+                this.getCurrentTable.fields.map(field => {
+                    $(`#${field.cell}`).attr('class', 'cell')
+                })
+
+                this.$store.commit('journalState/updateCurrentTable',
+                    {
+                        html: formatFactory($('#editor-content').html())
+                    }
+                )
+
+                this.$store.commit('journalState/addTable', this.getCurrentTable)
+                this.$store.commit('journalState/setCurrentTable', null)
+                // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                this.$router.push(`/journal/${this.$route.params.journalName}${this.plant ? '?plant=' + this.plant : ''}`)
             },
             getUrlParams(name, url) {
                 if (!url) url = window.location.href;
