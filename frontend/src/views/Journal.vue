@@ -330,4 +330,5 @@ export default {
 .modal-btn:last-child {
   margin-right: 0;
 }
+
 </style>

@@ -43,11 +43,10 @@
             setPopUpListeners () {
                 let _this = this
 
-                $('.data-icon').click(function(e) {
-                    console.log(e)
-                    e.stopPropagation()
-                    // document.elementFromPoint(e.screenX+20, e.screenY).click()
-                })
+                // $('.data-icons-container').click(function(e) {
+                //     console.log(e)
+                //     e.stopPropagation()
+                // })
 
                 $('.cell').click(function(e) {
                     let isCtrlPressed = false
@@ -109,32 +108,40 @@
             },
             openPopUp (e, currentCell, currentCellTag) {
 
-                let currentElement = $(e.target)
+                let currentElement = $(e.target).hasClass('cell') || $(e.target).is('th') ? $(e.target) : $(e.target).closest('.cell')
+                let coords = currentElement[0].getBoundingClientRect()
+                let scrollTop = $(window).scrollTop()
 
                 let popUpWidth = $('.pop-up').outerWidth() ? $('.pop-up').outerWidth() : 200;
                 let appWidth = $('#app').outerWidth()
-                let popUpHeight = $('.pop-up').outerHeight() ? $('.pop-up').outerHeight() : 424;
+                let popUpHeight = $('.pop-up').outerHeight() ? $('.pop-up').outerHeight() : 174;
                 let appHeight = $('#app').outerHeight()
                 let inputOffset = 4
 
                 e.stopPropagation()
 
+                console.log(popUpHeight) // need to be fixed
+
                 this.popupDisplay = true
 
-                if (e.clientX + popUpWidth + 200 >= appWidth) {
-                    this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
+                if (coords.left + popUpWidth + 200 >= appWidth) {
+                    // this.x = e.clientX - e.offsetX - popUpWidth + currentElement.outerWidth()
+                    this.x = coords.right - popUpWidth
                     this.expandDirection = "left"
                 }
                 else {
-                    this.x = e.clientX - e.offsetX
+                    // this.x = e.clientX - e.offsetX
+                    this.x = coords.left
                     this.expandDirection = "right"
                 }
 
-                if (e.clientY - e.offsetY + popUpHeight + currentElement.outerHeight() >= appHeight) {
-                    this.y = e.clientY - popUpHeight - e.offsetY - inputOffset
+                if (coords.bottom + inputOffset + popUpHeight >= appHeight) {
+                    // this.y = e.clientY - popUpHeight - e.offsetY - inputOffset
+                    this.y = coords.top - inputOffset - popUpHeight + scrollTop
                 }
                 else {
-                    this.y = e.clientY - e.offsetY + inputOffset + currentElement.outerHeight()
+                    // this.y = e.clientY - e.offsetY + inputOffset + currentElement.outerHeight()
+                    this.y = coords.bottom + inputOffset + scrollTop
                 }
 
                 this.currentCell = currentCell
@@ -475,6 +482,6 @@ table th {
 }
 
 td, th {
-    min-width: 20px;
+    min-width: 70px !important;
 }
 </style>
