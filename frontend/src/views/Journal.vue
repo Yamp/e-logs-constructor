@@ -33,7 +33,7 @@
       <div>
         <p class="modal-title">Журнал успешно сохранен!</p>
         <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-        <button class="btn btn-primary modal-btn" @click="onSave">Сохранить</button>
+        <button class="btn btn-primary modal-btn" v-if="plant" @click="onSave">Сохранить</button>
         <button class="btn btn-primary modal-btn" @click="onSaveAs">Сохранить как</button>
       </div>
     </modal>
@@ -189,41 +189,41 @@ export default {
         },
         imported () {
             return this.$store.getters['journalState/getJournalImported']
+        },
+        plant () {
+            return this.$store.getters['journalState/getJournalPlant']
         }
     },
     mounted () {
-        let _this = this
         console.log('journal', this.$store.getters['journalState/getJournal'])
 
-        if (this.getUrlParams('imported') === 'true') {
-            this.$store.commit('journalState/setJournalImported', true)
-
-            if (this.getUrlParams('plant')) {
-                this.$store.dispatch('journalState/importJournal', {
-                    plant: this.getUrlParams('plant'), 
-                    journal: this.$route.params.journalName
+        if (this.getUrlParams('plant') && !this.plant) {
+            this.$store.dispatch('journalState/importJournal', {
+                plant: this.getUrlParams('plant'),
+                journal: this.$route.params.journalName
+            })
+                .then((response) => {
+                    let journal = response.data
+                    journal.tables.map(item => {
+                        item.html = this.removeCells(item.html)
+                    });
+                    this.$store.commit('journalState/setJournal', journal)
+                    this.$store.commit('journalState/setJournalPlant', this.getUrlParams('plant'))
+                    console.log('journal2', this.$store.getters['journalState/getJournal'])
                 })
-                    .then(() => {
-                        let journalObserver = this.$store.getters['journalState/getJournal'];
-                        let journal = JSON.parse(JSON.stringify(journalObserver));
-                        journal.tables.map(item => {
-                            item.html = this.removeCells(item.html)
-                        });
-                        this.$store.commit('journalState/setJournal', journal)
-                    })
-            }
-            else {
-                let journalObserver = this.$store.getters['journalState/getJournal'];
-                let journal = JSON.parse(JSON.stringify(journalObserver));
-                journal.tables.map(item => {
-                    item.html = this.removeCells(item.html)
-                });
-                this.$store.commit('journalState/setJournal', journal)
-            }
+        }
+        else if (this.getUrlParams('imported') && !this.imported) {
+            let journalObserver = this.$store.getters['journalState/getJournal'];
+            let journal = JSON.parse(JSON.stringify(journalObserver));
+            journal.tables.map(item => {
+                item.html = this.removeCells(item.html)
+            });
+            this.$store.commit('journalState/setJournal', journal)
+            this.$store.commit('journalState/setJournalImported', true)
+            console.log('journal3', this.$store.getters['journalState/getJournal'])
         }
 
         this.initSectionList()
-
 
         var ThirdPartyAPI = window.ELOGS_SERVER + '/api';
         axios.get(ThirdPartyAPI + '/scheme').then((response) => {

@@ -10,14 +10,14 @@ export default {
     props: ['journal', 'table'],
     // data () {
     //     return {
-    //         template: this.$store.getters['journalState/getTableHTML'](this.journal, this.table),
+    //         template: this.$store.getters['journalState/getSchemeTableHTML'](this.journal, this.table),
     //     }
     // },
     computed: {
         template: {
             cache: false,
             get: function() { 
-                return this.$store.getters['journalState/getTableHTML'](this.journal, this.table)
+                return this.$store.getters['journalState/getSchemeTableHTML'](this.journal, this.table)
             }
         }
     },
@@ -71,7 +71,7 @@ export default {
     },
     mounted () {
         console.log(this.journal, this.table)
-        // this.template = this.$store.getters['journalState/getTableHTML'](this.journal, this.table)
+        // this.template = this.$store.getters['journalState/getSchemeTableHTML'](this.journal, this.table)
         this.$store.dispatch("journalState/importTable", {
             journal: this.journal,
             table: this.table,

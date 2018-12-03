@@ -324,33 +324,34 @@ export default {
     mounted () {
         let tableHtml = ''
 
-        if (this.getUrlParams('table')) {
-            if (this.getUrlParams('imported') == 'true') {
-                this.$store.dispatch('journalState/importJournal', {plant: this.getUrlParams('plant'), journal: this.$route.params.journalName})
-                    .then(() => {
-                        let journalObserver = this.$store.getters['journalState/getJournal'];
-                        let journal = JSON.parse(JSON.stringify(journalObserver));
-                        journal.tables.map(item => {
-                            item.html = this.removeCells(item.html)
-                        });
-                        this.$store.commit('journalState/setJournal', journal)
-                        this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
-                    })
-                    .then(() => {
-                        tableHtml = this.getCurrentTable.html
-                        this.title = this.getCurrentTable.title
+        if (this.getUrlParams('plant') && !this.plant) {
+            this.$store.dispatch('journalState/importJournal', {
+                plant: this.getUrlParams('plant'),
+                journal: this.$route.params.journalName
+            })
+                .then((response) => {
+                    let journal = response.data
+                    journal.tables.map(item => {
+                        item.html = this.removeCells(item.html)
+                    });
+                    this.$store.commit('journalState/setJournal', journal)
+                    this.$store.commit('journalState/setJournalPlant', this.getUrlParams('plant'))
+                    this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
+                    console.log('journal2', this.$store.getters['journalState/getJournal'])
+                })
+                .then(() => {
+                    tableHtml = this.getCurrentTable.html
+                    this.title = this.getCurrentTable.title
 
-                        setTimeout(() => this.initAll(tableHtml), 0)
-                    })
-            }
-            else {
-                this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
-                tableHtml = this.getCurrentTable.html
-                this.title = this.getCurrentTable.title
-                setTimeout(() => this.initAll(tableHtml), 0)
-            }
+                    setTimeout(() => this.initAll(tableHtml), 0)
+                })
         }
-        else {
+        else if (this.getUrlParams('table')) {
+            this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
+            tableHtml = this.getCurrentTable.html
+            this.title = this.getCurrentTable.title
+            console.log('table3')
+
             setTimeout(() => this.initAll(tableHtml), 0)
         }
     }

@@ -29,6 +29,9 @@
             },
             getTableCells () {
                 return this.$store.getters['journalState/getTableCells'](this.$route.params.tableName)
+            },
+            plant () {
+                return this.$store.getters['journalState/getJournalPlant']
             }
         },
         methods: {
@@ -73,7 +76,7 @@
                     this.$store.commit('journalState/addTable', this.getCurrentTable)
                     this.$store.commit('journalState/setCurrentTable', null)
                     // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
-                    this.$router.push(`/journal/${this.$route.params.journalName}`)
+                    this.$router.push(`/journal/${this.$route.params.journalName}${this.plant ? '?plant=' + this.plant : ''}`)
                 }
                 else if (!hasAllNames) {
                     this.error = 'Все имена полей должны быть заполнены!'

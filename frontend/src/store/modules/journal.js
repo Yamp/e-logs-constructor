@@ -12,30 +12,27 @@ const journalState = {
             return state.journal
         },
         getJournalName(state, getters) {
-            return state.journal.name || ''
+            return state && state.journal ? state.journal.name : ''
         },
         getJournalTitle(state, getters) {
-            return state.journal.title || ''
+            return state && state.journal ? state.journal.title : ''
         },
         getTables(state, getters) {
-            return state.journal.tables || []
+            return state && state.journal ? state.journal.tables : []
         },
         getCurrentTable(state, getters) {
-            return state.journal.currentTable || {}
+            return state && state.journal ? state.journal.currentTable : {}
         },
         getJournalImported(state, getters) {
             return state.journal.imported
+        },
+        getJournalPlant(state, getters) {
+            return state && state.journal ? state.journal.plant : ''
         },
         getTableTitle(state, getters) {
             return function (tableName) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]
                 return table.title
-            }
-        },
-        getTableHTML(state, getters) {
-            return function (tableName) {
-                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
-                return table.html ? table.html : ''
             }
         },
         getTableRepeatableRow(state, getters) {
@@ -167,19 +164,25 @@ const journalState = {
                 return table_names.filter(name => name.includes(prefix))
             }
         },
-        getTableHTML(state, getters) {
+        getSchemeTableHTML(state, getters) {
             return function (journal, table) {
                 return state.scheme[journal][table].html
             }
-        }
+        },
+        getTableHTML(state, getters) {
+            return function (tableName) {
+                let table = state.journal.tables.filter((item) => item.name === tableName)[0]
+                return table.html ? table.html : ''
+            }
+        },
     },
     actions: {
         importJournal: function ({commit, state, getters}, payload) {
             let url = window.ELOGS_SERVER + `/api/constructor/get_journal?plant=${payload.plant}&journal=${payload.journal}`;
             return axios.get(url)
-                .then( function (response) {
-                    commit('setJournal', response.data) 
-                });
+                // .then( function (response) {
+                //     commit('setJournal', response.data)
+                // });
         },
         importTable: function ({commit, state, getters}, payload) {
             var ThirdPartyAPI = window.ELOGS_SERVER + '/api';
@@ -206,8 +209,15 @@ const journalState = {
     },
     mutations: {
         setJournal(state, payload) {
-            Vue.set(state, 'journal', {...payload, tables: payload.tables || []})
-            // state.journal = {...state.journal, ...payload}
+            // Vue.set(state, 'journal', {...payload, tables: payload.tables || []})
+            state.journal = {...payload, tables: payload.tables || []}
+            // if (!payload.tables) {
+            //     state.journal.tables = []
+            // }
+        },
+        updateJournal(state, payload) {
+            // Vue.set(state, 'journal', {...payload, tables: payload.tables || []})
+            state.journal = {...state.journal, ...payload}
             // if (!payload.tables) {
             //     state.journal.tables = []
             // }
@@ -229,6 +239,10 @@ const journalState = {
         },
         setJournalImported(state, payload) {
             Vue.set(state.journal, 'imported', payload)
+            // state.journal.imported = payload
+        },
+        setJournalPlant(state, payload) {
+            Vue.set(state.journal, 'plant', payload)
             // state.journal.imported = payload
         },
         addTable(state, payload) {
