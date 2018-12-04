@@ -3,7 +3,7 @@
     <h1 class="title">
       <span>Конструктор журналов</span>
     </h1>
-    <form class="form" @submit.prevent="onHandleCreate">
+    <div class="form">
       <div class="form-group">
         <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange" style="margin-bottom: 20px">
       </div>
@@ -28,7 +28,7 @@
                 </div>
             </div>
         </modal>
-    </form>
+    </div>
   </div>
 </template>
 
