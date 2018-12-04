@@ -239,6 +239,7 @@ export default {
         },
         summernoteInit () {
             let _this = this
+            console.log('summernoteInit')
             $(document).ready(function() {
                 $('#summernote').summernote({
                     height: 300,
@@ -354,6 +355,7 @@ export default {
 
             setTimeout(() => this.initAll(tableHtml), 0)
         }
+        else setTimeout(() => this.initAll(tableHtml), 0)
     }
 }
 </script>
