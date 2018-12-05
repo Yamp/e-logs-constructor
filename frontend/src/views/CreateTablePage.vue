@@ -328,7 +328,8 @@ export default {
         if (this.getUrlParams('plant') && !this.plant) {
             this.$store.dispatch('journalState/importJournal', {
                 plant: this.getUrlParams('plant'),
-                journal: this.$route.params.journalName
+                journal: this.$route.params.journalName,
+                version: this.getUrlParams('version')
             })
                 .then((response) => {
                     let journal = response.data

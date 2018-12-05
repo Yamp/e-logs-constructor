@@ -58,13 +58,14 @@ router.get('/get_journal', function (req, res) {
     console.log('req', req.query.journal);
     var plant = req.query.plant;
     var journal = req.query.journal;
+    var version = req.query.version;
     var hash = req.query.hash;
 
     var constructor_folder = path.resolve(__dirname, `../media/journals/`);
     var e_logs_folder = path.resolve(__dirname, `../../../resources/journals/`);
     var filepath = ''
     if (plant && journal && !hash) {
-        filepath = path.resolve(e_logs_folder, `./${plant}/${journal}.jrn`);
+        filepath = path.resolve(e_logs_folder, `./${plant}/${journal}/v${version}.jrn`);
     } else if (!plant && !journal && hash) {
         filepath = path.resolve(constructor_folder, `${hash}.jrn`);
     } else {
