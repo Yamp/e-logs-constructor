@@ -30,17 +30,12 @@
                 <span class="no-items-text" v-if="!getTables.length">Пока что таблиц нет, вы можете добавить их</span>
             </div>
             <div class="btns" v-if="getTables.length">
-                <button class="btn btn-primary" @click.prevent="showDownloadModal" type="submit">Отправить</button>
+                <button class="btn btn-success" @click="onDownload">Скачать журнал</button>
+                <button class="btn btn-primary" @click="onSave" v-if="plant">Сохранить изменения</button>
+                <button class="btn btn-primary" @click="onSaveAs" v-else>Начать использовать</button>
+                <div class="status" :style="{color: statusColor}">{{status}}</div>
             </div>
         </div>
-        <modal v-show="isShowDownload" @close="isShowDownload = false">
-            <div>
-                <p class="modal-title">Журнал успешно сохранен!</p>
-                <a class="btn btn-success modal-btn" :href="downloadLink">Скачать журнал</a>
-                <button class="btn btn-primary modal-btn" v-if="plant" @click="onSave">Сохранить</button>
-                <button class="btn btn-primary modal-btn" @click="onSaveAs">Сохранить как</button>
-            </div>
-        </modal>
     </div>
 </template>
 <script>
@@ -53,41 +48,63 @@
         name: "JournalPage",
         data() {
             return {
-                isShowDownload: false,
-                downloadLink: '#'
+                downloadLink: '#',
+                status: '',
+                statusColor: '#2c3e50'
             }
         },
         components: {Modal, TableItem},
         methods: {
+            onDownload() {
+                this.onHandleSend(() => {
+                    console.log('download')
+                    let a = document.createElement('A');
+                    a.href = this.downloadLink;
+                    a.download = this.downloadLink.substr(this.downloadLink.lastIndexOf('/') + 1);
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                })
+            },
             onSave() {
-                let url = `http://${window.location.hostname}:8000/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
-                let self = this;
-                axios.get(url)
-                    .then(() => {
-                        let formData = new FormData();
+                this.onHandleSend(() => {
+                    let url = `${window.ELOGS_SERVER}/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                    let self = this;
+                    axios.get(url)
+                        .then(() => {
+                            let formData = new FormData();
 
-                        formData.append("hash", this.getUrlParams('hash', this.downloadLink));
-                        formData.append("plant", this.getUrlParams('plant'));
+                            formData.append("hash", this.getUrlParams('hash', this.downloadLink));
+                            formData.append("plant", this.getUrlParams('plant'));
 
-                        axios.post(`http://${window.location.hostname}:8000/api/constructor/upload/`, formData)
-                    })
-                    .then((response) => {
-                        self.isShowDownload = false;
-                    });
+                            axios.post(`${window.ELOGS_SERVER}/api/constructor/upload/`, formData)
+                        })
+                        .then((response) => {
+                            this.status = 'Журнал успешно сохранен!'
+                            this.statusColor = '#5cb85c'
+                        })
+                        .catch(() => {
+                            this.status = 'Произошла ошибка!'
+                            this.statusColor = '#e00101'
+                        })
+                })
             },
             onSaveAs() {
-                let url = `http://${window.location.hostname}:8000/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
-                let self = this;
-                axios.get(url)
-                    .then(() => {
-                        let link = `http://${window.location.hostname}:8080/addjournal?hash=${this.getUrlParams('hash', this.downloadLink)}`;
-                        let plant = this.plant;
-                        let journal = this.$store.getters['journalState/getJournalName'];
-                        if (this.plant) {
-                            link = link + `&plant=${plant}&journalName=${journal}`
-                        }
-                        window.open(link, '_blank')
-                    })
+                this.onHandleSend(() => {
+                    console.log('save')
+                    let url = `${window.ELOGS_SERVER}/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                    let self = this;
+                    axios.get(url)
+                        .then(() => {
+                            let link = `${window.ELOGS_FRONT}/addjournal?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                            let plant = this.plant;
+                            let journal = this.$store.getters['journalState/getJournalName'];
+                            if (this.plant) {
+                                link = link + `&plant=${plant}&journalName=${journal}`
+                            }
+                            window.open(link, '_blank')
+                        })
+                })
             },
             onHandleAdd() {
                 this.$store.commit('journalState/setCurrentTable', {
@@ -128,10 +145,7 @@
 
                 return $html.html()
             },
-            showDownloadModal() {
-                this.onHandleSend();
-            },
-            onHandleSend() {
+            onHandleSend(callback) {
 
                 let journalObserver = this.$store.getters['journalState/getJournal'];
                 console.log(journalObserver);
@@ -141,13 +155,19 @@
                 });
                 console.log(journal);
                 window.journal = journal;
-                let url = 'http://127.0.0.1:8000/api/constructor/save/';
+                let url = `${window.ELOGS_SERVER}/api/constructor/save/`;
                 let self = this;
-                axios.post(url, journal).then(function (response) {
+                return axios.post(url, journal).then(function (response) {
                     console.log("data", response.data);
                     self.downloadLink = response.data.download_link;
-                    self.isShowDownload = true;
-                });
+                })
+                    .then(() => {
+                        callback()
+                    })
+                    .catch(() => {
+                        this.status = 'Произошла ошибка!'
+                        this.statusColor = '#e00101'
+                    })
             },
             clearJson(json) {
                 let result = json.replace('"', "'");
@@ -344,7 +364,18 @@
     .btns {
         display: flex;
         justify-content: flex-end;
+        position: relative;
         margin-bottom: 20px;
+    }
+
+    .btns a, .btns button {
+        margin-left: 10px;
+    }
+
+    .status {
+        position: absolute;
+        right: 0;
+        bottom: -30px;
     }
 
     .modal-title {

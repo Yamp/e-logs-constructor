@@ -57,10 +57,10 @@ export default {
     }
 
     .modal-container {
-        width: 80%;
+        width: 60%;
         min-width: 380px;
         margin: 0px auto;
-        padding: 20px 30px;
+        padding: 20px;
         background-color: #fff;
         border-radius: 2px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
@@ -74,7 +74,11 @@ export default {
     }
 
     .modal-body {
-        margin: 20px 0;
+        padding: 20px 0;
+    }
+
+    .modal-footer {
+        padding: 15px 0 0 0;
     }
 
     .modal-default-button {

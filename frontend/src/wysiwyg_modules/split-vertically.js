@@ -21,7 +21,7 @@ export default function () {
             });
 
             this.splitV = function () {
-                if (redips) redips.split('v')
+                if (redips) redips.split('h')
             };
         }
     });

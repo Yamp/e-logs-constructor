@@ -6,7 +6,7 @@
         </div>
         <editor class="editor"></editor>
         <div class="btns">
-            <button class="btn btn-secondary" @click="onHandleCancel" style="margin-right: 14px">Отмена</button>
+            <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
             <button class="btn btn-primary" @click.prevent="onHandleSave" type="submit">Сохранить</button>
         </div>
     </div>
@@ -108,7 +108,6 @@
 <style scoped>
     .edit-data {
         padding: 20px;
-        height: 100%;
         box-sizing: border-box;
     }
 

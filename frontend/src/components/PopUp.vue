@@ -1,8 +1,5 @@
 <template>
     <div v-show="display" v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{left: x + 'px', top: y + 'px', transition: '0.2s'}">
-        <div id="test">
-            {{ cell }}
-        </div>
         <div class="form-group input-container" style="margin-top: 0;">
             <i class="fas fa-font data-icon"></i>
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">

@@ -23,18 +23,22 @@ export default function () {
             this.toggleCellHeader = function () {
                 const rng = context.invoke('createRange', $editable);
                 const dom = $.summernote.dom;
-                if (rng.isCollapsed() && rng.isOnCell()) {
+                // if (rng.isCollapsed() && rng.isOnCell()) {
                     context.invoke('beforeCommand');
-                    var cell = dom.ancestor(rng.commonAncestor(), dom.isCell)
-                    var $cell = $(cell)
-                    if ($cell.is('td')) {
-                        self.replaceTags($cell, 'th')
-                    }
-                    else if ($cell.is('th')) {
-                        self.replaceTags($cell, 'td')
-                    }
+                    // var cell = dom.ancestor(rng.commonAncestor(), dom.isCell)
+                    $('table *').each(function () {
+                        let $item = $(this)
+                        if($item.attr('style') && $item.attr('style').includes('background-color: rgb(155, 179, 218)')) {
+                            if ($item.is('td')) {
+                                self.replaceTags($item, 'th')
+                            }
+                            else if ($item.is('th')) {
+                                self.replaceTags($item, 'td')
+                            }
+                        }
+                    })
                     context.invoke('afterCommand');
-                }
+                // }
             };
 
             this.replaceTags = function($nodes, newTag) {

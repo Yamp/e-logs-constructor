@@ -42,15 +42,15 @@ td:focus {
   .table td, .table th {
     border: 1px solid #EAEAEA !important;
     vertical-align: bottom !important;
-    min-width: 50px;
+    min-width: 20px;
     min-height: 30px; }
   .table thead th {
     padding: 12px 4px 12px 3px !important;
-    background-color: #666666 !important;
+    background-color: #666666;
     color: white !important; }
   .table tbody th {
     padding: 12px 4px 12px 3px !important;
-    background-color: #a6a6a6 !important;
+    background-color: #a6a6a6;
     color: white !important; }
   .table th {
     font-family: 'Roboto Condensed', sans-serif;

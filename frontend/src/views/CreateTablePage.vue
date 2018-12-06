@@ -2,29 +2,25 @@
     <div class="create-table">
         <h2 class="title" v-if="!getUrlParams('table')">Создание секции</h2>
         <h2 class="title" v-else>Изменение секции</h2>
-        <form class="form" @submit.prevent="onHandleContinue">
-            <div class="form-group" v-if="!getUrlParams('table')">
+        <div class="form">
+            <div class="form-group title-group" v-if="!getUrlParams('table')">
                 <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange">
+                <div v-show="error" class="error">
+                    Введите заголовок
+                </div>
             </div>
             <div class="form-group" v-else>
                 <p class="table-verbose-name"><span>Заголовок: </span>{{title}}</p>
             </div>
-            <!-- <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="repeatableRow" v-model="repeatableRow" @change="onHandleChange">
-                <label class="form-check-label" for="repeatableRow">Повторяющиеся строки</label>
-            </div> -->
-            <div v-show="error" class="error">
-                Введите заголовок
-            </div>
-        </form>
+        </div>
         <div class="wysiwyg">
             <h3 class="title">Создание структуры таблицы</h3>
             <div id="summernote"></div>
             <div class="btns">
                 <button class="btn btn-primary" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
                 <div>
-                    <button class="btn btn-secondary" @click="onHandleCancel" style="margin-right: 14px">Отмена</button>
-                    <button class="btn btn-primary" @click.prevent="onHandleContinue" type="submit">Продолжить</button>
+                    <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
+                    <button class="btn btn-primary" @click.prevent="onHandleContinue">Продолжить</button>
                 </div>
             </div>
             <modal v-show="isShowImport" @close="isShowImport = false">
@@ -77,50 +73,7 @@ export default {
             importFile: null,
             repeatableRow: false,
             redips: {},
-            repeatableRowDefaultHTML:
-                `<table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <td>
-                            <br>
-                        </td>
-                        <td>
-                            <br>
-                        </td>
-                        <td>
-                            <br>
-                        </td>
-                        <td>
-                            <br>
-                        </td>
-                        <td>
-                            <br>
-                        </td>
-                        <td>
-                            <br>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>`,
             error: ''
-        }
-    },
-    watch: {
-        repeatableRow (value) {
-            if (value) {
-                $('#summernote').summernote('code', this.repeatableRowDefaultHTML)
-            }
-            else {
-                $('#summernote').summernote('code', '')
-            }
         }
     },
     computed: {
@@ -157,7 +110,6 @@ export default {
                         name: this.getUrlParams('table') ? this.getUrlParams('table') : slugify(this.title, '_'),
                         fields: this.getUrlParams('table') ? this.$store.getters['journalState/getTableCells'](this.getUrlParams('table')) : [],
                         html: $('#summernote').summernote('code'),
-                        // repeatable_row: this.repeatableRow
                     }
                 )
 
@@ -182,7 +134,7 @@ export default {
             }
         },
         onImport () {
-            let url = 'http://localhost:3000/import';
+            let url = window.ELOGS_SERVER + '/import';
             let data = new FormData()
             data.append('data', this.importFile)
 
@@ -382,15 +334,17 @@ export default {
     height: 40px;
     border-radius: 6px;
     padding: 0px 15px;
+    margin-top: 10px;
     margin-bottom: 20px;
 }
 .form {
-    /* width: 300px; */
-    margin-bottom: 10px;
+    display: flex;
+    margin-bottom: 20px;
 }
-.form-check label {
-    font-weight: normal;
-    margin-left: 10px;
+.title-group {
+    min-width: 200px;
+    margin-bottom: 0;
+    height: fit-content;
 }
 .table-verbose-name {
     font-size: 18px;

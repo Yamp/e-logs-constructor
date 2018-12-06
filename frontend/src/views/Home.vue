@@ -11,7 +11,7 @@
         Введите заголовок
       </div>
       <div class="buttons-container">
-        <button class="btn" @click="isShowImport = true">Загрузить журнал</button>
+        <button class="btn btn-default" @click="isShowImport = true">Загрузить журнал</button>
         <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
       </div>
       <modal v-show="isShowImport" @close="isShowImport = false">

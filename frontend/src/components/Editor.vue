@@ -56,6 +56,8 @@
                         isCtrlPressed = true
                     }
 
+                    $('th').removeClass('selected')
+
                     if ($(this).hasClass('selected')) {
                         if (isCtrlPressed) {
                             $(this).removeClass('selected')
@@ -66,7 +68,9 @@
                             _this.selectedFields = []
                             _this.selectedFields.push($(this).attr('id'))
 
+                            console.log(_this.selectedFields.length)
                             if (_this.currentCell !== $(this).attr('id')) {
+                                $(this).addClass('selected')
                                 _this.openPopUp(e, $(this).attr('id'), 'td')
                             }
                         }
@@ -80,6 +84,7 @@
                             $(`.cell`).removeClass('selected')
                             _this.selectedFields = []
                             _this.selectedFields.push($(this).attr('id'))
+                            $(this).addClass('selected')
                         }
 
                         if (_this.currentCell !== $(this).attr('id')) {
@@ -90,6 +95,13 @@
                 $('#editor-content th').click(function(e) {
                     _this.selectedFields = []
                     $('.selected').removeClass('selected')
+
+                    if (!$(this).hasClass('selected')) {
+                        $(this).addClass('selected')
+                    }
+                    else {
+                        $(this).removeClass('selected')
+                    }
 
                     if (_this.currentCell !== $(this).attr('id')) {
                         _this.openPopUp(e, $(this).attr('id'), 'th')
@@ -104,6 +116,7 @@
                     _this.currentCell = null
                     _this.currentCellTag = null
                     _this.selectedFields = []
+                    $('.selected').removeClass('selected')
                 })
             },
             openPopUp (e, currentCell, currentCellTag) {
@@ -151,10 +164,6 @@
                 let _this = this
 
                 let $editorContent = $('#editor-content')
-
-                $editorContent.find('th').each(function () {
-                    $(this)[0].removeAttribute('style')
-                })
 
                 $editorContent.find('td').each(function () {
                     let cellItem = '<div ' +
@@ -234,7 +243,14 @@
                             $(this).removeClass('has-units')
                     }
                 })
-                $('#editor-content th').each(function () {
+
+                $editorContent.find('th').each(function () {
+                    $(this)[0].removeAttribute('style')
+
+                    if (+$(this).attr('colspan') > 1) {
+                        $(this).addClass('th-common')
+                    }
+
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
                         $(this).attr('id', id)
@@ -432,24 +448,13 @@ th table, td table {
         }
     }
 }
-table td {
-    padding: 0 !important;
-    border: 1px solid #a9a9a9;
 
-    // .cell:hover {
-        // background-color: #f9f9f9;
-    // }
-}
-table th {
-    padding: 0 !important;
-    border: 1px solid #a9a9a9;
-    background-color: #eaeaea;
-
-    &:hover {
-        background-color: #e3e3e3;
-        cursor: pointer;
+th {
+    &.selected {
+        background-color: #9BB3DA !important;
     }
 }
+
 .is-repeated, .is-empty {
     outline: 1px solid rgb(245, 108, 108);
 }
@@ -483,5 +488,6 @@ table th {
 
 td, th {
     min-width: 70px !important;
+    cursor: pointer;
 }
 </style>
