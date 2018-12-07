@@ -121,7 +121,15 @@
             },
             openPopUp (e, currentCell, currentCellTag) {
 
-                let currentElement = $(e.target).hasClass('cell') || $(e.target).is('th') ? $(e.target) : $(e.target).closest('.cell')
+                let currentElement
+
+                if (currentCellTag === 'td') {
+                    currentElement = $(e.target).hasClass('cell') ? $(e.target) : $(e.target).closest('.cell')
+                }
+                else if (currentCellTag === 'th') {
+                    currentElement = $(e.target).is('th') ? $(e.target) : $(e.target).closest('th')
+                }
+
                 let coords = currentElement[0].getBoundingClientRect()
                 let scrollTop = $(window).scrollTop()
 
@@ -177,15 +185,13 @@
                                                 : 'row-index="0"'}` +
                                     '>' +
                                         '<div class="data-icons-container">' +
-                                            '<div class="data-icon name">' +
-                                                '<i class="fas fa-font"></i>' +
+                                            '<div class="data-icon data-icon-type">' +
+                                                '<img src="' + require('../assets/icons/type_icon.svg') + '" />' +
                                             '</div>' +
-                                            '<div class="data-icon type">' +
-                                                '<i class="fas fa-sliders-h"></i>' +
+                                            '<div class="data-icon data-icon-units">' +
+                                                '<img src="' + require('../assets/icons/ed_icon.svg') + '" />' +
                                             '</div>' +
-                                            '<div class="data-icon units">' + 
-                                                '<i class="fas fa-pencil-ruler"></i>' +
-                                            '</div>' +
+                                            '<div class="name-container"></div>' +
                                         '</div>' +
                                     '</div>';
 
@@ -245,6 +251,7 @@
                 })
 
                 $editorContent.find('th').each(function () {
+                    $(this).find('br').remove()
                     $(this)[0].removeAttribute('style')
 
                     if (+$(this).attr('colspan') > 1) {
@@ -272,15 +279,16 @@
                     }
                 )
 
-                this.attachDataIcons()
+                this.attachCellData()
                 console.log('journal', this.$store.getters['journalState/getJournal'])
             },
-            attachDataIcons () {
+            attachCellData () {
                 let _this = this
 
                 $('.cell').each(function () {
+                    console.log('before if', _this.getFieldName($(this).attr('id')))
                     if (_this.getFieldName($(this).attr('id')))
-                        $(this).addClass('has-name')
+                        $(this).find('.name-container').text(_this.getFieldName($(this).attr('id')))
 
                     if (_this.getFieldType($(this).attr('id')))
                         $(this).addClass('has-type')
@@ -412,28 +420,46 @@ th table, td table {
 
     .data-icons-container {
         display: flex;
+        align-items: center;
         width: 100%;
         height: 100%;
     }
 
     .data-icon {
         display: none;
+        color: #000;
 
         &:not(:last-child) {
             margin-right: 4px;
+        }
+
+        &:last-child {
+            margin-right: 10px;
         }
     }
 
     &.has-name .name {
         display: block;
+
+        img {
+            width: 18px;
+        }
     }
 
-    &.has-type .type {
+    &.has-type .data-icon-type {
         display: block;
+
+        img {
+            width: 20px;
+        }
     }
 
-    &.has-units .units {
+    &.has-units .data-icon-units {
         display: block;
+
+        img {
+            width: 14px;
+        }
     }
 
     &:hover {
@@ -450,6 +476,11 @@ th table, td table {
 }
 
 th {
+
+    .text {
+        float: left;
+    }
+
     &.selected {
         background-color: #9BB3DA !important;
     }
@@ -484,6 +515,15 @@ th {
 
 .field-selector:hover {
     cursor: pointer;
+}
+
+.units {
+    white-space: nowrap;
+
+    &::before {
+        content: ", ";
+        white-space: nowrap;
+    }
 }
 
 td, th {

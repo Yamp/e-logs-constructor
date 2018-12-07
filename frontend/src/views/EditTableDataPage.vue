@@ -74,7 +74,14 @@
                 }
 
                 // If everything is ok
-                $('.editor .cell').removeClass("selected")
+                $('.editor .cell').each(function () {
+                    $(this).removeClass("selected")
+                    $(this).find('.name-container').text('')
+                })
+
+                $('.editor th').each(function () {
+                    $(this).removeClass("selected")
+                })
 
                 this.getCurrentTable.fields.map(field => {
                     $(`#${field.cell}`).attr('class', 'cell')

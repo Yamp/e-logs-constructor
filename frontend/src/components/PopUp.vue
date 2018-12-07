@@ -5,7 +5,7 @@
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
         <div class="form-group input-container" v-show="cellTag === 'td'">
-            <i class="fas fa-sliders-h data-icon"></i>
+            <img src="../assets/icons/type_icon.svg" class="data-icon data-icon-units"/>
             <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
                 <option value="" selected disabled>Тип ячейки</option>
                 <option value="text">Текст</option>
@@ -31,8 +31,8 @@
             <img src="../assets/icons/list.svg" class="icon" alt="Визард" @click="openWizard">
         </div>
 
-        <div class="form-group" v-show="cellTag === 'td'">
-            <i class="fas fa-pencil-ruler data-icon"></i>
+        <div class="form-group">
+            <img src="../assets/icons/ed_icon.svg" class="data-icon data-icon-units" />
             <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
         </div>
     </div>
@@ -75,9 +75,10 @@
                     console.log("setted value")
                 }
                 else if (value && this.cellTag === 'th') {
-                    this.fieldName = $(`#${this.cell}`).text()
+                    console.log($(`#${this.cell}`).text())
+                    this.fieldName = $(`#${this.cell}`).find('.text').text()
                     this.type = ''
-                    this.units = ''
+                    this.units = $(`#${this.cell}`).find('.units').text()
                 }
                 else {
                     this.fieldName = ''
@@ -115,13 +116,20 @@
                         $(`#${item}`).attr('field-name', input.target.value)
                     })
                     if (this.cellTag === 'th') {
-                        $(`#${this.cell}`).text(input.target.value)
+                        let $text = $(`#${this.cell}`).find('.text')
+
+                        if ($text.length) {
+                            input.target.value ?
+                                $text.text(input.target.value)
+                                : $text.remove()
+                        }
+                        else {
+                            $(`#${this.cell}`).prepend(`<span class="text">${input.target.value}</span>`)
+                        }
                     }
                     else {
                         this.selectedFields.map(item => {
-                            input.target.value ? 
-                                $(`#${item}`).addClass('has-name')
-                                : $(`#${item}`).removeClass('has-name')
+                            $(`#${item}`).find('.name-container').text(input.target.value)
                         })
                     }
                 }
@@ -133,11 +141,25 @@
                 }
 
                 if (data === 'units') {
-                    this.selectedFields.map(item => {
-                        input.target.value ? 
-                            $(`#${item}`).addClass('has-units')
-                            : $(`#${item}`).removeClass('has-units')
-                    })
+                    if (this.cellTag === 'td') {
+                        this.selectedFields.map(item => {
+                            input.target.value ?
+                                $(`#${item}`).addClass('has-units')
+                                : $(`#${item}`).removeClass('has-units')
+                        })
+                    }
+                    else if (this.cellTag === 'th') {
+                        let $units = $(`#${this.cell}`).find('.units')
+
+                        if ($units.length) {
+                            input.target.value ?
+                                $units.text(input.target.value)
+                                : $units.remove()
+                        }
+                        else {
+                            $(`#${this.cell}`).append(`<i class="units">${input.target.value}</i>`)
+                        }
+                    }
                 }
 
                 if (this.cellTag === 'td') {
@@ -309,6 +331,7 @@
 
 .form-group .data-icon {
     font-size: 18px;
+    width: 16px;
     margin-right: 10px;
 }
 
