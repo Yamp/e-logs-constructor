@@ -1,8 +1,10 @@
 <template>
     <div class="edit-data">
-        <h2 class="title">Заполнение данными</h2>
-        <div v-show="error" class="error">
-            {{error}}
+        <div class="title-container">
+            <h2 class="title">Заполнение данными</h2>
+            <div v-show="error" class="error">
+                {{error}}
+            </div>
         </div>
         <editor class="editor"></editor>
         <div class="btns">
@@ -15,6 +17,7 @@
 <script>
     import Editor from '../components/Editor.vue'
     import formatFactory from '../utils/formatFactory.js'
+    import {eventBus} from '../main.js'
 
     export default {
         name: 'EditTableDataPage',
@@ -40,11 +43,10 @@
                 this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
             },
             onHandleSave() {
-                let hasReapitebleNames = false
                 let hasAllNames = true
 
                 this.getCurrentTable.fields.map(field => {
-                    $(`#${field.cell}`).removeClass('is-repeated').removeClass('is-empty')
+                    $(`#${field.cell}`).removeClass('is-empty')
                 })
 
                 this.getCurrentTable.fields.map(field => {
@@ -56,20 +58,15 @@
 
                 if (!hasAllNames) {
                     this.error = 'Все имена полей должны быть заполнены!'
+
+                    this.getCurrentTable.fields.map(field => {
+                        $(`#${field.cell}`).removeClass('is-repeated')
+                    })
+
                     return;
                 }
 
-                for(let index = 0; index < this.getCurrentTable.fields.length; index++) {
-                    this.getCurrentTable.fields.map((field, i) => {
-                        if (index != i && this.getCurrentTable.fields[index].name === field.name) {
-                            $(`#${field.cell}`).addClass('is-repeated')
-                            hasReapitebleNames = true
-                        }
-                    })
-                }
-
-                if (hasReapitebleNames) {
-                    this.error = 'Имена полей не должны повторяться!'
+                if (this.checkRepeated()) {
                     return;
                 }
 
@@ -98,6 +95,36 @@
                 // this.$router.push(`/journal/${this.$route.params.journalName}${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
                 this.$router.push(`/journal/${this.$route.params.journalName}${this.plant ? '?plant=' + this.plant : ''}`)
             },
+            checkRepeated() {
+                let hasReapitebleNames = false
+
+                this.getCurrentTable.fields.map(field => {
+                    $(`#${field.cell}`).removeClass('is-repeated')
+                })
+
+                for(let index = 0; index < this.getCurrentTable.fields.length; index++) {
+                    this.getCurrentTable.fields.map((field, i) => {
+                        if (index != i && this.getCurrentTable.fields[index].name === field.name &&
+                                this.getCurrentTable.fields[index].name && field.name !== '') {
+                            $(`#${field.cell}`).addClass('is-repeated')
+                            hasReapitebleNames = true
+                        }
+                    })
+                }
+
+                if (hasReapitebleNames) {
+                    this.error = 'Имена полей не должны повторяться!'
+                    this.getCurrentTable.fields.map(field => {
+                        $(`#${field.cell}`).removeClass('is-empty')
+                    })
+                    return true
+                }
+                else {
+                    this.error = this.error === 'Все имена полей должны быть заполнены!' ?
+                        'Все имена полей должны быть заполнены!' : ''
+                    return false
+                }
+            },
             getUrlParams(name, url) {
                 if (!url) url = window.location.href;
                 name = name.replace(/[\[\]]/g, '\\$&');
@@ -109,10 +136,20 @@
             },
         },
         components: {Editor},
+        mounted() {
+            eventBus.$on('check-repeated', () => this.checkRepeated())
+        }
     }
 </script>
 
 <style scoped>
+    .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 40px;
+        margin-bottom: 20px;
+    }
     .edit-data {
         padding: 20px;
         box-sizing: border-box;
@@ -120,7 +157,7 @@
 
     .edit-data .title {
         margin-top: 0;
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
 
     .editor {
@@ -139,6 +176,5 @@
         height: 40px;
         border-radius: 6px;
         padding: 0px 15px;
-        margin-bottom: 20px;
     }
 </style>

@@ -1,7 +1,9 @@
 <template>
     <div class="create-table">
-        <h2 class="title" v-if="!getUrlParams('table')">Создание таблицы</h2>
-        <h2 class="title" v-else>Изменение таблицы</h2>
+        <div class="title-container">
+            <h2 class="title" v-if="!getUrlParams('table')">Создание таблицы</h2>
+            <h2 class="title" v-else>Изменение таблицы</h2>
+        </div>
         <div class="wysiwyg">
             <div id="summernote"></div>
             <div class="btns">
@@ -301,9 +303,18 @@ export default {
   height: 100%;
   box-sizing: border-box;
 }
-.create-table > h2.title{
-    margin-top: 0;
+
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
     margin-bottom: 20px;
+}
+
+.create-table .title{
+    margin-top: 0;
+    margin-bottom: 0;
 }
 .table-verbose-name > span{
     opacity: 0.6;

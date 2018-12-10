@@ -107,6 +107,11 @@
                 }
             },
         },
+        computed: {
+            getCurrentTable () {
+                return this.$store.getters['journalState/getCurrentTable']
+            }
+        },
         methods: {
             onHandleChange (data, input) {
                 console.log("onhandlechange")
@@ -175,7 +180,8 @@
                         }
                     )
                 }
-                console.log(this.$store.getters['journalState/getCurrentTable'])
+
+                eventBus.$emit('check-repeated')
             },
             expandEditor () {
                 // document.getElementById("formula-editor").classList.add("expanded-formula-editor")
