@@ -47,7 +47,7 @@
             <div class="btns" v-if="getTables.length">
                 <button class="btn btn-success" @click="onDownload">Скачать журнал</button>
                 <button class="btn btn-primary" @click="onSave" v-if="plant">Сохранить изменения</button>
-                <button class="btn btn-primary" @click="onSaveAs" v-else>Начать использовать</button>
+                <button class="btn btn-primary" @click="onSaveAs">Начать использовать</button>
                 <div class="status" :style="{color: statusColor}">{{status}}</div>
             </div>
         </div>
