@@ -19,6 +19,7 @@
                             Введите название журнала
                         </div>
                         <button class="btn btn-success" @click="onJournalNameSave">Сохранить</button>
+                        <button class="btn btn-primary cancel-btn" @click="onJournalNameCancel">Отмена</button>
                     </div>
                 </form>
             </h3>
@@ -34,9 +35,9 @@
         <div class="body">
             <div class="title">
                 <h3>Текущие таблицы</h3>
-                <button class="btn btn-primary" @click.prevent="onHandleAdd" type="submit">Добавить таблицу</button>
+                <button class="btn btn-primary" @click.prevent="isShowCreate = true" type="submit">Добавить таблицу</button>
             </div>
-            <div class="content">
+            <div class="body__content">
                 <template v-if="getTables.length">
                     <table-item v-for="table in getTables" :table="table" :key="table.name"
                                 style="margin-bottom: 18px"></table-item>
@@ -50,6 +51,17 @@
                 <div class="status" :style="{color: statusColor}">{{status}}</div>
             </div>
         </div>
+        <modal v-show="isShowCreate" @close="isShowCreate = false" :action="addTableAction">
+            <div class="form">
+                <div class="form-group title-group">
+                    <div class="title-label">Введите название таблицы</div>
+                    <input type="text" class="form-control" v-model="tableName" placeholder="Название таблицы">
+                    <div v-show="error" class="error">
+                        Введите название таблицы
+                    </div>
+                </div>
+            </div>
+        </modal>
     </div>
 </template>
 <script>
@@ -68,7 +80,13 @@
                 statusColor: '#2c3e50',
                 editingJournalName: false,
                 newJournalName: this.$store.getters['journalState/getJournalTitle'],
-                error: false
+                error: false,
+                isShowCreate: false,
+                tableName: '',
+                addTableAction: {
+                    title: 'Добавить',
+                    callback: this.onHandleAdd
+                }
             }
         },
         components: {Modal, TableItem},
@@ -84,6 +102,10 @@
                     this.error = false
                 }
                 else this.error = true
+            },
+            onJournalNameCancel() {
+                this.editingJournalName = false
+                this.newJournalName = this.getJournalTitle
             },
             onDownload() {
                 this.onHandleSend(() => {
@@ -137,17 +159,20 @@
                 })
             },
             onHandleAdd() {
-                this.$store.commit('journalState/setCurrentTable', {
-                    title: '',
-                    name: '',
-                    fields: [],
-                    html: '',
-                    // repeatable_row: false
-                })
-                this.$store.getters['journalState/getJournalName'] ?
-                    // this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
-                    this.$router.push(`/journal/${this.getJournalName}/table/create`)
-                    : this.$router.push('/')
+                if (this.tableName) {
+                    this.error = false
+                    this.$store.commit('journalState/setCurrentTable', {
+                        title: this.tableName,
+                        name: slugify(this.tableName, '_'),
+                        fields: [],
+                        html: '',
+                    })
+                    this.$store.getters['journalState/getJournalName'] ?
+                        // this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                        this.$router.push(`/journal/${this.getJournalName}/table/create`)
+                        : this.$router.push('/')
+                }
+                else this.error = true
             },
             getAllAttributes(node) {
                 let attr = {}
@@ -351,11 +376,16 @@
         overflow-y: auto;
     }
 
-    .side-bar .home-btn {
-        width: 100%;
-        margin-bottom: 20px;
-        font-size: 18px;
-        border-color: #fff;
+    .side-bar {
+        .home-btn, .cancel-btn {
+            width: 100%;
+            border-color: #fff;
+        }
+
+        .home-btn {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
     }
 
     .side-bar ul {
@@ -421,7 +451,7 @@
         margin-bottom: 0;
     }
 
-    .content {
+    .body__content {
         opacity: 0.8;
     }
 
@@ -457,6 +487,12 @@
 
     .modal-btn:last-child {
         margin-right: 0;
+    }
+
+    .title-label {
+        text-align: left;
+        font-size: 18px;
+        margin-bottom: 10px;
     }
 
     .error {

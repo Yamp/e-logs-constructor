@@ -234,8 +234,12 @@ const journalState = {
             Vue.set(state, 'scheme', payload)
         },
         setCurrentTable(state, payload) {
-            Vue.set(state.journal, 'currentTable', payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload)
-            // state.journal.currentTable = payload && payload.name ? state.journal.tables.filter((item) => item.name === payload.name)[0] : payload
+            Vue.set(
+                state.journal,
+                'currentTable',
+                (payload && payload.name && state.journal.tables.filter((item) => item.name === payload.name)[0]) || payload
+            )
+
         },
         updateCurrentTable(state, payload) {
             state.journal.currentTable = {...state.journal.currentTable, ...payload}

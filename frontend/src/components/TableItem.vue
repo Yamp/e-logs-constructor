@@ -16,6 +16,7 @@
 </template>
 
 <script>
+    // import bootbox from 'bootbox'
 export default {
     name: "TableItem",
     props: ['table'],
@@ -26,8 +27,29 @@ export default {
     },
     methods: {
         deleteTable () {
-            this.$store.commit('journalState/deleteTable', {tableName: this.table.name})
-            console.log(this.$store.getters['journalState/getTables'])
+            let _this = this
+
+            bootbox.confirm({
+                size: "small",
+                backdrop: true,
+                message: "Вы уверены, что хотите удалить таблицу?",
+                buttons: {
+                    confirm: {
+                        label: 'Да',
+                        className: 'btn-default'
+                    },
+                    cancel: {
+                        label: 'Нет',
+                        className: 'btn-primary'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        _this.$store.commit('journalState/deleteTable', {tableName: _this.table.name})
+                        console.log(_this.$store.getters['journalState/getTables'])
+                    }
+                }
+            });
         },
         editTable (tableName) {
             this.$router.push(

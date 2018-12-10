@@ -1,23 +1,11 @@
 <template>
     <div class="create-table">
-        <h2 class="title" v-if="!getUrlParams('table')">Создание секции</h2>
-        <h2 class="title" v-else>Изменение секции</h2>
-        <div class="form">
-            <div class="form-group title-group" v-if="!getUrlParams('table')">
-                <input type="text" class="form-control" v-model="title" placeholder="Заголовок" @input="onHandleChange">
-                <div v-show="error" class="error">
-                    Введите заголовок
-                </div>
-            </div>
-            <div class="form-group" v-else>
-                <p class="table-verbose-name"><span>Заголовок: </span>{{title}}</p>
-            </div>
-        </div>
+        <h2 class="title" v-if="!getUrlParams('table')">Создание таблицы</h2>
+        <h2 class="title" v-else>Изменение таблицы</h2>
         <div class="wysiwyg">
-            <h3 class="title">Создание структуры таблицы</h3>
             <div id="summernote"></div>
             <div class="btns">
-                <button class="btn btn-primary" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
+                <button class="btn btn-default" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
                 <div>
                     <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
                     <button class="btn btn-primary" @click.prevent="onHandleContinue">Продолжить</button>
@@ -68,12 +56,9 @@ export default {
     components: {Modal},
     data () {
         return {
-            title: '',
             isShowImport: false,
             importFile: null,
-            repeatableRow: false,
             redips: {},
-            error: ''
         }
     },
     computed: {
@@ -97,41 +82,35 @@ export default {
             this.$store.commit('journalState/setCurrentTable', null)
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
         },
-        onHandleChange (data) {
-           data.target.value ? this.error = '' : this.error = true
-        },
         onHandleContinue () {
             $('.note-popover').css({display: 'none'})
             $('.note-editable td').removeAttr('style')
-            if ((this.title && !this.getUrlParams('table') || this.getUrlParams('table')) && this.$store.getters['journalState/getJournalName']) {
-                this.$store.commit('journalState/updateCurrentTable',
-                    {
-                        title: this.title,
-                        name: this.getUrlParams('table') ? this.getUrlParams('table') : slugify(this.title, '_'),
-                        fields: this.getUrlParams('table') ? this.$store.getters['journalState/getTableCells'](this.getUrlParams('table')) : [],
-                        html: $('#summernote').summernote('code'),
-                    }
-                )
 
-                this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || slugify(this.title, '_')}/edit_data`)
-                    // this.getUrlParams('table') || slugify(this.title, '_')}/edit_data${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
-            }
-            else if (!this.$store.getters['journalState/getJournalName']) {
-                this.$router.push('/')
-            }
-            else this.error = true
-        },
-        onFormatHtml () {
-            if (this.repeatableRow) {
-                let code = $('#repeatableSummernote').summernote('code');
-                let formattedCode = formatFactory(code);
-                $('#repeatableSummernote').summernote('code', formattedCode);
-            }
-            else {
-                let code = $('#summernote').summernote('code');
-                let formattedCode = formatFactory(code);
-                $('#summernote').summernote('code', formattedCode);
-            }
+            let currentHTML = $('#summernote').summernote('code')
+            let $html = $('<div>' + currentHTML + '</div>')
+
+            $html.find('table').each(function () {
+                let $firstRow = $(this).find('tbody tr:first-child')
+                let hasAllTh = [...$firstRow.children()].every(item => $(item).is('th'))
+
+                if (hasAllTh) {
+                    let $newFirstRow = $('<thead></thead>').append($firstRow.clone())
+
+                    $(this).prepend($newFirstRow)
+                    $firstRow.remove()
+                }
+            })
+
+            currentHTML = $html.html()
+
+            this.$store.commit('journalState/updateCurrentTable',
+                {
+                    fields: this.getUrlParams('table') ? this.$store.getters['journalState/getTableCells'](this.getUrlParams('table')) : [],
+                    html: currentHTML,
+                }
+            )
+
+            this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || this.getCurrentTable.name}/edit_data`)
         },
         onImport () {
             let url = window.ELOGS_SERVER + '/import';
@@ -325,29 +304,6 @@ export default {
 .create-table > h2.title{
     margin-top: 0;
     margin-bottom: 20px;
-}
-.error {
-    display: flex;
-    align-items: center;
-    background-color: rgb(245, 108, 108);
-    color: rgb(255, 255, 255);
-    height: 40px;
-    border-radius: 6px;
-    padding: 0px 15px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-}
-.form {
-    display: flex;
-    margin-bottom: 20px;
-}
-.title-group {
-    min-width: 200px;
-    margin-bottom: 0;
-    height: fit-content;
-}
-.table-verbose-name {
-    font-size: 18px;
 }
 .table-verbose-name > span{
     opacity: 0.6;

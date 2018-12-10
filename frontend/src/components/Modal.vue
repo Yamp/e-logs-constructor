@@ -8,8 +8,8 @@
             </slot>
           </div>
           <div class="modal-footer">
-              <button v-if="action" @click="action.callback" class="btn btn-success">{{action.title}}</button>&nbsp;
               <button class="modal-default-button btn btn-default" @click="$emit('close')">Закрыть</button>
+              <button v-if="action" @click="action.callback" class="btn btn-primary">{{action.title}}</button>&nbsp;
           </div>
         </div>
       </div>
@@ -79,10 +79,6 @@ export default {
 
     .modal-footer {
         padding: 15px 0 0 0;
-    }
-
-    .modal-default-button {
-        float: right;
     }
 
 
