@@ -215,6 +215,9 @@ const journalState = {
             //     state.journal.tables = []
             // }
         },
+        setJournalName(state, payload) {
+            state.journal = {...state.journal, title: payload.title, name: payload.name}
+        },
         updateJournal(state, payload) {
             // Vue.set(state, 'journal', {...payload, tables: payload.tables || []})
             state.journal = {...state.journal, ...payload}

@@ -7,7 +7,21 @@
             >
                 На начальный экран
             </button>
-            <h3>Журнал <span style="font-weight: bold">{{getJournalTitle}}</span></h3>
+            <h3>Журнал
+                <div class="journal-name-container" @click="editingJournalName = true" v-if="!editingJournalName">
+                    <span class="journal-name">{{getJournalTitle}}</span>
+                    <img src="../assets/icons/edit-white.svg" class="edit-icon">
+                </div>
+                <form v-else @submit.prevent="onJournalNameSave">
+                    <div class="form-group journal-name-group">
+                        <input type="text" class="form-control" v-model="newJournalName" placeholder="Имя журнала">
+                        <div v-show="error" class="error">
+                            Введите название журнала
+                        </div>
+                        <button class="btn btn-success" @click="onJournalNameSave">Сохранить</button>
+                    </div>
+                </form>
+            </h3>
             <hr style="margin-bottom: 10px">
             <span class="no-items-text" v-if="!getTables.length">Таблиц нет</span>
             <ul v-if="getTables.length" id="section-list">
@@ -43,6 +57,7 @@
     import axios from 'axios'
     import sortable from 'sortablejs'
     import Modal from "../components/Modal.vue";
+    import slugify from 'slugify'
 
     export default {
         name: "JournalPage",
@@ -50,11 +65,26 @@
             return {
                 downloadLink: '#',
                 status: '',
-                statusColor: '#2c3e50'
+                statusColor: '#2c3e50',
+                editingJournalName: false,
+                newJournalName: this.$store.getters['journalState/getJournalTitle'],
+                error: false
             }
         },
         components: {Modal, TableItem},
         methods: {
+            onJournalNameSave() {
+                if (this.newJournalName) {
+                    this.$store.commit('journalState/setJournalName', {
+                        title: this.newJournalName,
+                        name: slugify(this.newJournalName, '_')
+                    })
+
+                    this.editingJournalName = false
+                    this.error = false
+                }
+                else this.error = true
+            },
             onDownload() {
                 this.onHandleSend(() => {
                     console.log('download')
@@ -264,13 +294,51 @@
     }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
     .journal {
         display: flex;
         height: 100%;
         font-size: 18px;
         box-sizing: border-box;
         overflow-y: hidden;
+    }
+
+    .journal-name-container {
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+
+        .journal-name {
+            font-weight: bold;
+            word-break: break-word;
+            margin-right: 10px;
+        }
+
+        .edit-icon {
+            position: absolute;
+            width: 20px;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+    }
+
+    .journal-name-container:hover {
+        .edit-icon {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
+
+    .journal-name-group {
+
+        input, button {
+            margin-top: 10px;
+        }
+
+        button {
+            width: 100%;
+        }
     }
 
     .side-bar {
@@ -389,6 +457,19 @@
 
     .modal-btn:last-child {
         margin-right: 0;
+    }
+
+    .error {
+        display: flex;
+        align-items: center;
+        background-color: #f56c6c;
+        color: white;
+        height: 40px;
+        border-radius: 6px;
+        padding: 0px 15px;
+        font-size: 14px;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
 </style>
