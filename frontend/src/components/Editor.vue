@@ -371,9 +371,6 @@
 </script>
 
 <style lang="scss">
-.editor-container {
-
-}
 .editor-header {
     padding: 10px 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12),0 1px 1px 1px rgba(0,0,0,0.16);
@@ -400,10 +397,6 @@
 table {
     width: 100%;
     border-collapse: collapse;
-}
-
-th table, td table {
-    margin-bottom: 0 !important;
 }
 
 .cell {
@@ -524,10 +517,5 @@ th {
         content: ", ";
         white-space: nowrap;
     }
-}
-
-td, th {
-    min-width: 70px !important;
-    cursor: pointer;
 }
 </style>
