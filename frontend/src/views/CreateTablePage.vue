@@ -92,15 +92,21 @@ export default {
             let $html = $('<div>' + currentHTML + '</div>')
 
             $html.find('table').each(function () {
-                let $firstRow = $(this).find('tbody tr:first-child')
-                let hasAllTh = [...$firstRow.children()].every(item => $(item).is('th'))
+                let $rows = $(this).find('tbody tr')
+                let $thead = $('<thead></thead>')
+                $rows.each(function () {
+                    let hasAllTh = [...$(this).children()].every(item => $(item).is('th'))
 
-                if (hasAllTh) {
-                    let $newFirstRow = $('<thead></thead>').append($firstRow.clone())
+                    if (hasAllTh) {
+                        $thead.append($(this).clone())
+                        $(this).remove()
+                    }
+                    else {
+                        return false
+                    }
+                })
 
-                    $(this).prepend($newFirstRow)
-                    $firstRow.remove()
-                }
+                $(this).prepend($thead)
             })
 
             currentHTML = $html.html()
