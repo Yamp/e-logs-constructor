@@ -64,7 +64,7 @@ const journalState = {
             }
         },
         getFieldName(state, getters) {
-            return function (tableName, cell) {
+            return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.name) {
                     return field.name
@@ -75,7 +75,7 @@ const journalState = {
             }
         },
         getCellMinValue(state, getters) {
-            return function (tableName, cell) {
+            return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.min_value) {
                     return field.min_value
@@ -86,7 +86,7 @@ const journalState = {
             }
         },
         getCellMaxValue(state, getters) {
-            return function (tableName, cell) {
+            return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.max_value) {
                     return field.max_value
@@ -97,7 +97,7 @@ const journalState = {
             }
         },
         getFieldType(state, getters) {
-            return function (tableName, cell) {
+            return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.type) {
                     return field.type
@@ -108,7 +108,7 @@ const journalState = {
             }
         },
         getFieldUnits(state, getters) {
-            return function (tableName, cell) {
+            return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.units) {
                     return field.units
@@ -119,7 +119,7 @@ const journalState = {
             }
         },
         getFormula(state, getters) {
-            return function (tableName, cell) {
+            return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
                 if (field && field.formula) {
                     return field.formula
@@ -289,14 +289,11 @@ const journalState = {
             state.journal.tables = payload.tables
         },
         setFieldName(state, payload) {
-            let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
+            let field = state.currentTable.fields.filter(item => item.cell === $(payload.cell).attr('id'))[0]
 
-                let field = table.fields.filter(item => item.cell === $(payload.cell).attr('id'))[0]
-
-                if (field) {
-                    field.name = payload.name
-                }
-
+            if (field) {
+                field.name = payload.name
+            }
         },
         setFields(state, payload) {
             // let table = state.journal.tables.filter((item) => item.name === payload.name)[0]

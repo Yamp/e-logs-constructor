@@ -214,7 +214,7 @@
                     }
                 })
 
-                $('.cell').each(function () {
+                $('.cell').each(function (index) {
                     console.log('start')
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
@@ -228,7 +228,7 @@
                             })
                         }
                         else {
-                            _this.cells.push({cell: id})
+                            _this.cells.push({cell: id, name: `Ячейка${index + 1}`})
                         }
                     }
                     else {
@@ -298,13 +298,13 @@
                 })
             },
             getFieldName(cell) {
-                return this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, cell)
+                return this.$store.getters['journalState/getFieldName'](cell)
             },
             getFieldType(cell) {
-                return this.$store.getters['journalState/getFieldType'](this.$route.params.tableName, cell)
+                return this.$store.getters['journalState/getFieldType'](cell)
             },
             getFieldUnits(cell) {
-                return this.$store.getters['journalState/getFieldUnits'](this.$route.params.tableName, cell)
+                return this.$store.getters['journalState/getFieldUnits'](cell)
             },
             toggleFieldsSelectors () {
                 console.log(eventBus)
@@ -324,7 +324,7 @@
                 this.fieldSelectionMode = true;
                 for (var elem of $(".cell")) {
                     let id = $(elem).attr("id");
-                    let fieldName = this.$store.getters['journalState/getFieldName'](this.$route.params.tableName, id)
+                    let fieldName = this.$store.getters['journalState/getFieldName'](id)
                     console.log(fieldName, id)
                     let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
                     if (fieldName) {
@@ -335,7 +335,7 @@
                     e.stopPropagation();
                     let cell = $(e.target).parents(".cell");
                     let id = cell.attr("id")
-                    let name = this.$store.getters["journalState/getFieldName"](this.$route.params.tableName, id);
+                    let name = this.$store.getters["journalState/getFieldName"](id);
                     eventBus.$emit("insertCellIntoFormula", {field: name})
                 })
             },
