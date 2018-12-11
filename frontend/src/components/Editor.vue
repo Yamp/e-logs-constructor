@@ -178,11 +178,9 @@
                                         'class="cell"' +
                                         `${$(this).attr('id') ? `id="${$(this).attr('id')}"` : ''}` +
                                         `${$(this).attr('field-name') ? `field-name="${$(this).attr('field-name')}"` : ''}` +
-                                        `${$(this).attr('row-index') ? 
-                                            `row-index="${$(this).attr("row-index")}"` 
-                                            : $(this).attr(':row-index') ? 
-                                                `:row-index="${$(this).attr(":row-index")}"` 
-                                                : 'row-index="0"'}` +
+                                        `${$(this).attr(':row-index') ?
+                                            `:row-index="${$(this).attr(":row-index")}"`
+                                            : 'row-index="0"'}` +
                                     '>' +
                                         '<div class="data-icons-container">' +
                                             '<div class="data-icon data-icon-type">' +
@@ -287,9 +285,10 @@
 
                 $('.cell').each(function () {
                     console.log('before if', _this.getFieldName($(this).attr('id')))
-                    if (_this.getFieldName($(this).attr('id')))
+                    if (_this.getFieldName($(this).attr('id'))){
                         $(this).find('.name-container').text(_this.getFieldName($(this).attr('id')))
-
+                        $(this).attr('field-name', _this.getFieldName($(this).attr('id')))
+                    }
                     if (_this.getFieldType($(this).attr('id')))
                         $(this).addClass('has-type')
 

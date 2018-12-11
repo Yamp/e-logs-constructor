@@ -28,6 +28,7 @@
                 </div>
             </modal>
         </div>
+        <indexed-tooltip :show="showIndexedTooltip" :left="left" :top="top" :rowsData="rowsData"></indexed-tooltip>
     </div>
 </template>
 
@@ -52,15 +53,20 @@ import formatFactory from '../utils/formatFactory.js'
 import slugify from 'slugify'
 
 import Modal from "../components/Modal.vue";
+import IndexedTooltip from "../components/IndexedTooltip.vue";
 
 export default {
     name: "CreateTablePage",
-    components: {Modal},
+    components: {Modal, IndexedTooltip},
     data () {
         return {
             isShowImport: false,
             importFile: null,
             redips: {},
+            showIndexedTooltip: false,
+            left: 0,
+            top: 0,
+            rowsData: []
         }
     },
     computed: {
@@ -138,6 +144,25 @@ export default {
                     if (attribute.name !== 'class') $(self).parent().attr(attribute.name, attribute.value)
                 } );
                 $(this).remove()
+            })
+        },
+        initListeners () {
+            let _this = this
+            let indexedTooltipHeight = 50
+
+            $('td, th').off('click').on('click', function (e) {
+                console.log('show')
+                e.stopPropagation()
+                let coords = e.target.getBoundingClientRect()
+
+                _this.top = coords.top - indexedTooltipHeight
+                _this.left = $(e.target).closest('table')[0].getBoundingClientRect().left
+                _this.showIndexedTooltip = !_this.showIndexedTooltip
+                _this.rowsData = [...$(e.target).parents('tr')]
+            })
+
+            $('.note-editable').on('click', function () {
+                _this.showIndexedTooltip = false
             })
         },
         redipsInit () {
@@ -227,6 +252,8 @@ export default {
                         _this.redips.init()
                     }
 
+                    _this.initListeners()
+
                     // remove '<p><br></p>' inside tables
                     // (summernote creates them when nesting table in table)
                     var uselessParagraphs = document.querySelectorAll('table p'), i;
@@ -235,6 +262,10 @@ export default {
                         p.parentNode.removeChild(p);
                     }
                 });
+
+                $('.note-btn').on('click', function () {
+                    _this.initListeners()
+                })
             })
         },
         initAll (tableHtml) {
@@ -251,7 +282,7 @@ export default {
                 this.summernoteInit()
 
                 setTimeout(() => $('#summernote').summernote('code', tableHtml), 0)
-                setTimeout(() => this.replaceAttrs(), 0)  
+                setTimeout(() => this.replaceAttrs(), 0)
             }
         },
         removeCells (table_html) {

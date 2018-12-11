@@ -54,4 +54,9 @@
     min-width: 70px !important;
     cursor: pointer;
   }
+  .indexed-line {
+    th, td {
+      background-color: #f4f8ff;
+    }
+  }
 </style>
