@@ -514,7 +514,7 @@ th {
 
     &::before {
         content: ", ";
-        white-space: nowrap;
+        white-space: pre-line;
     }
 }
 </style>
