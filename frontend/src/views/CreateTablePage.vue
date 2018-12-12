@@ -157,11 +157,40 @@ export default {
 
                 _this.top = coords.top - indexedTooltipHeight
                 _this.left = $(e.target).closest('table')[0].getBoundingClientRect().left
-                _this.showIndexedTooltip = !_this.showIndexedTooltip
                 _this.rowsData = [...$(e.target).parents('tr')]
+
+                let closestTable = $(this).closest('table')
+                let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
+                    $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)')
+                )
+
+                let closestRow = $(this).closest('tr')
+                let rowHasBGCOLOR = [...closestRow.children()].some(item =>
+                    $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)')
+                )
+
+                if (rowHasBGCOLOR) {
+                    _this.showIndexedTooltip = true
+                }
+                else {
+                    _this.showIndexedTooltip = false
+                }
+
+                if (!tableHasBGCOLOR) {
+                    $('.note-popover').css({display: 'none'})
+                }
+
+                $('table').each(function () {
+                    $(this)[0].removeAttribute('id')
+                })
+                closestTable.attr('id', 'redipsTable')
             })
 
             $('.note-editable').on('click', function () {
+                _this.showIndexedTooltip = false
+            })
+
+            $('.note-editable').on('scroll', function () {
                 _this.showIndexedTooltip = false
             })
         },
@@ -169,7 +198,8 @@ export default {
             let _this = this
             _this.redips.init = function () {
                 let rt = REDIPS.table;
-                rt.onmousedown('redipsTable', true);
+                $('td, th').off('mousedown')
+                rt.onmousedown('elog-journal-table', true, 'classname');
 
                 rt.color.cell = '#9BB3DA';
 
@@ -189,7 +219,13 @@ export default {
                 _this.redips.column = function (type) {
                     REDIPS.table.column('redipsTable', type);
                 };
+
+                _this.redips.ignoreCell = function (cell) {
+                    REDIPS.table.cell_ignore(cell);
+                };
             };
+
+            _this.redips.init()
             window.redips = _this.redips
         },
         getUrlParams(name, url) {
@@ -234,25 +270,18 @@ export default {
 
                 $('#summernote').on('summernote.change', function (we, contents, $editable) {
                     console.log('summernote\'s content is changed.');
-                    let table = $('.note-editable table:first')
                     let tables = $('.note-editable table')
 
-                    table.attr('id', 'redipsTable')
-
-                    if (tables.length) {
-                        tables.addClass('elog-journal-table')
-
-                        $('table').on('click', function (e) {
-                            $('table').each(function () {
-                                $(this)[0].removeAttribute('id')
-                            })
-                            $(this).attr('id', 'redipsTable')
-                        })
-
-                        _this.redips.init()
-                    }
-
+                    tables.addClass('elog-journal-table')
+                    _this.redipsInit()
                     _this.initListeners()
+
+                    $('td, th').each(function () {
+                        if ($(this).children().is('table')) {
+                            $(this).attr('style', '').attr('id', 'without-redips-handler')
+                            _this.redips.ignoreCell('without-redips-handler')
+                        }
+                    })
 
                     // remove '<p><br></p>' inside tables
                     // (summernote creates them when nesting table in table)
@@ -269,7 +298,6 @@ export default {
             })
         },
         initAll (tableHtml) {
-            this.redipsInit()
             if ($.summernote) {
                 toggleHeaderInit();
                 mergeCellsInit();

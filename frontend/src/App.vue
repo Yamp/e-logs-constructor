@@ -59,4 +59,9 @@
       background-color: #f4f8ff;
     }
   }
+  .selected-line {
+    th, td {
+      background-color: #b8cae6 !important;
+    }
+  }
 </style>

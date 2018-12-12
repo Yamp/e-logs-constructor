@@ -45,25 +45,10 @@
                 return !!$(row).attr('v-for')
             },
             handleMouseEnter(row) {
-                let _this = this
-
-                $(row).find('th, td').each(function () {
-                    if ($(this).css("background-color")) {
-                        _this.coloredRows.push({
-                            field: $(this),
-                            color: $(this).css("background-color")
-                        })
-                    }
-                    $(this).css("background-color", "#b8cae6")
-                })
+                $(row).addClass('selected-line')
             },
             handleMouseLeave(row) {
-                let _this = this
-
-                $(row).find('th, td').css("background-color", '')
-                _this.coloredRows.map((item) => {
-                    item.field.css("background-color", item.color)
-                })
+                $(row).removeClass('selected-line')
             },
             addIndexed(row) {
                 $(row).addClass('indexed-line').attr('v-for', '(value, index) in rowsCount').attr(':key', 'index')
