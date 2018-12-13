@@ -220,8 +220,12 @@ export default {
                     REDIPS.table.column('redipsTable', type);
                 };
 
-                _this.redips.ignoreCell = function (cell) {
-                    REDIPS.table.cell_ignore(cell);
+                _this.redips.ignoreCell = function (cell, type) {
+                    REDIPS.table.cell_ignore(cell, type);
+                };
+
+                _this.redips.attachCell = function (cell) {
+                    REDIPS.table.cell_attach(cell);
                 };
             };
 
@@ -278,8 +282,17 @@ export default {
 
                     $('td, th').each(function () {
                         if ($(this).children().is('table')) {
-                            $(this).attr('style', '').attr('id', 'without-redips-handler')
-                            _this.redips.ignoreCell('without-redips-handler')
+                            $(this).attr('style', '').addClass('without-redips-handler')
+                            _this.redips.ignoreCell('without-redips-handler', 'classname')
+                        }
+                        else {
+                            $(this).removeClass('without-redips-handler')
+
+                            if ($(this)[0].redips) {
+                                $(this)[0].redips.selected = false
+                            }
+
+                            _this.redips.attachCell($(this)[0])
                         }
                     })
 
