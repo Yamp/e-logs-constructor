@@ -12,7 +12,7 @@
                 <button class="btn btn-default" @click="isShowImport = true">Загрузить журнал</button>
                 <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
             </div>
-            <modal v-show="isShowImport" @close="isShowImport = false">
+            <modal v-show="isShowImport" @close="isShowImport = false" :action="importJournalAction">
                 <div>
                     <p class="modal-title">Выберите файл для загрузки</p>
                     <div class="modal-form">
@@ -22,7 +22,7 @@
                                 value="Обзор"
                                 @change="(e) => {importFile = e.target.files[0]}"
                         />
-                        <button class="btn btn-primary modal-btn" @click="onHandleImport">Загрузить</button>
+                        <!--<button class="btn btn-primary modal-btn" @click="onHandleImport">Загрузить</button>-->
                     </div>
                 </div>
             </modal>
@@ -43,7 +43,11 @@
             return {
                 title: '',
                 isShowImport: false,
-                error: ''
+                error: '',
+                importJournalAction: {
+                    title: 'Загрузить',
+                    callback: this.onHandleImport
+                }
             }
         },
         methods: {
@@ -119,7 +123,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 12px;
     }
     .modal-btn {
         margin-left: 10px;

@@ -7,26 +7,11 @@
         <div class="wysiwyg">
             <div id="summernote"></div>
             <div class="btns">
-                <button class="btn btn-default" @click="isShowImport = true" style="margin-right: 14px">Загрузить из файла</button>
                 <div>
                     <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
                     <button class="btn btn-primary" @click.prevent="onHandleContinue">Продолжить</button>
                 </div>
             </div>
-            <modal v-show="isShowImport" @close="isShowImport = false">
-                <div>
-                    <p class="modal-title">Выберите файл для загрузки</p>
-                    <div class="modal-form">
-                        <input 
-                            accept="text/html, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
-                            type="file" 
-                            value="Обзор" 
-                            @change="(e) => {importFile = e.target.files[0]}"
-                        />
-                        <button class="btn btn-primary modal-btn" @click="onImport">Загрузить</button>
-                    </div>
-                </div>
-            </modal>
         </div>
         <indexed-tooltip :show="showIndexedTooltip" :left="left" :top="top" :rowsData="rowsData"></indexed-tooltip>
     </div>
@@ -60,8 +45,6 @@ export default {
     components: {Modal, IndexedTooltip},
     data () {
         return {
-            isShowImport: false,
-            importFile: null,
             redips: {},
             showIndexedTooltip: false,
             left: 0,
@@ -156,7 +139,7 @@ export default {
                 let coords = e.target.getBoundingClientRect()
 
                 _this.top = coords.top - indexedTooltipHeight
-                _this.left = $(e.target).closest('table')[0].getBoundingClientRect().left
+                _this.left = coords.left
                 _this.rowsData = [...$(e.target).parents('tr')]
 
                 let closestTable = $(this).closest('table')
@@ -334,7 +317,7 @@ export default {
         },
     },
     mounted () {
-        let tableHtml = ''
+        let tableHtml = this.getCurrentTable.html || ''
 
         if (this.getUrlParams('plant') && !this.plant) {
             this.$store.dispatch('journalState/importJournal', {
@@ -412,7 +395,7 @@ export default {
 }
 .btns {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-top: 0;
 }
 .modal-title {

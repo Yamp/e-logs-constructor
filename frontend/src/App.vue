@@ -64,4 +64,9 @@
       background-color: #b8cae6 !important;
     }
   }
+
+  input[type=file] {
+    display: flex !important;
+    font-size: 14px !important;
+  }
 </style>

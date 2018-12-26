@@ -8,18 +8,22 @@
                 На начальный экран
             </button>
             <h3>Журнал
-                <div class="journal-name-container" @click="editingJournalName = true" v-if="!editingJournalName">
+                <div class="journal-name-container" @click="onStartEditJournalName" v-if="!editingJournalName">
                     <span class="journal-name">{{getJournalTitle}}</span>
                     <img src="../assets/icons/edit-white.svg" class="edit-icon">
                 </div>
                 <form v-else @submit.prevent="onJournalNameSave">
                     <div class="form-group journal-name-group">
-                        <input type="text" class="form-control" v-model="newJournalName" placeholder="Имя журнала">
-                        <div v-show="error" class="error">
+                        <input
+                                type="text"
+                                class="form-control journal-name-input"
+                                v-model="newJournalName"
+                                placeholder="Имя журнала"
+                                v-on:blur="onJournalNameSave"
+                        >
+                        <div v-show="journalNameError" class="error">
                             Введите название журнала
                         </div>
-                        <button class="btn btn-success" @click="onJournalNameSave">Сохранить</button>
-                        <button class="btn btn-primary cancel-btn" @click="onJournalNameCancel">Отмена</button>
                     </div>
                 </form>
             </h3>
@@ -35,7 +39,15 @@
         <div class="body">
             <div class="title">
                 <h3>Текущие таблицы</h3>
-                <button class="btn btn-primary" @click.prevent="isShowCreate = true" type="submit">Добавить таблицу</button>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                        Добавить таблицу
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" @click.prevent="openCreateModal">Создать</a></li>
+                        <li><a href="#" @click.prevent="openImportModal">Загрузить</a></li>
+                    </ul>
+                </div>
             </div>
             <div class="body__content">
                 <template v-if="getTables.length">
@@ -55,9 +67,30 @@
             <div class="form">
                 <div class="form-group title-group">
                     <div class="title-label">Введите название таблицы</div>
-                    <input type="text" class="form-control" v-model="tableName" placeholder="Название таблицы">
-                    <div v-show="error" class="error">
+                    <input type="text" class="form-control table-name-input" v-model="tableName" placeholder="Название таблицы">
+                    <div v-show="nameError" class="error">
                         Введите название таблицы
+                    </div>
+                </div>
+            </div>
+        </modal>
+        <modal v-show="isShowImport" @close="isShowImport = false" :action="importTableAction">
+            <div class="form">
+                <div class="form-group title-group">
+                    <div class="title-label">Введите название таблицы</div>
+                    <input type="text" class="form-control table-name-input" v-model="tableName" placeholder="Название таблицы">
+                    <div v-show="nameError" class="error">
+                        Введите название таблицы
+                    </div>
+                    <div class="title-label" style="margin-top: 14px">Выберите файл для загрузки</div>
+                    <input
+                        accept="text/html, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        type="file"
+                        value="Обзор"
+                        @change="(e) => {importFile = e.target.files[0]}"
+                    />
+                    <div v-show="fileError" class="error">
+                        {{fileError}}
                     </div>
                 </div>
             </div>
@@ -80,17 +113,29 @@
                 statusColor: '#2c3e50',
                 editingJournalName: false,
                 newJournalName: this.$store.getters['journalState/getJournalTitle'],
-                error: false,
+                nameError: false,
+                fileError: false,
+                journalNameError: false,
                 isShowCreate: false,
+                isShowImport: false,
                 tableName: '',
                 addTableAction: {
                     title: 'Добавить',
-                    callback: this.onHandleAdd
-                }
+                    callback: this.onHandleCreate
+                },
+                importTableAction: {
+                    title: 'Добавить',
+                    callback: this.onHandleImport
+                },
+                importFile: null
             }
         },
         components: {Modal, TableItem},
         methods: {
+            onStartEditJournalName() {
+                this.editingJournalName = true
+                setTimeout(() => $('.journal-name-input').focus(), 0)
+            },
             onJournalNameSave() {
                 if (this.newJournalName) {
                     this.$store.commit('journalState/setJournalName', {
@@ -99,13 +144,9 @@
                     })
 
                     this.editingJournalName = false
-                    this.error = false
+                    this.journalNameError = false
                 }
-                else this.error = true
-            },
-            onJournalNameCancel() {
-                this.editingJournalName = false
-                this.newJournalName = this.getJournalTitle
+                else this.journalNameError = true
             },
             onDownload() {
                 this.onHandleSend(() => {
@@ -158,9 +199,17 @@
                         })
                 })
             },
-            onHandleAdd() {
+            openCreateModal() {
+                this.isShowCreate = true
+                setTimeout(() => $('.table-name-input').focus(), 0)
+            },
+            openImportModal() {
+                this.isShowImport = true
+                setTimeout(() => $('.table-name-input').focus(), 0)
+            },
+            onHandleCreate() {
                 if (this.tableName) {
-                    this.error = false
+                    this.nameError = false
                     this.$store.commit('journalState/setCurrentTable', {
                         title: this.tableName,
                         name: slugify(this.tableName, '_'),
@@ -172,7 +221,38 @@
                         this.$router.push(`/journal/${this.getJournalName}/table/create`)
                         : this.$router.push('/')
                 }
-                else this.error = true
+                else this.nameError = true
+            },
+            onHandleImport() {
+                if (this.importFile && this.tableName) {
+                    this.fileError = false
+
+                    let url = window.ELOGS_SERVER + '/import';
+                    let data = new FormData()
+                    data.append('data', this.importFile)
+
+                    axios.post(url, data)
+                        .then((response) => {
+                            this.$store.commit('journalState/setCurrentTable', {
+                                title: this.tableName,
+                                name: slugify(this.tableName, '_'),
+                                fields: [],
+                                html: response.data,
+                            })
+                            this.$store.getters['journalState/getJournalName'] ?
+                                // this.$router.push(`/journal/${this.getJournalName}/table/create${this.getUrlParams('plant') ? '?plant=' + this.getUrlParams('plant') : ''}`)
+                                this.$router.push(`/journal/${this.getJournalName}/table/create`)
+                                : this.$router.push('/')
+                        })
+                        .catch((err) => {
+                            this.fileError = 'Ошибка при загрузке файла'
+                        })
+                }
+                else if (!this.tableName) this.nameError = true
+                else if (!this.importFile) {
+                    this.nameError = false
+                    this.fileError = 'Выберите файл'
+                }
             },
             getAllAttributes(node) {
                 let attr = {}
@@ -436,6 +516,12 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 20px;
+    }
+
+    .dropdown-menu > li > a {
+        display: flex;
+        align-items: center;
+        height: 34px;
     }
 
     .body {

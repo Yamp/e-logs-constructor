@@ -57,7 +57,7 @@ export default {
     }
 
     .modal-container {
-        width: 60%;
+        width: 480px;
         min-width: 380px;
         margin: 0px auto;
         padding: 20px;
@@ -67,6 +67,14 @@ export default {
         transition: all .3s ease;
         font-family: Helvetica, Arial, sans-serif;
     }
+
+    /*.home .modal-container {*/
+        /*width: 480px;*/
+    /*}*/
+
+    /*.journal .modal-container {*/
+        /*width: 480px;*/
+    /*}*/
 
     .modal-header h3 {
         margin-top: 0;
