@@ -1,10 +1,10 @@
 <template>
     <div v-show="display" v-bind:class="[{'expanded': expanded}, 'pop-up']" id="pop-up" v-bind:style="{left: x + 'px', top: y + 'px', transition: '0.2s'}">
-        <div class="form-group input-container" style="margin-top: 0;">
+        <div class="form-group input-container" style="margin-top: 0;" v-show="cellTag === 'th' || selectedFields.length === 1">
             <i class="fas fa-font data-icon"></i>
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
-        <div class="form-group input-container" v-show="cellTag === 'td'">
+        <div class="form-group input-container" v-show="cellTag === 'td'" :style="{'margin-top': cellTag === 'th' || selectedFields.length === 1 ? '15px' : '0'}">
             <img src="../assets/icons/type_icon.svg" class="data-icon data-icon-units"/>
             <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
                 <option value="" selected disabled>Тип ячейки</option>
@@ -132,10 +132,17 @@
                             $(`#${this.cell}`).prepend(`<span class="text">${input.target.value}</span>`)
                         }
                     }
-                    else {
+                    else if (this.cellTag === 'td' && this.selectedFields.length === 1){
                         this.selectedFields.map(item => {
                             $(`#${item}`).find('.name-container').text(input.target.value)
                         })
+
+                        this.$store.commit('journalState/setFields',
+                            {
+                                name: this.fieldName,
+                                fieldsIds: this.selectedFields
+                            }
+                        )
                     }
                 }
                 console.log(data, input)
@@ -143,6 +150,13 @@
                     this.selectedFields.map(item => {
                         $(`#${item}`).addClass('has-type')
                     })
+
+                    this.$store.commit('journalState/setFields',
+                        {
+                            fieldsIds: this.selectedFields,
+                            type: this.type
+                        }
+                    )
                 }
 
                 if (data === 'units') {
@@ -152,6 +166,13 @@
                                 $(`#${item}`).addClass('has-units')
                                 : $(`#${item}`).removeClass('has-units')
                         })
+
+                        this.$store.commit('journalState/setFields',
+                            {
+                                fieldsIds: this.selectedFields,
+                                units: this.units
+                            }
+                        )
                     }
                     else if (this.cellTag === 'th') {
                         let $units = $(`#${this.cell}`).find('.units')
@@ -167,15 +188,10 @@
                     }
                 }
 
-                if (this.cellTag === 'td') {
+                if (data === 'formula') {
                     this.$store.commit('journalState/setFields',
                         {
-                            name: this.fieldName,
                             fieldsIds: this.selectedFields,
-                            // min_value: this.minValue,
-                            // max_value: this.maxValue,
-                            type: this.type,
-                            units: this.units,
                             formula: this.editor.getValue()
                         }
                     )
