@@ -69,7 +69,7 @@
                     <div class="title-label">Введите название таблицы</div>
                     <input type="text" class="form-control table-name-input" v-model="tableName" placeholder="Название таблицы">
                     <div v-show="nameError" class="error">
-                        Введите название таблицы
+                        {{nameError}}
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                     <div class="title-label">Введите название таблицы</div>
                     <input type="text" class="form-control table-name-input" v-model="tableName" placeholder="Название таблицы">
                     <div v-show="nameError" class="error">
-                        Введите название таблицы
+                        {{nameError}}
                     </div>
                     <div class="title-label" style="margin-top: 14px">Выберите файл для загрузки</div>
                     <input
@@ -208,8 +208,9 @@
                 setTimeout(() => $('.table-name-input').focus(), 0)
             },
             onHandleCreate() {
-                if (this.tableName) {
+                if (this.tableName && !this.getTablesNames.includes(this.tableName)) {
                     this.nameError = false
+
                     this.$store.commit('journalState/setCurrentTable', {
                         title: this.tableName,
                         name: slugify(this.tableName, '_'),
@@ -221,10 +222,11 @@
                         this.$router.push(`/journal/${this.getJournalName}/table/create`)
                         : this.$router.push('/')
                 }
-                else this.nameError = true
+                else if (!this.tableName) this.nameError = 'Введите название таблицы'
+                else if (this.getTablesNames.includes(this.tableName)) this.nameError = 'Данное имя таблицы уже существует'
             },
             onHandleImport() {
-                if (this.importFile && this.tableName) {
+                if (this.importFile && this.tableName && !this.getTablesNames.includes(this.tableName)) {
                     this.fileError = false
 
                     let url = window.ELOGS_SERVER + '/import';
@@ -245,10 +247,12 @@
                                 : this.$router.push('/')
                         })
                         .catch((err) => {
+                            this.nameError = false
                             this.fileError = 'Ошибка при загрузке файла'
                         })
                 }
-                else if (!this.tableName) this.nameError = true
+                else if (!this.tableName) this.nameError = 'Введите название таблицы'
+                else if (this.getTablesNames.includes(this.tableName)) this.nameError = 'Данное имя таблицы уже существует'
                 else if (!this.importFile) {
                     this.nameError = false
                     this.fileError = 'Выберите файл'
@@ -356,6 +360,9 @@
             },
             plant() {
                 return this.$store.getters['journalState/getJournalPlant']
+            },
+            getTablesNames() {
+                return this.$store.getters['journalState/getTablesVerboseNames']
             }
         },
         mounted() {

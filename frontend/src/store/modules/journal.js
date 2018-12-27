@@ -29,6 +29,9 @@ const journalState = {
         getJournalPlant(state, getters) {
             return state && state.journal ? state.journal.plant : ''
         },
+        getTablesVerboseNames(state, getters) {
+            return state.journal.tables.map(item => item.title)
+        },
         getTableTitle(state, getters) {
             return function (tableName) {
                 let table = state.journal.tables.filter((item) => item.name === tableName)[0]

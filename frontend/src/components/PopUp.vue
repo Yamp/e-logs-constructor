@@ -143,6 +143,8 @@
                                 fieldsIds: this.selectedFields
                             }
                         )
+
+                        eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
                     }
                 }
                 console.log(data, input)
@@ -340,6 +342,7 @@
     border-radius: 4px;
     background-color: #fff;
     transition: 0.2s;
+    z-index: 1000;
 }
 
 

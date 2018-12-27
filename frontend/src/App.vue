@@ -69,4 +69,8 @@
     display: flex !important;
     font-size: 14px !important;
   }
+  .btn {
+    transition: 0.2s;
+  }
+
 </style>

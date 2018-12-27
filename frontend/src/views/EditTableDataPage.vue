@@ -7,9 +7,16 @@
             </div>
         </div>
         <editor class="editor"></editor>
-        <div class="btns">
-            <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
-            <button class="btn btn-primary" @click.prevent="onHandleSave" type="submit">Сохранить</button>
+        <div class="footer">
+            <div class="note">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Вы можете объединять ячейки с помощью зажатой клавиши Ctrl</span>
+            </div>
+            <div class="btns">
+                <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
+                <button class="btn" :class="{'btn-primary': !hasAllNames, 'btn-default': hasAllNames}" @click="setAutoNames" style="margin-right: 10px">Заполнить имена автоматически</button>
+                <button class="btn btn-primary" @click.prevent="onHandleSave" :disabled="!hasAllNames">Сохранить</button>
+            </div>
         </div>
     </div>
 </template>
@@ -23,6 +30,7 @@
         name: 'EditTableDataPage',
         data() {
             return {
+                hasAllNames: false,
                 error: ''
             }
         },
@@ -42,9 +50,10 @@
                 this.$store.commit('journalState/setCurrentTable', null)
                 this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
             },
+            setAutoNames () {
+                eventBus.$emit('set-auto-names')
+            },
             onHandleSave() {
-                let hasAllNames = true
-
                 this.getCurrentTable.fields.map(field => {
                     $(`#${field.cell}`).removeClass('is-empty')
                 })
@@ -52,11 +61,11 @@
                 this.getCurrentTable.fields.map(field => {
                     if (!field['name']) {
                         $(`#${field.cell}`).addClass('is-empty')
-                        hasAllNames = false
+                        this.hasAllNames = false
                     }
                 })
 
-                if (!hasAllNames) {
+                if (!this.hasAllNames) {
                     this.error = 'Все имена полей должны быть заполнены!'
 
                     this.getCurrentTable.fields.map(field => {
@@ -138,6 +147,10 @@
         components: {Editor},
         mounted() {
             eventBus.$on('check-repeated', () => this.checkRepeated())
+            eventBus.$on('set-has-all-names', (hasAllNames) => this.hasAllNames = hasAllNames)
+        },
+        beforeDestroy(){
+            eventBus.$off('set-has-all-names')
         }
     }
 </script>
@@ -164,6 +177,12 @@
         margin-bottom: 20px;
     }
 
+    .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     .btns {
         display: flex;
         justify-content: flex-end;
@@ -176,5 +195,18 @@
         height: 40px;
         border-radius: 6px;
         padding: 0px 15px;
+    }
+    .note {
+        display: flex;
+        align-items: center;
+        opacity: 0.8;
+    }
+    .note i {
+        font-size: 22px;
+        margin-right: 6px;
+    }
+    .note span {
+        font-size: 16px;
+        margin-right: 6px;
     }
 </style>

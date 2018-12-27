@@ -227,7 +227,7 @@
                             })
                         }
                         else {
-                            _this.cells.push({cell: id, name: `Ячейка${index + 1}`})
+                            _this.cells.push({cell: id})
                         }
                     }
                     else {
@@ -295,8 +295,33 @@
                     }
                 )
 
+                eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
+
                 this.attachCellData()
                 console.log('journal', this.$store.getters['journalState/getJournal'])
+            },
+            setAutoNames () {
+                let currentCells = this.getCurrentTable.fields
+
+                currentCells = currentCells.map((item, index) => {
+                    let generatedName = `Ячейка${index + 1}`
+
+                    if (!item.name) {
+                        console.log($(`#${item.cell}`))
+                        $(`#${item.cell}`).attr('field-name', generatedName)
+                        $(`#${item.cell}`).find('.name-container').text(generatedName)
+                        return {...item, name: generatedName}
+                    }
+                    else return item
+                })
+                console.log(currentCells)
+                this.$store.commit('journalState/updateCurrentTable',
+                    {
+                        fields: currentCells
+                    }
+                )
+
+                eventBus.$emit('set-has-all-names', true)
             },
             attachCellData () {
                 let _this = this
@@ -379,9 +404,11 @@
             eventBus.$on("removeFieldsSelectors", () => this.removeFieldsSelectors())
             eventBus.$on("openWizard", this.openWizard)
             eventBus.$on("closeWizard", this.closeWizard)
+            eventBus.$on('set-auto-names', () => this.setAutoNames())
         },
         beforeDestroy () {
             eventBus.$off('toggleFieldsSelectors')
+            eventBus.$off('set-auto-names')
             console.log("Editor destoyred")
         }
     }
