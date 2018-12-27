@@ -34,6 +34,7 @@ import addCol from '../wysiwyg_modules/add-column'
 import addRow from '../wysiwyg_modules/add-row'
 import removeCol from '../wysiwyg_modules/remove-column'
 import removeRow from '../wysiwyg_modules/remove-row'
+import summernoteTranslate from '../wysiwyg_modules/summernote_ru-RU'
 import formatFactory from '../utils/formatFactory.js'
 import slugify from 'slugify'
 
@@ -229,6 +230,7 @@ export default {
             console.log('summernoteInit')
             $(document).ready(function() {
                 $('#summernote').summernote({
+                    lang: 'ru-RU',
                     height: 300,
                     minHeight: null,
                     maxHeight: null,
@@ -242,7 +244,7 @@ export default {
                         ['height', ['height']],
                         ['insert', ['table', 'link', 'hr']],
                         ['misk', ['undo', 'redo']],
-                        ['view', ['fullscreen', 'codeview']]
+                        ['view', ['fullscreen']]
                     ],
                     popover: {
                         table: [
@@ -295,6 +297,7 @@ export default {
         },
         initAll (tableHtml) {
             if ($.summernote) {
+                summernoteTranslate();
                 toggleHeaderInit();
                 mergeCellsInit();
                 splitH()
@@ -317,7 +320,7 @@ export default {
         },
     },
     mounted () {
-        let tableHtml = this.getCurrentTable.html || ''
+        let tableHtml = this.getCurrentTable ? this.removeCells(this.getCurrentTable.html) : ''
 
         if (this.getUrlParams('plant') && !this.plant) {
             this.$store.dispatch('journalState/importJournal', {
@@ -340,6 +343,7 @@ export default {
                     this.title = this.getCurrentTable.title
 
                     setTimeout(() => this.initAll(tableHtml), 0)
+                    // this.initAll(tableHtml)
                 })
         }
         else if (this.getUrlParams('table')) {
@@ -349,8 +353,10 @@ export default {
             console.log('table3')
 
             setTimeout(() => this.initAll(tableHtml), 0)
+            // this.initAll(tableHtml)
         }
         else setTimeout(() => this.initAll(tableHtml), 0)
+        // else this.initAll(tableHtml)
     }
 }
 </script>
@@ -397,6 +403,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 0;
+  margin-bottom: 20px;
 }
 .modal-title {
   margin-bottom: 20px;

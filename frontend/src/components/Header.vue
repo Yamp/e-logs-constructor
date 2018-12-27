@@ -41,7 +41,7 @@
         background-color: #337ab7;
         padding: 10px 20px;
         box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.4);
-        z-index: 100;
+        z-index: 1000;
 
         .title {
             font-family: 'Poiret One';

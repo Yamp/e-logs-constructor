@@ -218,6 +218,7 @@
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         if ($(this).attr('field-name')) {
+                            console.log('cells', _this.cells)
                             _this.cells = _this.cells.map(item => {
                                 if (item.name === $(this).attr('field-name')) {
                                     return {...item, cell: $(this).attr('id')}
@@ -230,7 +231,7 @@
                         }
                     }
                     else {
-                        console.log('not-have-id')
+                        console.log('have-id', $(this).attr('id'))
                         if (_this.getFieldName($(this).attr('id')))
                             $(this).addClass('has-name')
                         else
@@ -251,6 +252,23 @@
                 $editorContent.find('th').each(function () {
                     $(this).find('br').remove()
                     $(this)[0].removeAttribute('style')
+
+                    let $text = $(this).find('.text').clone()
+                    let $units = $(this).find('.units').clone()
+
+                    if ($units.length) {
+                        $(this).find('.units').remove()
+                    }
+
+                    let $textdata = $(this).text().split(' ').join('')
+
+                    if (!$text.length && $textdata) {
+                        $(this).html(`<span class="text">${$textdata}</span>`)
+                    }
+
+                    if ($units.length) {
+                        $(this).append($units)
+                    }
 
                     if (+$(this).attr('colspan') > 1) {
                         $(this).addClass('th-common')
