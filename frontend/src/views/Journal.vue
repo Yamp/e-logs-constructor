@@ -161,9 +161,20 @@
             },
             onSave() {
                 this.onHandleSend(() => {
-                    let url = `${window.ELOGS_SERVER}/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                    let journalObserver = this.$store.getters['journalState/getJournal'];
+                    console.log(journalObserver);
+                    let journal = JSON.parse(JSON.stringify(journalObserver));
+                    journal.tables.map(item => {
+                        item.html = this.addCells(item.html).replace(/(\sid=\".+\")/gmi, '')
+                    });
+                    // let url = `${window.ELOGS_SERVER}/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                    let url = `${window.ELOGS_SERVER}/api/constructor/journal/`
                     let self = this;
-                    axios.get(url)
+
+
+
+                    // axios.get(url)
+                    axios.post(url, journal)
                         .then(() => {
                             let formData = new FormData();
 
