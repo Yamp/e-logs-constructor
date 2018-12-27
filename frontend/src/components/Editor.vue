@@ -304,12 +304,33 @@
                 let currentCells = this.getCurrentTable.fields
 
                 currentCells = currentCells.map((item, index) => {
-                    let generatedName = `Ячейка${index + 1}`
-
                     if (!item.name) {
-                        console.log($(`#${item.cell}`))
-                        $(`#${item.cell}`).attr('field-name', generatedName)
-                        $(`#${item.cell}`).find('.name-container').text(generatedName)
+                        let $currentCell = $(`#${item.cell}`)
+                        console.log($currentCell.closest('td').index())
+                        let cellIndex = $currentCell.closest('td').index()
+                        let rowIndex = $currentCell.closest('tr').index()
+                        let generatedName = ''
+
+                        $currentCell.closest('table').find('thead tr').each(function (index) {
+                            let currentText = $($(this)[0].cells[cellIndex]).find('.text').text()
+                            if (index !== 0 && currentText && generatedName) generatedName += '_'
+                            generatedName += currentText
+                        })
+
+                        $currentCell.closest('tr').find('th').each(function (index) {
+                            if($(this).index() > cellIndex) return;
+
+                            let currentText = $(this).find('.text').text()
+                            if ((index !== 0 || generatedName) && currentText) generatedName += '_'
+                            generatedName += currentText
+                        })
+
+                        if (generatedName) generatedName += '_' + (rowIndex + 1)
+
+                        if (!generatedName) generatedName = `Ячейка${index + 1}`
+
+                        $currentCell.attr('field-name', generatedName)
+                        $currentCell.find('.name-container').text(generatedName)
                         return {...item, name: generatedName}
                     }
                     else return item
