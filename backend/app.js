@@ -20,9 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("/import", fileUpload({
-  limits: { fileSize: 50 * 1024 * 1024 },
-}));
+app.use(fileUpload());
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

@@ -1,6 +1,5 @@
 let mime = require('mime');
 let express = require('express');
-
 var router = express.Router();
 var crypto = require('crypto');
 var fs = require('fs');
@@ -114,43 +113,14 @@ router.post('/save', function (req, res, next) {
 
     console.log(__dirname);
     let relativeMediaPath = "../media";
-    // let dirPath = path.resolve(__dirname, relativeMediaPath) + "/" + hash;
-
     data.version = "0.1";
-
-    // mkdirSync(dirPath);
-    // mkdirSync(path.resolve(dirPath, "./templates"))
-    // let tables = data.tables;
-    // for (let table of tables) {
-    //     let filepath = dirPath + "/templates/" + table.name + ".html";
-    //     fs.writeFile(filepath, table.html, (err) => {
-    //         if (err) throw err;
-    //         console.log("The "+ table.name + ".html was saved!");
-    //     });
-    // }
-
-
-    // fs.writeFile(dirPath + "/meta.json", JSON.stringify(data), (err) => {
-    //     if (err) throw err;
-    //     console.log("The meta.json was saved!");
-    // });
-
     let journalPath = path.resolve(__dirname, relativeMediaPath) + "/journals/" + hash + '.jrn';
-
-    // zipFolder(dirPath, journalPath, function(err) {
-    //     if(err) {
-    //         console.log('oh no!', err);
-    //     } else {
-    //         console.log('Journal was saved');
-    //     }
-    // });
-
     fs.writeFile(journalPath, JSON.stringify(data), (err) => {
         if (err) throw err;
         console.log("The meta.json was saved!");
     })
-
-    let downloadLink = "http://localhost:8000/api/constructor/download?hash=" + hash;
+    let hostname = req.headers["host"]
+    let downloadLink = "http://" + hostname + "/download?hash=" + hash;
     res.status(200).json({
         hash: hash,
         download_link: '' + downloadLink
@@ -173,11 +143,11 @@ function docxToHtml(filepath) {
     var mammoth = require("mammoth");
     return mammoth.convertToHtml({
         path: filepath
-    })
+    });
 }
 
 function isPromise(obj) {
-    return typeof (obj.then) == 'function'
+    return typeof (obj.then) == 'function';
 }
 
 function copyFileSync(source, target) {
@@ -189,9 +159,7 @@ function copyFileSync(source, target) {
             targetFile = path.join(target, path.basename(source));
         }
     }
-
     fs.writeFileSync(targetFile, fs.readFileSync(source));
-    console.log("shpek")
 }
 
 function copyFolderRecursiveSync(source, target) {
@@ -216,7 +184,16 @@ function copyFolderRecursiveSync(source, target) {
 }
 
 router.post('/import', function (req, res, next) {
-    let file = req.files.data
+    if (!req.files) {
+        res.status(400).send("Form is empty")
+        return
+    }
+    if (!req.files.data) {
+        res.status(400).send("Form does not contain file with input name 'data'")
+        return
+    }
+
+    let file = req.files.data;
     let filepath;
     let html;
     if (file.mimetype == docxMimeType) {
@@ -224,7 +201,7 @@ router.post('/import', function (req, res, next) {
         fs.writeFileSync(filepath, file.data, "binary")
         html = docxToHtml(filepath)
     }
-    if (file.mimetype == xlsxMimeType) {
+    else if (file.mimetype == xlsxMimeType) {
         filepath = path.resolve(__dirname, "../media/files") + "/" + file.md5 + ".xlsx"
         try {
             fs.writeFileSync(filepath, file.data, "binary")
@@ -233,10 +210,14 @@ router.post('/import', function (req, res, next) {
         }
         html = xlsxToHtml(filepath)
     }
-    if (file.mimetype == htmlMimeType) {
+    else if (file.mimetype == htmlMimeType) {
         filepath = path.resolve(__dirname, "../media/files") + "/" + file.md5 + ".html"
         fs.writeFileSync(filepath, file.data, "binary")
         html = file.data
+    }
+    else {
+        res.status(400).send("Wrong file type")
+        return
     }
     res.set('Content-Type', 'text/html');
 
@@ -249,7 +230,7 @@ router.post('/import', function (req, res, next) {
     } else {
         res.send(html);
     }
-
+    return
 });
 
 module.exports = router;
