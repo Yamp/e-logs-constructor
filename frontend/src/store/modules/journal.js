@@ -178,7 +178,7 @@ const journalState = {
     },
     actions: {
         importJournal: function ({commit, state, getters}, payload) {
-            let url = window.ELOGS_SERVER + `/api/constructor/get_journal?plant=${payload.plant}&journal=${payload.journal}&version=${payload.version}`;
+            let url = window.ELOGS_SERVER + `/api/constructor/journal?plant=${payload.plant}&journal=${payload.journal}&version=${payload.version}`;
             return axios.get(url)
                 // .then( function (response) {
                 //     commit('setJournal', response.data)
