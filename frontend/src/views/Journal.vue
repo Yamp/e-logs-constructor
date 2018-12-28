@@ -160,25 +160,20 @@
                 })
             },
             onSave() {
-                this.onHandleSend(() => {
-                    let journalObserver = this.$store.getters['journalState/getJournal'];
-                    console.log(journalObserver);
-                    let journal = JSON.parse(JSON.stringify(journalObserver));
-                    journal.tables.map(item => {
-                        item.html = this.addCells(item.html).replace(/(\sid=\".+\")/gmi, '')
-                    });
-                    // let url = `${window.ELOGS_SERVER}/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                this.onHandleSend((journal) => {
                     let url = `${window.ELOGS_SERVER}/api/constructor/journal/`
                     let self = this;
-
-
-
-                    // axios.get(url)
-                    axios.post(url, journal)
-                        .then(() => {
+                    axios.post(url, journal, 
+                        {
+                            headers: {
+                                'content-type': "application/json"
+                            }
+                        })
+                        .then((response) => {
+                            let hash = response.data.hash
                             let formData = new FormData();
 
-                            formData.append("hash", this.getUrlParams('hash', this.downloadLink));
+                            formData.append("hash", hash);
                             formData.append("plant", this.getUrlParams('plant'));
 
                             axios.post(`${window.ELOGS_SERVER}/api/constructor/upload/`, formData)
@@ -194,18 +189,25 @@
                 })
             },
             onSaveAs() {
-                this.onHandleSend(() => {
+                this.onHandleSend((journal) => {
                     console.log('save')
-                    let url = `${window.ELOGS_SERVER}/api/constructor/transfer/?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                    let url = `${window.ELOGS_SERVER}/api/constructor/journal/`
                     let self = this;
-                    axios.get(url)
-                        .then(() => {
-                            let link = `${window.ELOGS_FRONT}/addjournal?hash=${this.getUrlParams('hash', this.downloadLink)}`;
+                    axios.post(url, journal, 
+                        {
+                            headers: {
+                                'content-type': "application/json"
+                            }
+                        })
+                        .then((response) => {
+                            let hash = response.data.hash
+                            let link = `${window.ELOGS_FRONT}/addjournal?hash=${hash}`;
                             let plant = this.plant;
                             let journal = this.$store.getters['journalState/getJournalName'];
                             if (this.plant) {
                                 link = link + `&plant=${plant}&journalName=${journal}`
                             }
+                            console.log(link)
                             window.open(link, '_blank')
                         })
                 })
@@ -308,7 +310,7 @@
                     self.downloadLink = response.data.download_link;
                 })
                     .then(() => {
-                        callback()
+                        callback(journal)
                     })
                     .catch(() => {
                         this.status = 'Произошла ошибка!'
