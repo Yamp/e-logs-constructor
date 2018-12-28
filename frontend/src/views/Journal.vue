@@ -149,11 +149,14 @@
                 else this.journalNameError = true
             },
             onDownload() {
-                this.onHandleSend(() => {
+                this.onHandleSend((journal) => {
                     console.log('download')
+                    let self = this;
+                    var blob = new Blob([JSON.stringify(journal)], {type: 'application/json'});
+                    var file = new File([blob], journal.name + ".jrn")
                     let a = document.createElement('A');
-                    a.href = this.downloadLink;
-                    a.download = this.downloadLink.substr(this.downloadLink.lastIndexOf('/') + 1);
+                    a.href = window.URL.createObjectURL(file);
+                    a.download = journal.name + ".jrn"
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -303,19 +306,7 @@
                 });
                 console.log(journal);
                 window.journal = journal;
-                let url = `${window.ELOGS_SERVER}/api/constructor/save/`;
-                let self = this;
-                return axios.post(url, journal).then(function (response) {
-                    console.log("data", response.data);
-                    self.downloadLink = response.data.download_link;
-                })
-                    .then(() => {
-                        callback(journal)
-                    })
-                    .catch(() => {
-                        this.status = 'Произошла ошибка!'
-                        this.statusColor = '#e00101'
-                    })
+                callback(journal)
             },
             clearJson(json) {
                 let result = json.replace('"', "'");
