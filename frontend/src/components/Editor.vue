@@ -99,14 +99,16 @@
                         }
                         else {
                             console.log('selected')
-                            $(`.cell`).removeClass('selected')
-                            _this.selectedFields = []
-                            _this.selectedFields.push($(this).attr('id'))
 
-                            console.log(_this.selectedFields.length)
-                            if (_this.currentCell !== $(this).attr('id')) {
+                            if (_this.selectedFields.length === 1) {
+                                $(`.cell`).removeClass('selected')
+                                _this.selectedFields = []
+                            }
+                            else {
+                                $(`.cell`).removeClass('selected')
+                                _this.selectedFields = []
+                                _this.selectedFields.push($(this).attr('id'))
                                 $(this).addClass('selected')
-                                _this.openPopUp(e, $(this).attr('id'), 'td')
                             }
                         }
                     }
@@ -149,9 +151,9 @@
                             $(this).addClass('selected')
                         }
 
-                        if (_this.currentCell !== $(this).attr('id')) {
+                        // if (_this.currentCell !== $(this).attr('id')) {
                             _this.openPopUp(e, $(this).attr('id'), 'td')
-                        }
+                        // }
                     }
 
                     if (!_this.selectedFields.length) _this.popupDisplay = false
