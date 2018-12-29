@@ -159,8 +159,6 @@
                     if (!_this.selectedFields.length) _this.popupDisplay = false
                 })
                 $('#editor-content th').click(function(e) {
-                    e.stopPropagation()
-
                     _this.selectedFields = []
                     $('.selected').removeClass('selected')
 
@@ -371,16 +369,38 @@
             setAutoNames () {
                 let currentCells = this.getCurrentTable.fields
 
+                // let headers = [];
+                // $('table').find('thead tr').each(function (rowindex) {
+                //     headers[rowindex] = headers[rowindex] || [];
+                //     [...$(this)[0].cells].map((header, index) => {
+                //         [...Array(+$(header).attr('colspan') || 1).keys()].map(item => {
+                //             headers[rowindex].push($(header).find('.text').text() + (item + 1))
+                //             if (+$(header).attr('rowspan')) {
+                //                 [...Array(+$(header).attr('colspan') || 1).keys()].map(itm => {
+                //                     headers[rowindex].splice( item, 0, $(header).find('.text').text() )
+                //                 })
+                //             }
+                //         })
+                //     })
+                // })
+                // console.log(headers)
+
                 currentCells = currentCells.map((item, index) => {
                     if (!item.name) {
                         let $currentCell = $(`#${item.cell}`)
-                        console.log($currentCell.closest('td').index())
                         let cellIndex = $currentCell.closest('td').index()
                         let rowIndex = $currentCell.closest('tr').index()
                         let generatedName = ''
 
                         $currentCell.closest('table').find('thead tr').each(function (index) {
-                            let currentText = $($(this)[0].cells[cellIndex]).find('.text').text()
+                            let headers = [];
+
+                            [...$(this)[0].cells].map((header, index) => {
+                                [...Array(+$(header).attr('colspan') || 1).keys()].map(item => headers.push($(header).find('.text').text() + (item + 1)))
+                            })
+
+                            let currentText = headers[cellIndex]
+
                             if (index !== 0 && currentText && generatedName) generatedName += '_'
                             generatedName += currentText
                         })
