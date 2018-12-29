@@ -10,7 +10,7 @@
         <div class="footer">
             <div class="note">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>Вы можете объединять ячейки с помощью зажатой клавиши Ctrl</span>
+                <span>Вы можете объединять ячейки с помощью зажатой клавиши Ctrl или Shift</span>
             </div>
             <div class="btns">
                 <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>

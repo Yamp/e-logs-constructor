@@ -49,21 +49,44 @@
                 // })
 
                 $('.cell').click(function(e) {
+                    e.stopPropagation()
+
                     let isCtrlPressed = false
+                    let isShiftPressed = false
                     console.log(e)
 
                     if (e.metaKey || e.ctrlKey) {
                         isCtrlPressed = true
                     }
 
+                    if (e.shiftKey) {
+                        isShiftPressed = true
+                    }
+
                     $('th').removeClass('selected')
 
                     if ($(this).hasClass('selected')) {
                         if (isCtrlPressed) {
+                            console.log('ctrl-selected')
                             $(this).removeClass('selected')
                             _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                         }
+                        else if (isShiftPressed) {
+                            let self = this
+                            console.log('shift-selected')
+                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            _this.selectedFields = []
+
+                            $('.cell').each(function () {
+                                if ($(this).closest('td').index() <= $(self).closest('td').index() && $(this).closest('tr').index() <= $(self).closest('tr').index()) {
+                                    _this.selectedFields.push($(this).attr('id'))
+                                }
+                            })
+
+                            _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
+                        }
                         else {
+                            console.log('selected')
                             $(`.cell`).removeClass('selected')
                             _this.selectedFields = []
                             _this.selectedFields.push($(this).attr('id'))
@@ -76,8 +99,23 @@
                         }
                     }
                     else if (!$(this).hasClass('selected')) {
+                        console.log('not-selected')
                         if (isCtrlPressed) {
                             _this.selectedFields.push($(this).attr('id'))
+                            _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
+                        }
+                        else if (isShiftPressed) {
+                            let self = this
+
+                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            _this.selectedFields = []
+
+                            $('.cell').each(function () {
+                                if ($(this).closest('td').index() <= $(self).closest('td').index() && $(this).closest('tr').index() <= $(self).closest('tr').index()) {
+                                    _this.selectedFields.push($(this).attr('id'))
+                                }
+                            })
+
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
                         }
                         else {
@@ -91,8 +129,12 @@
                             _this.openPopUp(e, $(this).attr('id'), 'td')
                         }
                     }
+
+                    if (!_this.selectedFields.length) _this.popupDisplay = false
                 })
                 $('#editor-content th').click(function(e) {
+                    e.stopPropagation()
+
                     _this.selectedFields = []
                     $('.selected').removeClass('selected')
 
@@ -475,6 +517,12 @@ table {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
 
     .data-icons-container {
         display: flex;
