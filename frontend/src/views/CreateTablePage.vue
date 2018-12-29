@@ -96,7 +96,7 @@ export default {
                     }
                 })
 
-                $(this).prepend($thead)
+                if ($thead.children().length) $(this).prepend($thead)
             })
 
             currentHTML = $html.html()

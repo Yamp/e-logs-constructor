@@ -77,10 +77,22 @@
                             _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
 
-                            $('.cell').each(function () {
-                                if ($(this).closest('td').index() <= $(self).closest('td').index() && $(this).closest('tr').index() <= $(self).closest('tr').index()) {
-                                    _this.selectedFields.push($(this).attr('id'))
-                                }
+                            $(self).closest('table').children('tbody').each(function (tbodyIndex) {
+                                $(this).children('tr').each(function () {
+                                    $(this).children('td').each(function () {
+                                        console.log('td', $(this))
+                                        if (
+                                            $(this).index() <= $(self).closest('td').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                        ) {
+                                            $(this).find('table').length ?
+                                                $(this).find('.cell').each(function () {
+                                                    _this.selectedFields.push($(this).attr('id'))
+                                                })
+                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                        }
+                                    })
+                                })
                             })
 
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
@@ -110,10 +122,22 @@
                             _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
 
-                            $('.cell').each(function () {
-                                if ($(this).closest('td').index() <= $(self).closest('td').index() && $(this).closest('tr').index() <= $(self).closest('tr').index()) {
-                                    _this.selectedFields.push($(this).attr('id'))
-                                }
+                            $(self).closest('table').children('tbody').each(function (tbodyIndex) {
+                                $(this).children('tr').each(function () {
+                                    $(this).children('td').each(function () {
+                                        console.log('td', $(this))
+                                        if (
+                                            $(this).index() <= $(self).closest('td').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                        ) {
+                                            $(this).find('table').length ?
+                                                $(this).find('.cell').each(function () {
+                                                    _this.selectedFields.push($(this).attr('id'))
+                                                })
+                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                        }
+                                    })
+                                })
                             })
 
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
