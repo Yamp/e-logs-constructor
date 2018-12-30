@@ -134,9 +134,14 @@ export default {
             let _this = this
             let indexedTooltipHeight = 50
 
+            $('td').bind("DOMSubtreeModified", function() {
+                $(this).html('')
+            });
+
             $('td, th').off('click').on('click', function (e) {
                 console.log('show')
                 e.stopPropagation()
+
                 let coords = e.target.getBoundingClientRect()
 
                 _this.top = coords.top - indexedTooltipHeight

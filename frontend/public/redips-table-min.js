@@ -801,14 +801,15 @@ REDIPS.table = (function () {
             // mark table cell
             if (flag === true) {
                 // remember old color
-                el.redips.background_old = el.style.backgroundColor;
+                // el.redips.background_old = el.style.backgroundColor;
                 // set background color
                 el.style.backgroundColor = REDIPS.table.color.cell;
             }
             // umark table cell
             else {
                 // return original background color and reset selected flag
-                el.style.backgroundColor = el.redips.background_old;
+                // el.style.backgroundColor = el.redips.background_old;
+                el.style.backgroundColor = '';
             }
         }
         // set flag (true/false) to the cell "selected" property
