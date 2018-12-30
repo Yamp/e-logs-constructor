@@ -369,37 +369,50 @@
             setAutoNames () {
                 let currentCells = this.getCurrentTable.fields
 
-                // let headers = [];
-                // $('table').find('thead tr').each(function (rowindex) {
-                //     headers[rowindex] = headers[rowindex] || [];
-                //     [...$(this)[0].cells].map((header, index) => {
-                //         [...Array(+$(header).attr('colspan') || 1).keys()].map(item => {
-                //             headers[rowindex].push($(header).find('.text').text() + (item + 1))
-                //             if (+$(header).attr('rowspan')) {
-                //                 [...Array(+$(header).attr('colspan') || 1).keys()].map(itm => {
-                //                     headers[rowindex].splice( item, 0, $(header).find('.text').text() )
-                //                 })
-                //             }
-                //         })
-                //     })
-                // })
-                // console.log(headers)
-
                 currentCells = currentCells.map((item, index) => {
                     if (!item.name) {
                         let $currentCell = $(`#${item.cell}`)
                         let cellIndex = $currentCell.closest('td').index()
                         let rowIndex = $currentCell.closest('tr').index()
                         let generatedName = ''
+                        let headersTH = [];
+                        let maxCells = 0
+                        let $TRs = $currentCell.parents('table').children('thead').children('tr')
 
-                        $currentCell.closest('table').find('thead tr').each(function (index) {
-                            let headers = [];
+                        $TRs.each(function (rowindex) {
+                            let max = 0;
+                            [...$(this)[0].cells].map((header, index) => {
+                                max += +$(header).attr('colspan') || 1
+                            })
+                            max > maxCells ? maxCells = max : null
+                        });
+
+                        [...Array($TRs.length).keys()].map(item => {
+                            headersTH.push([...Array(maxCells)])
+                            headersTH[item].fill(null)
+                        })
+
+                        $TRs.each(function (rowindex) {
+                            let currentIndex = 0;
 
                             [...$(this)[0].cells].map((header, index) => {
-                                [...Array(+$(header).attr('colspan') || 1).keys()].map(item => headers.push($(header).find('.text').text() + (item + 1)))
+                                [...Array(+$(header).attr('colspan') || 1).keys()]
+                                    .map(col => {
+                                        Array(+$(header).attr('rowspan') || 1).fill().map((item, index) => index + rowindex)
+                                            .map(row => {
+                                                !headersTH[row][currentIndex] ?
+                                                    headersTH[row][currentIndex] = $(header).find('.text').text()
+                                                    : headersTH[row][currentIndex + 1] = $(header).find('.text').text()
+                                            })
+                                        currentIndex += 1
+                                    })
                             })
 
-                            let currentText = headers[cellIndex]
+
+                        });
+
+                        headersTH.map((headers, index) => {
+                            let currentText = index !== 0 && headers[cellIndex] === headersTH[index - 1][cellIndex] ? '' : headers[cellIndex]
 
                             if (index !== 0 && currentText && generatedName) generatedName += '_'
                             generatedName += currentText
@@ -413,7 +426,7 @@
                             generatedName += currentText
                         })
 
-                        if (generatedName) generatedName += '_' + (rowIndex + 1)
+                        if (generatedName) generatedName += '_' + (rowIndex + 1) + '_' + (cellIndex + 1)
 
                         if (!generatedName) generatedName = `Ячейка${index + 1}`
 
