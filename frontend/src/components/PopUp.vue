@@ -31,7 +31,7 @@
             <img src="../assets/icons/list.svg" class="icon" alt="Визард" @click="openWizard">
         </div>
 
-        <div class="form-group" v-if="type == 'text' || type == 'number' || type == 'formula'">
+        <div class="form-group" v-if="type == 'text' || type == 'number' || type == 'formula' || cellTag === 'th'">
             <img src="../assets/icons/ed_icon.svg" class="data-icon data-icon-units" />
             <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
         </div>
@@ -143,6 +143,8 @@
                                 fieldsIds: this.selectedFields
                             }
                         )
+
+                        eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
                     }
                 }
                 console.log(data, input)
@@ -340,6 +342,7 @@
     border-radius: 4px;
     background-color: #fff;
     transition: 0.2s;
+    z-index: 1000;
 }
 
 

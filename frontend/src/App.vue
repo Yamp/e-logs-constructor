@@ -69,4 +69,12 @@
     display: flex !important;
     font-size: 14px !important;
   }
+  .btn {
+    transition: 0.2s;
+  }
+
+  .note-editable table td {
+    color: transparent !important;
+    text-shadow: 0 0 0 #000 !important;
+  }
 </style>

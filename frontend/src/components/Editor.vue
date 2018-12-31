@@ -49,35 +49,99 @@
                 // })
 
                 $('.cell').click(function(e) {
+                    e.stopPropagation()
+
                     let isCtrlPressed = false
+                    let isShiftPressed = false
                     console.log(e)
 
                     if (e.metaKey || e.ctrlKey) {
                         isCtrlPressed = true
                     }
 
+                    if (e.shiftKey) {
+                        isShiftPressed = true
+                    }
+
                     $('th').removeClass('selected')
 
                     if ($(this).hasClass('selected')) {
                         if (isCtrlPressed) {
+                            console.log('ctrl-selected')
                             $(this).removeClass('selected')
                             _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                         }
-                        else {
-                            $(`.cell`).removeClass('selected')
+                        else if (isShiftPressed) {
+                            let self = this
+                            console.log('shift-selected')
+                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
-                            _this.selectedFields.push($(this).attr('id'))
 
-                            console.log(_this.selectedFields.length)
-                            if (_this.currentCell !== $(this).attr('id')) {
+                            $(self).closest('table').children('tbody').each(function (tbodyIndex) {
+                                $(this).children('tr').each(function () {
+                                    $(this).children('td').each(function () {
+                                        console.log('td', $(this))
+                                        if (
+                                            $(this).index() <= $(self).closest('td').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                        ) {
+                                            $(this).find('table').length ?
+                                                $(this).find('.cell').each(function () {
+                                                    _this.selectedFields.push($(this).attr('id'))
+                                                })
+                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                        }
+                                    })
+                                })
+                            })
+
+                            _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
+                        }
+                        else {
+                            console.log('selected')
+
+                            if (_this.selectedFields.length === 1) {
+                                $(`.cell`).removeClass('selected')
+                                _this.selectedFields = []
+                            }
+                            else {
+                                $(`.cell`).removeClass('selected')
+                                _this.selectedFields = []
+                                _this.selectedFields.push($(this).attr('id'))
                                 $(this).addClass('selected')
-                                _this.openPopUp(e, $(this).attr('id'), 'td')
                             }
                         }
                     }
                     else if (!$(this).hasClass('selected')) {
+                        console.log('not-selected')
                         if (isCtrlPressed) {
                             _this.selectedFields.push($(this).attr('id'))
+                            _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
+                        }
+                        else if (isShiftPressed) {
+                            let self = this
+
+                            _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
+                            _this.selectedFields = []
+
+                            $(self).closest('table').children('tbody').each(function (tbodyIndex) {
+                                $(this).children('tr').each(function () {
+                                    $(this).children('td').each(function () {
+                                        console.log('td', $(this))
+                                        if (
+                                            $(this).index() <= $(self).closest('td').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                        ) {
+                                            $(this).find('table').length ?
+                                                $(this).find('.cell').each(function () {
+                                                    _this.selectedFields.push($(this).attr('id'))
+                                                })
+                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                        }
+                                    })
+                                })
+                            })
+
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
                         }
                         else {
@@ -87,10 +151,12 @@
                             $(this).addClass('selected')
                         }
 
-                        if (_this.currentCell !== $(this).attr('id')) {
+                        // if (_this.currentCell !== $(this).attr('id')) {
                             _this.openPopUp(e, $(this).attr('id'), 'td')
-                        }
+                        // }
                     }
+
+                    if (!_this.selectedFields.length) _this.popupDisplay = false
                 })
                 $('#editor-content th').click(function(e) {
                     _this.selectedFields = []
@@ -218,6 +284,7 @@
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         if ($(this).attr('field-name')) {
+                            console.log('cells', _this.cells)
                             _this.cells = _this.cells.map(item => {
                                 if (item.name === $(this).attr('field-name')) {
                                     return {...item, cell: $(this).attr('id')}
@@ -226,11 +293,11 @@
                             })
                         }
                         else {
-                            _this.cells.push({cell: id, name: `Ячейка${index + 1}`})
+                            _this.cells.push({cell: id})
                         }
                     }
                     else {
-                        console.log('not-have-id')
+                        console.log('have-id', $(this).attr('id'))
                         if (_this.getFieldName($(this).attr('id')))
                             $(this).addClass('has-name')
                         else
@@ -251,6 +318,23 @@
                 $editorContent.find('th').each(function () {
                     $(this).find('br').remove()
                     $(this)[0].removeAttribute('style')
+
+                    let $text = $(this).find('.text').clone()
+                    let $units = $(this).find('.units').clone()
+
+                    if ($units.length) {
+                        $(this).find('.units').remove()
+                    }
+
+                    let $textdata = $(this).text().split(' ').join('')
+
+                    if (!$text.length && $textdata) {
+                        $(this).html(`<span class="text">${$textdata}</span>`)
+                    }
+
+                    if ($units.length) {
+                        $(this).append($units)
+                    }
 
                     if (+$(this).attr('colspan') > 1) {
                         $(this).addClass('th-common')
@@ -277,8 +361,89 @@
                     }
                 )
 
+                eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
+
                 this.attachCellData()
                 console.log('journal', this.$store.getters['journalState/getJournal'])
+            },
+            setAutoNames () {
+                let currentCells = this.getCurrentTable.fields
+
+                currentCells = currentCells.map((item, index) => {
+                    if (!item.name) {
+                        let $currentCell = $(`#${item.cell}`)
+                        let cellIndex = $currentCell.closest('td').index()
+                        let rowIndex = $currentCell.closest('tr').index()
+                        let generatedName = ''
+                        let headersTH = [];
+                        let maxCells = 0
+                        let $TRs = $currentCell.parents('table').children('thead').children('tr')
+
+                        $TRs.each(function (rowindex) {
+                            let max = 0;
+                            [...$(this)[0].cells].map((header, index) => {
+                                max += +$(header).attr('colspan') || 1
+                            })
+                            max > maxCells ? maxCells = max : null
+                        });
+
+                        [...Array($TRs.length).keys()].map(item => {
+                            headersTH.push([...Array(maxCells)])
+                            headersTH[item].fill(null)
+                        })
+
+                        $TRs.each(function (rowindex) {
+                            let currentIndex = 0;
+
+                            [...$(this)[0].cells].map((header, index) => {
+                                [...Array(+$(header).attr('colspan') || 1).keys()]
+                                    .map(col => {
+                                        Array(+$(header).attr('rowspan') || 1).fill().map((item, index) => index + rowindex)
+                                            .map(row => {
+                                                !headersTH[row][currentIndex] ?
+                                                    headersTH[row][currentIndex] = $(header).find('.text').text()
+                                                    : headersTH[row][currentIndex + 1] = $(header).find('.text').text()
+                                            })
+                                        currentIndex += 1
+                                    })
+                            })
+
+
+                        });
+
+                        headersTH.map((headers, index) => {
+                            let currentText = index !== 0 && headers[cellIndex] === headersTH[index - 1][cellIndex] ? '' : headers[cellIndex]
+
+                            if (index !== 0 && currentText && generatedName) generatedName += '_'
+                            generatedName += currentText
+                        })
+
+                        $currentCell.closest('tr').find('th').each(function (index) {
+                            if($(this).index() > cellIndex) return;
+
+                            let currentText = $(this).find('.text').text()
+                            if ((index !== 0 || generatedName) && currentText) generatedName += '_'
+                            generatedName += currentText
+                        })
+
+                        if (generatedName) generatedName += '_' + (rowIndex + 1) + '_' + (cellIndex + 1)
+
+                        if (!generatedName) generatedName = `Ячейка${index + 1}`
+
+                        $currentCell.attr('field-name', generatedName)
+                        $currentCell.find('.name-container').text(generatedName)
+                        return {...item, name: generatedName}
+                    }
+                    else return item
+                })
+                console.log(currentCells)
+                this.$store.commit('journalState/updateCurrentTable',
+                    {
+                        fields: currentCells
+                    }
+                )
+
+                eventBus.$emit('set-has-all-names', true)
             },
             attachCellData () {
                 let _this = this
@@ -361,9 +526,11 @@
             eventBus.$on("removeFieldsSelectors", () => this.removeFieldsSelectors())
             eventBus.$on("openWizard", this.openWizard)
             eventBus.$on("closeWizard", this.closeWizard)
+            eventBus.$on('set-auto-names', () => this.setAutoNames())
         },
         beforeDestroy () {
             eventBus.$off('toggleFieldsSelectors')
+            eventBus.$off('set-auto-names')
             console.log("Editor destoyred")
         }
     }
@@ -409,6 +576,12 @@ table {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
 
     .data-icons-container {
         display: flex;
