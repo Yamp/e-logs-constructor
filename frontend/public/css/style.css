@@ -210,7 +210,7 @@
 
 .create-table .elog-journal-table tbody th {
   background-color: #666666;
-  color: #666666; }
+  color: white; }
 
 .edit-data th, .edit-data td, .edit-data .cell {
   cursor: pointer; }
