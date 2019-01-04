@@ -40,6 +40,7 @@
 }
 
 .elog-journal-table {
+    display: inline-table;
     table-layout: auto !important;
     width: auto !important;
     margin-bottom: 0 !important;
@@ -304,20 +305,36 @@
     }
 }
 
-.create-table .elog-journal-table {
-    th, td, .cell {
-        cursor: pointer;
+.create-table {
+    .elog-journal-table {
+        th, td, .cell {
+            cursor: pointer;
+        }
+
+        tbody th {
+            background-color: $base_gray;
+            color: white;
+        }
     }
 
-    tbody th {
-        background-color: $base_gray;
-        color: white;
+    p {
+        display: inline;
     }
 }
 
 .edit-data {
     th, td, .cell {
         cursor: pointer;
+    }
+
+    p {
+        display: inline;
+    }
+}
+
+.table-item .body{
+    p {
+        display: inline;
     }
 }
 

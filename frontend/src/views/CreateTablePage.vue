@@ -359,7 +359,7 @@ export default {
                         let p = uselessParagraphs[i];
                         p.parentNode.removeChild(p);
                     }
-                });
+                })
 
                 $('.note-btn').on('click', function () {
                     _this.initListeners()

@@ -38,6 +38,7 @@
   cursor: pointer; }
 
 .elog-journal-table {
+  display: inline-table;
   table-layout: auto !important;
   width: auto !important;
   margin-bottom: 0 !important;
@@ -212,8 +213,17 @@
   background-color: #666666;
   color: white; }
 
+.create-table p {
+  display: inline; }
+
 .edit-data th, .edit-data td, .edit-data .cell {
   cursor: pointer; }
+
+.edit-data p {
+  display: inline; }
+
+.table-item .body p {
+  display: inline; }
 
 @media (max-width: 1172px) {
   .elog-journal-table thead th {
