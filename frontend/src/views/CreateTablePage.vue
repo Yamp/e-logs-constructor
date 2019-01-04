@@ -134,24 +134,99 @@ export default {
             let _this = this
             let indexedTooltipHeight = 50
 
-            $('td').bind("DOMSubtreeModified", function() {
-                $(this).html('')
-            });
+            // $('td').bind("DOMNodeInserted", function() {
+            //     if (!$(this).children().length || !$(this).children().is('table')) $(this).html('')
+                    //console.log('table ', $(this).children())
+            // });
+
+            $('td, th').on('mousedown', function (e) {
+
+                let $selectedCells = $('th, td').filter(function () {
+                    return $(this).attr('style') && $(this).attr('style').includes('background-color: rgb(155, 179, 218)')
+                })
+
+                // merge
+                if (
+                    $selectedCells.length <= 1
+                ) {
+                    $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                    $('.note-custom .note-btn-group.btn-group').last().css('display', 'none')
+                }
+                else {
+                    $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
+                    $('.note-custom .note-btn-group.btn-group').last().css('display', 'block')
+                }
+
+                // split v
+                if ((
+                        $(e.target).attr('colspan') &&
+                        $(e.target).attr('colspan') > 1 &&
+                        $(e.target).attr('style').includes('background-color: rgb(155, 179, 218)')
+                    ) ||
+                    (
+                        $selectedCells.length === 1 &&
+                        $selectedCells.filter(function () {
+                            return $(this).attr('colspan') && $(this).attr('colspan') > 1
+                        }).length === 1
+                    )
+                ) {
+                    $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
+                    $('.note-split .note-btn-group.btn-group').last().css('display', 'block')
+                    $('.note-split').css('margin-right', '5px')
+                }
+                else {
+                    $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                    $('.note-split .note-btn-group.btn-group').last().css('display', 'none')
+                    $('.note-split').css('margin-right', '0')
+                }
+
+                //split h
+                if ((
+                        $(e.target).attr('rowspan') &&
+                        $(e.target).attr('rowspan') > 1 &&
+                        $(e.target).attr('style').includes('background-color: rgb(155, 179, 218)')
+                    ) ||
+                    (
+                        $selectedCells.length === 1 &&
+                        $selectedCells.filter(function () {
+                            return $(this).attr('rowspan') && $(this).attr('rowspan') > 1
+                        }).length === 1
+                    )
+                ) {
+                    $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '0', 'border-bottom-left-radius': '0'})
+                    $('.note-split .note-btn-group.btn-group').first().css('display', 'block')
+                }
+                else {
+                    $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '3px', 'border-bottom-left-radius': '3px'})
+                    $('.note-split .note-btn-group.btn-group').first().css('display', 'none')
+                }
+
+                setTimeout(() => {
+                    let closestTable = $(this).closest('table')
+                    let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
+                        $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)')
+                    )
+
+                    if (!tableHasBGCOLOR) {
+                        $('.note-popover').css({display: 'none'})
+                    }
+
+                    $('table').each(function () {
+                        $(this)[0].removeAttribute('id')
+                    })
+                    closestTable.attr('id', 'redipsTable')
+                }, 0)
+            })
 
             $('td, th').off('click').on('click', function (e) {
                 console.log('show')
-                e.stopPropagation()
+                e.stopPropagation();
 
                 let coords = e.target.getBoundingClientRect()
 
                 _this.top = coords.top - indexedTooltipHeight
                 _this.left = coords.left
                 _this.rowsData = [...$(e.target).parents('tr')]
-
-                let closestTable = $(this).closest('table')
-                let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
-                    $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)')
-                )
 
                 let closestRow = $(this).closest('tr')
                 let rowHasBGCOLOR = [...closestRow.children()].some(item =>
@@ -164,15 +239,6 @@ export default {
                 else {
                     _this.showIndexedTooltip = false
                 }
-
-                if (!tableHasBGCOLOR) {
-                    $('.note-popover').css({display: 'none'})
-                }
-
-                $('table').each(function () {
-                    $(this)[0].removeAttribute('id')
-                })
-                closestTable.attr('id', 'redipsTable')
             })
 
             $('.note-editable').on('click', function () {
