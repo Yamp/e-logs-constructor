@@ -312,11 +312,10 @@ export default {
                         ['font', ['strikethrough', 'superscript', 'subscript']],
                         ['fontsize', ['fontsize']],
                         ['color', ['color']],
-                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['para', ['style', 'ul', 'ol', 'paragraph']],
                         ['height', ['height']],
                         ['insert', ['link', 'hr']],
-                        ['misk', ['undo', 'redo']],
-                        ['view', ['fullscreen']]
+                        ['misk', ['undo', 'redo']]
                     ],
                     popover: {
                         table: [
@@ -433,7 +432,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 .create-table {
   display: flex;
   flex-direction: column;
@@ -477,17 +476,71 @@ export default {
   margin-top: 0;
   margin-bottom: 20px;
 }
-.modal-title {
-  margin-bottom: 20px;
-  font-size: 20px;
-}
-.modal-form {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12px;
-}
-.modal-btn {
-  margin-left: 10px;
+.note-toolbar.panel-heading {
+    position: relative;
+    height: 76px;
+
+    & > .note-insert:first-child {
+        height: calc(100% - 10px);
+        position: absolute;
+        top: 0;
+        left: 5px;
+
+        .note-btn-group.btn-group {
+            height: 100%;
+
+            button {
+                height: 100%;
+            }
+        }
+    }
+
+    & > .note-style {
+        position: absolute;
+        left: 131px;
+    }
+
+    & > .note-font {
+        position: absolute;
+        left: 59px;
+        bottom: 5px;
+    }
+
+    & > .note-fontsize {
+        position: absolute;
+        left: 327px;
+    }
+
+    & > .note-color {
+        position: absolute;
+        left: 269px;
+    }
+
+    & > .note-para {
+        position: absolute;
+        bottom: 5px;
+        left: 164px;
+
+        .dropdown-menu {
+            height: 274px;
+            overflow-y: auto;
+        }
+    }
+
+    & > .note-height {
+        position: absolute;
+        left: 383px;
+    }
+
+    & > .note-insert {
+        position: absolute;
+        bottom: 5px;
+        left: 333px;
+    }
+
+    & > .note-misk {
+        position: absolute;
+        left: 59px;
+    }
 }
 </style>

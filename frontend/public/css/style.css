@@ -132,8 +132,8 @@
       background-color: #9BB3DA !important; }
     .elog-journal-table th table {
       margin-bottom: 0 !important;
-      height: 100%;
-      width: 100%;
+      height: 100% !important;
+      width: 100% !important;
       border: none !important; }
       .elog-journal-table th table tr > td:first-child,
       .elog-journal-table th table tr > th:first-child {
@@ -157,8 +157,8 @@
     background: linear-gradient(-45deg, #9FBF47 0%, transparent 10px, transparent 100%); }
     .elog-journal-table td table {
       margin-bottom: 0 !important;
-      height: 100%;
-      width: 100%;
+      height: 100% !important;
+      width: 100% !important;
       border: none !important; }
       .elog-journal-table td table tr > td:first-child,
       .elog-journal-table td table tr > th:first-child {
