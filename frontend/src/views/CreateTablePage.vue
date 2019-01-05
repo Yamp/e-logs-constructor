@@ -69,13 +69,13 @@ export default {
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         },
         onHandleCancel () {
-            $('.note-popover').css({display: 'none'})
+            $('.note-popover').remove()
             $('.note-editable td').removeAttr('style')
             this.$store.commit('journalState/setCurrentTable', null)
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
         },
         onHandleContinue () {
-            $('.note-popover').css({display: 'none'})
+            $('.note-popover').remove()
             $('.note-editable td').removeAttr('style')
 
             let currentHTML = $('#summernote').summernote('code')
@@ -130,31 +130,87 @@ export default {
                 $(this).remove()
             })
         },
+        getRightCell (cell) {
+          return $($(cell).closest('tr')[0].cells[$(cell).index() + 1])
+        },
+        getLeftCell (cell) {
+            return $($(cell).closest('tr')[0].cells[$(cell).index() - 1])
+        },
+        getTopCell (cell) {
+            let cellHeight = $(cell).outerHeight()
+            let cellWidth = $(cell).outerWidth()
+            let coords = cell.getBoundingClientRect()
+            let topCell = document.elementFromPoint(coords.left + cellWidth/2, coords.top - cellHeight/2)
+
+            return $(topCell).is('td') || $(topCell).is('th') ? $(topCell) : null
+        },
+        getBottomCell (cell) {
+            let cellHeight = $(cell).outerHeight()
+            let cellWidth = $(cell).outerWidth()
+            let coords = cell.getBoundingClientRect()
+            let bottomCell = document.elementFromPoint(coords.left + cellWidth/2, coords.bottom + cellHeight/2)
+
+            return $(bottomCell).is('td') || $(bottomCell).is('th') ? $(bottomCell) : null
+        },
         initListeners () {
             let _this = this
             let indexedTooltipHeight = 50
 
-            // $('td').bind("DOMNodeInserted", function() {
-            //     if (!$(this).children().length || !$(this).children().is('table')) $(this).html('')
-                    //console.log('table ', $(this).children())
-            // });
+            $('td').off('DOMSubtreeModified').on("DOMSubtreeModified", function() {
+                console.log('DOMSubtreeModified')
+                if ($(this).children().length) {
+                    setTimeout(() => {
+                        if (!$(this).children().is('table')) {
+                            console.log('is not table')
+                            $(this).html('')
+                        }
+                    }, 0)
+                }
+                else $(this).html('')
+            });
 
             $('td, th').on('mousedown', function (e) {
-
                 let $selectedCells = $('th, td').filter(function () {
                     return $(this).attr('style') && $(this).attr('style').includes('background-color: rgb(155, 179, 218)')
                 })
 
+                console.log('onmousedown', $selectedCells.length === 1 &&
+                    $selectedCells.filter(function () {
+                        return $(this).attr('rowspan') && $(this).attr('rowspan') > 1
+                    }).length === 1, [...$('th, td')].some(item => {
+                    return $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)') &&
+                        ((_this.getRightCell(item) && _this.getRightCell(item).attr('style') &&
+                                _this.getRightCell(item).attr('style').includes('background-color: rgb(155, 179, 218)')) ||
+                            (_this.getLeftCell(item) && _this.getLeftCell(item).attr('style') &&
+                                _this.getLeftCell(item).attr('style').includes('background-color: rgb(155, 179, 218)')) ||
+                            (_this.getTopCell(item) && _this.getTopCell(item).attr('style') &&
+                                _this.getTopCell(item).attr('style').includes('background-color: rgb(155, 179, 218)')) ||
+                            (_this.getBottomCell(item) && _this.getBottomCell(item).attr('style') &&
+                                _this.getBottomCell(item).attr('style').includes('background-color: rgb(155, 179, 218)'))
+                        )
+                }))
+
                 // merge
                 if (
-                    $selectedCells.length <= 1
+                    [...$('th, td')].some(item => {
+                        return $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)') &&
+                            ((_this.getRightCell(item) && _this.getRightCell(item).attr('style') &&
+                                 _this.getRightCell(item).attr('style').includes('background-color: rgb(155, 179, 218)')) ||
+                             (_this.getLeftCell(item) && _this.getLeftCell(item).attr('style') &&
+                                 _this.getLeftCell(item).attr('style').includes('background-color: rgb(155, 179, 218)')) ||
+                             (_this.getTopCell(item) && _this.getTopCell(item).attr('style') &&
+                                 _this.getTopCell(item).attr('style').includes('background-color: rgb(155, 179, 218)')) ||
+                             (_this.getBottomCell(item) && _this.getBottomCell(item).attr('style') &&
+                                 _this.getBottomCell(item).attr('style').includes('background-color: rgb(155, 179, 218)'))
+                            )
+                    })
                 ) {
-                    $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
-                    $('.note-custom .note-btn-group.btn-group').last().css('display', 'none')
-                }
-                else {
                     $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
                     $('.note-custom .note-btn-group.btn-group').last().css('display', 'block')
+                }
+                else {
+                    $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                    $('.note-custom .note-btn-group.btn-group').last().css('display', 'none')
                 }
 
                 // split v
@@ -475,6 +531,15 @@ export default {
   justify-content: flex-end;
   margin-top: 0;
   margin-bottom: 20px;
+}
+.note-popover {
+    .note-split {
+        margin-right: 0;
+    }
+
+    .note-custom {
+        margin-left: 5px;
+    }
 }
 .note-toolbar.panel-heading {
     position: relative;

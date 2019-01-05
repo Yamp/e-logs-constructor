@@ -186,6 +186,7 @@
     .btns {
         display: flex;
         justify-content: flex-end;
+        margin-bottom: 0;
     }
     .error {
         display: flex;
@@ -200,6 +201,7 @@
         display: flex;
         align-items: center;
         opacity: 0.8;
+        margin-right: 20px;
     }
     .note i {
         font-size: 22px;
@@ -207,6 +209,5 @@
     }
     .note span {
         font-size: 16px;
-        margin-right: 6px;
     }
 </style>
