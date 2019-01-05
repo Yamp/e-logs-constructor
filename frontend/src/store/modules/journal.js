@@ -300,14 +300,10 @@ const journalState = {
         },
         setFields(state, payload) {
             // let table = state.journal.tables.filter((item) => item.name === payload.name)[0]
-            console.log('payload', payload)
-            console.log('state.journal.currentTable.fields', state.journal.currentTable.fields)
             payload.fieldsIds.map(id => {
                 state.journal.currentTable.fields = state.journal.currentTable.fields.map(item => {
-                    console.log(item.cell, id)
                     if (item.cell === id) {
                         let {fieldsIds, ...currentField} = payload
-                        console.log('currentField', currentField)
                         return {...item, ...currentField}
                     } 
                     else {

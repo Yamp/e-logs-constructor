@@ -32,7 +32,15 @@
               y: '0',
               expandDirection: true,
               fieldSelectionMode: false,
+              firstCell: null
           }
+        },
+        watch: {
+            selectedFields (value) {
+                if (value.length <= 1) {
+                    this.firstCell = null
+                }
+            }
         },
         computed: {
             getCurrentTable () {
@@ -73,29 +81,56 @@
                         }
                         else if (isShiftPressed) {
                             let self = this
-                            console.log('shift-selected')
+
+                            !_this.firstCell ? _this.firstCell = $(`#${_this.selectedFields[0]}`) : null
+
                             _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
 
                             $(self).closest('table').children('tbody').each(function (tbodyIndex) {
                                 $(this).children('tr').each(function () {
                                     $(this).children('td').each(function () {
-                                        console.log('td', $(this))
                                         if (
+                                            $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
                                             $(this).index() <= $(self).closest('td').index() &&
-                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                            $(this).index() >= _this.firstCell.closest('td').index() &&
+                                            $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                            $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
+                                                $(this).index() <= $(self).closest('td').index() &&
+                                                $(this).index() >= _this.firstCell.closest('td').index() &&
+                                                $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                $(this).closest('tr').index() <= _this.firstCell.closest('tr').index() ||
+                                                    $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                    $(this).index() >= $(self).closest('td').index() &&
+                                                    $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                    $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                                    $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                                    $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                        $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                        $(this).index() >= $(self).closest('td').index() &&
+                                                        $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                        $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                        $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                        $(this).closest('tr').index() <= _this.firstCell.closest('tr').index()
                                         ) {
-                                            $(this).find('table').length ?
-                                                $(this).find('.cell').each(function () {
-                                                    _this.selectedFields.push($(this).attr('id'))
-                                                })
-                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                            !_this.selectedFields.includes($(this).find('.cell').attr('id')) ?
+                                                $(this).find('table').length ?
+                                                    $(this).find('.cell').each(function () {
+                                                        _this.selectedFields.push($(this).attr('id'))
+                                                    })
+                                                    : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                                : null
                                         }
                                     })
                                 })
                             })
 
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
+
+                            _this.openPopUp(e, $(this).attr('id'), 'td')
                         }
                         else {
                             console.log('selected')
@@ -121,22 +156,47 @@
                         else if (isShiftPressed) {
                             let self = this
 
+                            !_this.firstCell ? _this.firstCell = $(`#${_this.selectedFields[0]}`) : null
+
                             _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
 
                             $(self).closest('table').children('tbody').each(function (tbodyIndex) {
                                 $(this).children('tr').each(function () {
                                     $(this).children('td').each(function () {
-                                        console.log('td', $(this))
                                         if (
+                                            $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
                                             $(this).index() <= $(self).closest('td').index() &&
-                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                            $(this).index() >= _this.firstCell.closest('td').index() &&
+                                            $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                            $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
+                                                $(this).index() <= $(self).closest('td').index() &&
+                                                $(this).index() >= _this.firstCell.closest('td').index() &&
+                                                $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                $(this).closest('tr').index() <= _this.firstCell.closest('tr').index() ||
+                                                    $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                    $(this).index() >= $(self).closest('td').index() &&
+                                                    $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                    $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                                    $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                                    $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                        $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                        $(this).index() >= $(self).closest('td').index() &&
+                                                        $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                        $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                        $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                        $(this).closest('tr').index() <= _this.firstCell.closest('tr').index()
                                         ) {
-                                            $(this).find('table').length ?
-                                                $(this).find('.cell').each(function () {
-                                                    _this.selectedFields.push($(this).attr('id'))
-                                                })
-                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                            !_this.selectedFields.includes($(this).find('.cell').attr('id')) ?
+                                                $(this).find('table').length ?
+                                                    $(this).find('.cell').each(function () {
+                                                        _this.selectedFields.push($(this).attr('id'))
+                                                    })
+                                                    : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                                : null
                                         }
                                     })
                                 })
@@ -186,6 +246,7 @@
                 })
             },
             openPopUp (e, currentCell, currentCellTag) {
+                console.log('openpopup')
 
                 let currentElement
 
