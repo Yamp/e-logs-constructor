@@ -1,8 +1,8 @@
 <template>
     <transition name="modal">
-    <div class="modal-mask">
+    <div class="modal-mask" @click="$emit('close')">
       <div class="modal-wrapper">
-        <form class="modal-container" @submit.prevent="action.payload">
+        <form class="modal-container" @submit.prevent="action.callback" @click="(e) => e.stopPropagation()">
           <div class="modal-body">
             <slot>
             </slot>
@@ -54,6 +54,7 @@ export default {
     .modal-wrapper {
         display: table-cell;
         vertical-align: middle;
+        z-index: 9999;
     }
 
     .modal-container {
