@@ -118,6 +118,7 @@ export default {
 .title {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 14px;
 }
 .table-name {
     max-width: 80%;
@@ -144,6 +145,8 @@ export default {
 }
 .body {
     overflow-x: auto;
+    box-shadow: 0 0 4px #cccccc;
+    padding: 6px;
 }
 .delete-icon, .edit-icon {
     width: 20px;

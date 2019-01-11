@@ -2,16 +2,16 @@
     <transition name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
-        <div class="modal-container">
+        <form class="modal-container" @submit.prevent="action.payload">
           <div class="modal-body">
             <slot>
             </slot>
           </div>
           <div class="modal-footer">
-              <button class="modal-default-button btn btn-default" @click="$emit('close')">Закрыть</button>
-              <button v-if="action" @click="action.callback" class="btn btn-primary">{{action.title}}</button>&nbsp;
+              <button class="modal-default-button btn btn-default" type="button" @click="$emit('close')">Закрыть</button>
+              <button v-if="action" @click="action.callback" type="submit" class="btn btn-primary">{{action.title}}</button>&nbsp;
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </transition>
