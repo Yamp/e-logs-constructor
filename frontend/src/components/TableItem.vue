@@ -84,7 +84,6 @@ export default {
                 callback: function (result) {
                     if (result) {
                         _this.$store.commit('journalState/deleteTable', {tableName: _this.table.name})
-                        console.log(_this.$store.getters['journalState/getTables'])
                     }
                 }
             });

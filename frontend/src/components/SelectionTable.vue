@@ -66,11 +66,9 @@ export default {
                 })
                 eventBus.$emit('closeWizard')
             }
-            console.log(e)
         }
     },
     mounted () {
-        console.log(this.journal, this.table)
         // this.template = this.$store.getters['journalState/getSchemeTableHTML'](this.journal, this.table)
         this.$store.dispatch("journalState/importTable", {
             journal: this.journal,

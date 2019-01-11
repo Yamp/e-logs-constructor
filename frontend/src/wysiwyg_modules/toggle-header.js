@@ -28,7 +28,8 @@ export default function () {
                     // var cell = dom.ancestor(rng.commonAncestor(), dom.isCell)
                     $('table *').each(function () {
                         let $item = $(this)
-                        if($item.attr('style') && $item.attr('style').includes('background-color: rgb(155, 179, 218)')) {
+                        // if($item.attr('style') && $item.attr('style').includes('background-color: rgb(155, 179, 218)')) {
+                        if($item[0].redips && $item[0].redips.selected) {
                             if ($item.is('td')) {
                                 self.replaceTags($item, 'th')
                             }

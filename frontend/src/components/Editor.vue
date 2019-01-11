@@ -61,7 +61,6 @@
 
                     let isCtrlPressed = false
                     let isShiftPressed = false
-                    console.log(e)
 
                     if (e.metaKey || e.ctrlKey) {
                         isCtrlPressed = true
@@ -75,7 +74,6 @@
 
                     if ($(this).hasClass('selected')) {
                         if (isCtrlPressed) {
-                            console.log('ctrl-selected')
                             $(this).removeClass('selected')
                             _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                         }
@@ -133,7 +131,6 @@
                             _this.openPopUp(e, $(this).attr('id'), 'td')
                         }
                         else {
-                            console.log('selected')
 
                             if (_this.selectedFields.length === 1) {
                                 $(`.cell`).removeClass('selected')
@@ -148,7 +145,6 @@
                         }
                     }
                     else if (!$(this).hasClass('selected')) {
-                        console.log('not-selected')
                         if (isCtrlPressed) {
                             _this.selectedFields.push($(this).attr('id'))
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
@@ -246,7 +242,6 @@
                 })
             },
             openPopUp (e, currentCell, currentCellTag) {
-                console.log('openpopup')
 
                 let currentElement
 
@@ -267,8 +262,6 @@
                 let inputOffset = 4
 
                 e.stopPropagation()
-
-                console.log(popUpHeight) // need to be fixed
 
                 this.popupDisplay = true
 
@@ -340,12 +333,10 @@
                 })
 
                 $('.cell').each(function (index) {
-                    console.log('start')
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         if ($(this).attr('field-name')) {
-                            console.log('cells', _this.cells)
                             _this.cells = _this.cells.map(item => {
                                 if (item.name === $(this).attr('field-name')) {
                                     return {...item, cell: $(this).attr('id')}
@@ -358,7 +349,6 @@
                         }
                     }
                     else {
-                        console.log('have-id', $(this).attr('id'))
                         if (_this.getFieldName($(this).attr('id')))
                             $(this).addClass('has-name')
                         else
@@ -425,7 +415,6 @@
                 eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
 
                 this.attachCellData()
-                console.log('journal', this.$store.getters['journalState/getJournal'])
             },
             setAutoNames () {
                 let currentCells = this.getCurrentTable.fields
@@ -497,7 +486,6 @@
                     }
                     else return item
                 })
-                console.log(currentCells)
                 this.$store.commit('journalState/updateCurrentTable',
                     {
                         fields: currentCells
@@ -510,7 +498,6 @@
                 let _this = this
 
                 $('.cell').each(function () {
-                    console.log('before if', _this.getFieldName($(this).attr('id')))
                     if (_this.getFieldName($(this).attr('id'))){
                         $(this).find('.name-container').text(_this.getFieldName($(this).attr('id')))
                         $(this).attr('field-name', _this.getFieldName($(this).attr('id')))
@@ -532,10 +519,7 @@
                 return this.$store.getters['journalState/getFieldUnits'](cell)
             },
             toggleFieldsSelectors () {
-                console.log(eventBus)
-                console.log("ya ya hiunya");
                 if (!this.fieldSelectionMode) {
-                    console.log('addddddddddddd')
                     this.addFeildsSelectors()
                 }
                 else {
@@ -543,14 +527,12 @@
                 }
                 // this.$compile()
                 // this.$forceUpdate()
-                console.log('pisadadadadadadad');
             },
             addFeildsSelectors () {
                 this.fieldSelectionMode = true;
                 for (var elem of $(".cell")) {
                     let id = $(elem).attr("id");
                     let fieldName = this.$store.getters['journalState/getFieldName'](id)
-                    console.log(fieldName, id)
                     let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
                     if (fieldName) {
                         $(elem).find(".data-icons-container").append(fieldSelectorElement);
@@ -577,8 +559,6 @@
 
         },
         mounted () {
-            console.log(this._compile)
-            console.log('currentTable', this.getCurrentTable)
             this.tableHtml = this.getCurrentTable.html
             this.cells = this.getCurrentTable.fields
             setTimeout(() => this.setCells(), 0)
@@ -592,7 +572,6 @@
         beforeDestroy () {
             eventBus.$off('toggleFieldsSelectors')
             eventBus.$off('set-auto-names')
-            console.log("Editor destoyred")
         }
     }
 </script>

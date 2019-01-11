@@ -63,7 +63,6 @@
         },
         watch: {
             cell (value) {
-                console.log("cell changed", value)
                 eventBus.$emit("removeFieldsSelectors")
                 if (value && this.cellTag === 'td' && this.selectedFields.length === 1) {
                     this.fieldName = this.$store.getters['journalState/getFieldName'](this.cell)
@@ -72,10 +71,8 @@
                     this.formula = this.$store.getters['journalState/getFormula'](this.cell)
                     this.editor.resize(true)
                     this.editor.getSession().setValue(this.formula)
-                    console.log("setted value")
                 }
                 else if (value && this.cellTag === 'th') {
-                    console.log($(`#${this.cell}`).text())
                     this.fieldName = $(`#${this.cell}`).find('.text').text()
                     this.type = ''
                     this.units = $(`#${this.cell}`).find('.units').text()
@@ -97,7 +94,6 @@
                 this.compressEditor()
                 eventBus.$emit("removeFieldsSelectors")
                 if (value === 'formula') {
-                    console.log("secretly ya ebu bolshih sobak)00))0")
                     this.editor.resize(true);
                 }
             },
@@ -114,9 +110,7 @@
         },
         methods: {
             onHandleChange (data, input) {
-                console.log("onhandlechange")
                 if (data === 'fieldName') {
-                    console.log('input', input.target.value)
                     this.selectedFields.map(item => {
                         $(`#${item}`).attr('field-name', input.target.value)
                     })
@@ -147,7 +141,6 @@
                         eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
                     }
                 }
-                console.log(data, input)
                 if (data === 'type') {
                     this.selectedFields.map(item => {
                         $(`#${item}`).addClass('has-type')
@@ -209,8 +202,6 @@
                     var left = parseInt(popup.style.left)
                     var top = parseInt(popup.style.top)
                     popup.style.left = `${left - 200}px`;
-                    console.log(`{left - 200}px`)
-                    console.log("left", popup.style.left)
                 }
                 this.expanded = true
                 setTimeout(() => {this.editor.resize()}, 1000)
@@ -222,8 +213,6 @@
                     var left = parseInt(popup.style.left)
                     var top = parseInt(popup.style.top)
                     popup.style.left = `${left + 200}px`;
-                    console.log(`{left - 200}px`)
-                    console.log("left", popup.style.left)
                 }
                 this.expanded = false
                 setTimeout(() => {this.editor.resize()}, 1000)
@@ -242,12 +231,10 @@
                 else {
                     var formula = `$("${payload.field}")`
                 }
-                console.log(formula)
                 this.editor.session.insert(this.editor.getCursorPosition(), formula);
                 this.editor.focus();
             },
             openWizard () {
-                console.log("open wizard");
                 eventBus.$emit("openWizard");
             }
 
@@ -258,7 +245,6 @@
             var langTools = ace.acequire("ace/ext/language_tools");
             var rhymeCompleter = {
                 getCompletions: function(editor, session, pos, prefix, callback) {
-                    console.log(prefix, pos)
                     if (prefix.length === 0) { callback(null, []); return }
                     $.getJSON(
                         "http://rhymebrain.com/talk?function=getRhymes&word=" + prefix,
@@ -273,8 +259,6 @@
             var self = this;
             var JournalCompleter = {
                 getCompletions: (editor, session, pos, prefix, callback) => {
-                    console.log(prefix, pos)
-                    console.log("Bolshie soabaki))))", self)
                     if (prefix.length === 0) { callback(null, []); return }
                     var completions = self.$store.getters['journalState/getJournalCompletions'](prefix)
                     callback(null, completions.map(function(word) {
@@ -285,8 +269,6 @@
 
             var TableCompleter = {
                 getCompletions: (editor, session, pos, prefix, callback) => {
-                    console.log(prefix, pos)
-                    console.log("Bolshie soabaki))))", self)
                     if (prefix.length === 0) { callback(null, []); return }
                     var completions = self.$store.getters['journalState/getTableCompletions'](prefix)
                     callback(null, completions.map(function(word) {
@@ -297,8 +279,6 @@
 
             var FieldCompleter = {
                 getCompletions: (editor, session, pos, prefix, callback) => {
-                    console.log(prefix, pos)
-                    console.log("Bolshie soabaki))))", self)
                     if (prefix.length === 0) { callback(null, []); return }
                     var completions = self.$store.getters['journalState/getFieldCompletions'](prefix)
                     callback(null, completions.map(function(word) {
@@ -327,7 +307,6 @@
             this.editor.on("change", (e) => {
                 this.onHandleChange('formula', e)
             })
-            console.log(langTools)
         }
     }
 </script>
