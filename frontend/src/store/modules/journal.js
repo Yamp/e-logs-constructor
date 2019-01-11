@@ -221,6 +221,13 @@ const journalState = {
         setJournalName(state, payload) {
             state.journal = {...state.journal, title: payload.title, name: payload.name}
         },
+        setTableName(state, payload) {
+            state.journal.tables = state.journal.tables.map(item => {
+                return item.name === payload.oldName ?
+                    {...item, title: payload.title, name: payload.name}
+                    : item;
+            })
+        },
         updateJournal(state, payload) {
             // Vue.set(state, 'journal', {...payload, tables: payload.tables || []})
             state.journal = {...state.journal, ...payload}
