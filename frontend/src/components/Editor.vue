@@ -32,7 +32,15 @@
               y: '0',
               expandDirection: true,
               fieldSelectionMode: false,
+              firstCell: null
           }
+        },
+        watch: {
+            selectedFields (value) {
+                if (value.length <= 1) {
+                    this.firstCell = null
+                }
+            }
         },
         computed: {
             getCurrentTable () {
@@ -53,7 +61,6 @@
 
                     let isCtrlPressed = false
                     let isShiftPressed = false
-                    console.log(e)
 
                     if (e.metaKey || e.ctrlKey) {
                         isCtrlPressed = true
@@ -67,38 +74,63 @@
 
                     if ($(this).hasClass('selected')) {
                         if (isCtrlPressed) {
-                            console.log('ctrl-selected')
                             $(this).removeClass('selected')
                             _this.selectedFields = _this.selectedFields.filter(item => item !== $(this).attr('id'))
                         }
                         else if (isShiftPressed) {
                             let self = this
-                            console.log('shift-selected')
+
+                            !_this.firstCell ? _this.firstCell = $(`#${_this.selectedFields[0]}`) : null
+
                             _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
 
                             $(self).closest('table').children('tbody').each(function (tbodyIndex) {
                                 $(this).children('tr').each(function () {
                                     $(this).children('td').each(function () {
-                                        console.log('td', $(this))
                                         if (
+                                            $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
                                             $(this).index() <= $(self).closest('td').index() &&
-                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                            $(this).index() >= _this.firstCell.closest('td').index() &&
+                                            $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                            $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
+                                                $(this).index() <= $(self).closest('td').index() &&
+                                                $(this).index() >= _this.firstCell.closest('td').index() &&
+                                                $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                $(this).closest('tr').index() <= _this.firstCell.closest('tr').index() ||
+                                                    $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                    $(this).index() >= $(self).closest('td').index() &&
+                                                    $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                    $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                                    $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                                    $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                        $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                        $(this).index() >= $(self).closest('td').index() &&
+                                                        $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                        $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                        $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                        $(this).closest('tr').index() <= _this.firstCell.closest('tr').index()
                                         ) {
-                                            $(this).find('table').length ?
-                                                $(this).find('.cell').each(function () {
-                                                    _this.selectedFields.push($(this).attr('id'))
-                                                })
-                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                            !_this.selectedFields.includes($(this).find('.cell').attr('id')) ?
+                                                $(this).find('table').length ?
+                                                    $(this).find('.cell').each(function () {
+                                                        _this.selectedFields.push($(this).attr('id'))
+                                                    })
+                                                    : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                                : null
                                         }
                                     })
                                 })
                             })
 
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
+
+                            _this.openPopUp(e, $(this).attr('id'), 'td')
                         }
                         else {
-                            console.log('selected')
 
                             if (_this.selectedFields.length === 1) {
                                 $(`.cell`).removeClass('selected')
@@ -113,7 +145,6 @@
                         }
                     }
                     else if (!$(this).hasClass('selected')) {
-                        console.log('not-selected')
                         if (isCtrlPressed) {
                             _this.selectedFields.push($(this).attr('id'))
                             _this.selectedFields.map(item => $(`#${item}`).addClass('selected'))
@@ -121,22 +152,47 @@
                         else if (isShiftPressed) {
                             let self = this
 
+                            !_this.firstCell ? _this.firstCell = $(`#${_this.selectedFields[0]}`) : null
+
                             _this.selectedFields.map(item => $(`#${item}`).removeClass('selected'))
                             _this.selectedFields = []
 
                             $(self).closest('table').children('tbody').each(function (tbodyIndex) {
                                 $(this).children('tr').each(function () {
                                     $(this).children('td').each(function () {
-                                        console.log('td', $(this))
                                         if (
+                                            $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
                                             $(this).index() <= $(self).closest('td').index() &&
-                                            $(this).closest('tr').index() <= $(self).closest('tr').index()
+                                            $(this).index() >= _this.firstCell.closest('td').index() &&
+                                            $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                            $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                            $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                $(self).closest('td').index() >= _this.firstCell.closest('td').index() &&
+                                                $(this).index() <= $(self).closest('td').index() &&
+                                                $(this).index() >= _this.firstCell.closest('td').index() &&
+                                                $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                $(this).closest('tr').index() <= _this.firstCell.closest('tr').index() ||
+                                                    $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                    $(this).index() >= $(self).closest('td').index() &&
+                                                    $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                    $(self).closest('tr').index() >= _this.firstCell.closest('tr').index() &&
+                                                    $(this).closest('tr').index() <= $(self).closest('tr').index() &&
+                                                    $(this).closest('tr').index() >= _this.firstCell.closest('tr').index() ||
+                                                        $(self).closest('td').index() <= _this.firstCell.closest('td').index() &&
+                                                        $(this).index() >= $(self).closest('td').index() &&
+                                                        $(this).index() <= _this.firstCell.closest('td').index() &&
+                                                        $(self).closest('tr').index() <= _this.firstCell.closest('tr').index() &&
+                                                        $(this).closest('tr').index() >= $(self).closest('tr').index() &&
+                                                        $(this).closest('tr').index() <= _this.firstCell.closest('tr').index()
                                         ) {
-                                            $(this).find('table').length ?
-                                                $(this).find('.cell').each(function () {
-                                                    _this.selectedFields.push($(this).attr('id'))
-                                                })
-                                                : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                            !_this.selectedFields.includes($(this).find('.cell').attr('id')) ?
+                                                $(this).find('table').length ?
+                                                    $(this).find('.cell').each(function () {
+                                                        _this.selectedFields.push($(this).attr('id'))
+                                                    })
+                                                    : _this.selectedFields.push($(this).find('.cell').attr('id'))
+                                                : null
                                         }
                                     })
                                 })
@@ -206,8 +262,6 @@
                 let inputOffset = 4
 
                 e.stopPropagation()
-
-                console.log(popUpHeight) // need to be fixed
 
                 this.popupDisplay = true
 
@@ -279,12 +333,10 @@
                 })
 
                 $('.cell').each(function (index) {
-                    console.log('start')
                     if (!$(this).attr('id')) {
                         let id = shortid.generate()
                         $(this).attr('id', id)
                         if ($(this).attr('field-name')) {
-                            console.log('cells', _this.cells)
                             _this.cells = _this.cells.map(item => {
                                 if (item.name === $(this).attr('field-name')) {
                                     return {...item, cell: $(this).attr('id')}
@@ -297,7 +349,6 @@
                         }
                     }
                     else {
-                        console.log('have-id', $(this).attr('id'))
                         if (_this.getFieldName($(this).attr('id')))
                             $(this).addClass('has-name')
                         else
@@ -364,7 +415,6 @@
                 eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
 
                 this.attachCellData()
-                console.log('journal', this.$store.getters['journalState/getJournal'])
             },
             setAutoNames () {
                 let currentCells = this.getCurrentTable.fields
@@ -436,7 +486,6 @@
                     }
                     else return item
                 })
-                console.log(currentCells)
                 this.$store.commit('journalState/updateCurrentTable',
                     {
                         fields: currentCells
@@ -449,7 +498,6 @@
                 let _this = this
 
                 $('.cell').each(function () {
-                    console.log('before if', _this.getFieldName($(this).attr('id')))
                     if (_this.getFieldName($(this).attr('id'))){
                         $(this).find('.name-container').text(_this.getFieldName($(this).attr('id')))
                         $(this).attr('field-name', _this.getFieldName($(this).attr('id')))
@@ -471,10 +519,7 @@
                 return this.$store.getters['journalState/getFieldUnits'](cell)
             },
             toggleFieldsSelectors () {
-                console.log(eventBus)
-                console.log("ya ya hiunya");
                 if (!this.fieldSelectionMode) {
-                    console.log('addddddddddddd')
                     this.addFeildsSelectors()
                 }
                 else {
@@ -482,14 +527,12 @@
                 }
                 // this.$compile()
                 // this.$forceUpdate()
-                console.log('pisadadadadadadad');
             },
             addFeildsSelectors () {
                 this.fieldSelectionMode = true;
                 for (var elem of $(".cell")) {
                     let id = $(elem).attr("id");
                     let fieldName = this.$store.getters['journalState/getFieldName'](id)
-                    console.log(fieldName, id)
                     let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
                     if (fieldName) {
                         $(elem).find(".data-icons-container").append(fieldSelectorElement);
@@ -516,8 +559,6 @@
 
         },
         mounted () {
-            console.log(this._compile)
-            console.log('currentTable', this.getCurrentTable)
             this.tableHtml = this.getCurrentTable.html
             this.cells = this.getCurrentTable.fields
             setTimeout(() => this.setCells(), 0)
@@ -531,7 +572,6 @@
         beforeDestroy () {
             eventBus.$off('toggleFieldsSelectors')
             eventBus.$off('set-auto-names')
-            console.log("Editor destoyred")
         }
     }
 </script>
@@ -559,135 +599,5 @@
 }
 .editor-body table td input {
     background-color: #ffffff;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.cell {
-    display: flex;
-    position: relative;
-    align-items: center;
-    height: 100%;
-    transition: none;
-    box-sizing: border-box;
-    padding: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none;
-
-    .data-icons-container {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-    }
-
-    .data-icon {
-        display: none;
-        color: #000;
-
-        &:not(:last-child) {
-            margin-right: 4px;
-        }
-
-        &:last-child {
-            margin-right: 10px;
-        }
-    }
-
-    &.has-name .name {
-        display: block;
-
-        img {
-            width: 18px;
-        }
-    }
-
-    &.has-type .data-icon-type {
-        display: block;
-
-        img {
-            width: 20px;
-        }
-    }
-
-    &.has-units .data-icon-units {
-        display: block;
-
-        img {
-            width: 14px;
-        }
-    }
-
-    &:hover {
-        cursor: pointer;
-    }
-
-    &.selected {
-        background-color: #9BB3DA;
-
-        &:hover {
-            background-color: #9BB3DA;
-        }
-    }
-}
-
-th {
-
-    .text {
-        float: left;
-    }
-
-    &.selected {
-        background-color: #9BB3DA !important;
-    }
-}
-
-.is-repeated, .is-empty {
-    outline: 1px solid rgb(245, 108, 108);
-}
-
-.field-selector {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #007DB4;
-    color: white;
-    border-radius: 5px;
-    font-weight: 700;
-    text-align: center;
-    padding-top: 2px;
-    opacity: 0.8;
-    height: 100%;
-}
-.field-selector > span {
-    width: 100%;
-}
-
-
-.field-selector:active {
-    opacity: 1;
-}
-
-.field-selector:hover {
-    cursor: pointer;
-}
-
-.units {
-    white-space: nowrap;
-
-    &::before {
-        content: ", ";
-        white-space: pre-line;
-    }
 }
 </style>

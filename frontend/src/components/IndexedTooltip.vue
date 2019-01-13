@@ -75,6 +75,6 @@
         border-radius: 6px;
         box-shadow: 0 0 10px rgba(0,0,0,.2);
         transition: 0.05s;
-        z-index: 1000;
+        z-index: 10000;
     }
 </style>

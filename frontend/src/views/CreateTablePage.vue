@@ -69,13 +69,13 @@ export default {
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         },
         onHandleCancel () {
-            $('.note-popover').css({display: 'none'})
+            $('.note-popover').remove()
             $('.note-editable td').removeAttr('style')
             this.$store.commit('journalState/setCurrentTable', null)
             this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
         },
         onHandleContinue () {
-            $('.note-popover').css({display: 'none'})
+            $('.note-popover').remove()
             $('.note-editable td').removeAttr('style')
 
             let currentHTML = $('#summernote').summernote('code')
@@ -122,7 +122,6 @@ export default {
         },
         replaceAttrs () {
             $('.cell').each(function() {
-                // console.log($(this))
                 let self = this
                 $.each( $(self)[0].attributes, function ( index, attribute ) {
                     if (attribute.name !== 'class') $(self).parent().attr(attribute.name, attribute.value)
@@ -130,17 +129,149 @@ export default {
                 $(this).remove()
             })
         },
+        getRightCell (cell) {
+          return $(cell).closest('tr')[0].cells[$(cell).index() + 1]
+        },
+        getLeftCell (cell) {
+            return $(cell).closest('tr')[0].cells[$(cell).index() - 1]
+        },
+        getTopCell (cell) {
+            let cellHeight = $(cell).outerHeight()
+            let cellWidth = $(cell).outerWidth()
+            let coords = cell.getBoundingClientRect()
+            let topCell = document.elementFromPoint(
+                coords.left + cellWidth/(2 * ($(cell).attr('colspan') || 1)),
+                coords.top - cellHeight/2
+            )
+
+            return $(topCell).is('td') || $(topCell).is('th') ? topCell : null
+        },
+        getBottomCell (cell) {
+            let cellHeight = $(cell).outerHeight()
+            let cellWidth = $(cell).outerWidth()
+            let coords = cell.getBoundingClientRect()
+            let bottomCell = document.elementFromPoint(
+                coords.left + cellWidth/(2 * ($(cell).attr('colspan') || 1)),
+                coords.bottom + cellHeight/2
+            )
+
+            return $(bottomCell).is('td') || $(bottomCell).is('th') ? bottomCell : null
+        },
         initListeners () {
             let _this = this
             let indexedTooltipHeight = 50
 
-            $('td').bind("DOMSubtreeModified", function() {
-                $(this).html('')
+            $('td').off('DOMSubtreeModified').on("DOMSubtreeModified", function() {
+                if ($(this).children().length) {
+                    setTimeout(() => {
+                        if (!$(this).children().is('table')) {
+                            $(this).html('')
+                        }
+                    }, 0)
+                }
+                else $(this).html('')
             });
 
+            $('td, th').off('mousedown').on('mousedown', function (e) {
+                setTimeout(() => {
+                    let selectedCells = [...$('th, td')].filter(item => {
+                        return item.redips && item.redips.selected
+                    });
+
+                    let closestTable = $(this).closest('table')
+                    let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
+                        item.redips && item.redips.selected
+                    )
+
+                    if (!tableHasBGCOLOR) {
+                        $('.note-popover').css({display: 'none'})
+                    }
+
+                    // merge
+                    if (
+                        [...$('th, td')].some(item => {
+                            return item.redips && item.redips.selected && (
+                                (_this.getRightCell(item) && _this.getRightCell(item).redips && _this.getRightCell(item).redips.selected &&
+                                    (+$(item).attr('rowspan') || 1) === (+$(_this.getRightCell(item)).attr('rowspan') || 1)) ||
+                                (_this.getLeftCell(item) && _this.getLeftCell(item).redips && _this.getLeftCell(item).redips.selected &&
+                                    (+$(item).attr('rowspan') || 1) === (+$(_this.getLeftCell(item)).attr('rowspan') || 1)) ||
+                                (_this.getTopCell(item) && _this.getTopCell(item).redips && _this.getTopCell(item).redips.selected &&
+                                    (+$(item).attr('colspan') || 1) === (+$(_this.getTopCell(item)).attr('colspan') || 1)) ||
+                                (_this.getBottomCell(item) && _this.getBottomCell(item).redips && _this.getBottomCell(item).redips.selected &&
+                                    (+$(item).attr('colspan') || 1) === (+$(_this.getBottomCell(item)).attr('colspan') || 1))
+                            )
+                        })
+                    ) {
+                        $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
+                        $('.note-custom .note-btn-group.btn-group').last().css('display', 'block')
+                    }
+                    else {
+                        $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                        $('.note-custom .note-btn-group.btn-group').last().css('display', 'none')
+                    }
+
+                    // split v
+                    if ((
+                            $(e.target).attr('colspan') &&
+                            $(e.target).attr('colspan') > 1 &&
+                            e.target.redips && e.target.redips.selected
+                        ) ||
+                        (
+                            selectedCells.length === 1 &&
+                            selectedCells.filter(item => {
+                                return $(item).attr('colspan') && $(item).attr('colspan') > 1
+                            }).length === 1
+                        )
+                    ) {
+                        $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
+                        $('.note-split .note-btn-group.btn-group').last().css('display', 'block')
+
+                        $('.note-split').css('display', 'inline-block')
+                    }
+                    else {
+                        $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                        $('.note-split .note-btn-group.btn-group').last().css('display', 'none');
+
+                        if ([...$('.note-split').find('.note-btn-group.btn-group')].every(item => {
+                            return $(item).css('display') === 'none'
+                        })) {
+                            $('.note-split').css('display', 'none')
+                        }
+                    }
+
+                    //split h
+                    if ((
+                            $(e.target).attr('rowspan') &&
+                            $(e.target).attr('rowspan') > 1 &&
+                            e.target.redips && e.target.redips.selected
+                        ) ||
+                        (
+                            selectedCells.length === 1 &&
+                            selectedCells.filter(item => {
+                                return $(item).attr('rowspan') && $(item).attr('rowspan') > 1
+                            }).length === 1
+                        )
+                    ) {
+                        $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '0', 'border-bottom-left-radius': '0'})
+                        $('.note-split .note-btn-group.btn-group').first().css('display', 'block')
+
+                        $('.note-split').css('display', 'inline-block')
+                    }
+                    else {
+                        $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '3px', 'border-bottom-left-radius': '3px'})
+                        $('.note-split .note-btn-group.btn-group').first().css('display', 'none')
+
+                        if ([...$('.note-split').find('.note-btn-group.btn-group')].every(item => {
+                            return $(item).css('display') === 'none'
+                        })) {
+                            $('.note-split').css('display', 'none')
+                        }
+                    }
+                }, 0)
+            })
+
             $('td, th').off('click').on('click', function (e) {
-                console.log('show')
-                e.stopPropagation()
+                e.stopPropagation();
 
                 let coords = e.target.getBoundingClientRect()
 
@@ -148,14 +279,9 @@ export default {
                 _this.left = coords.left
                 _this.rowsData = [...$(e.target).parents('tr')]
 
-                let closestTable = $(this).closest('table')
-                let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
-                    $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)')
-                )
-
                 let closestRow = $(this).closest('tr')
                 let rowHasBGCOLOR = [...closestRow.children()].some(item =>
-                    $(item).attr('style') && $(item).attr('style').includes('background-color: rgb(155, 179, 218)')
+                    item.redips && item.redips.selected
                 )
 
                 if (rowHasBGCOLOR) {
@@ -165,14 +291,10 @@ export default {
                     _this.showIndexedTooltip = false
                 }
 
-                if (!tableHasBGCOLOR) {
-                    $('.note-popover').css({display: 'none'})
-                }
-
                 $('table').each(function () {
                     $(this)[0].removeAttribute('id')
                 })
-                closestTable.attr('id', 'redipsTable')
+                $(this).closest('table').attr('id', 'redipsTable')
             })
 
             $('.note-editable').on('click', function () {
@@ -232,7 +354,6 @@ export default {
         },
         summernoteInit () {
             let _this = this
-            console.log('summernoteInit')
             $(document).ready(function() {
                 $('#summernote').summernote({
                     lang: 'ru-RU',
@@ -241,15 +362,15 @@ export default {
                     maxHeight: null,
                     focus: true,
                     toolbar: [
+                        ['insert', ['table']],
                         ['style', ['bold', 'italic', 'underline', 'clear']],
                         ['font', ['strikethrough', 'superscript', 'subscript']],
                         ['fontsize', ['fontsize']],
                         ['color', ['color']],
-                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['para', ['style', 'ul', 'ol', 'paragraph']],
                         ['height', ['height']],
-                        ['insert', ['table', 'link', 'hr']],
-                        ['misk', ['undo', 'redo']],
-                        ['view', ['fullscreen']]
+                        ['insert', ['link', 'hr']],
+                        ['misk', ['undo', 'redo']]
                     ],
                     popover: {
                         table: [
@@ -263,7 +384,6 @@ export default {
 
 
                 $('#summernote').on('summernote.change', function (we, contents, $editable) {
-                    console.log('summernote\'s content is changed.');
                     let tables = $('.note-editable table')
 
                     tables.addClass('elog-journal-table')
@@ -272,6 +392,8 @@ export default {
 
                     $('td, th').each(function () {
                         if ($(this).children().is('table')) {
+                            this.redips ? this.redips.selected = false : null
+
                             $(this).attr('style', '').addClass('without-redips-handler')
                             _this.redips.ignoreCell('without-redips-handler', 'classname')
                         }
@@ -293,7 +415,7 @@ export default {
                         let p = uselessParagraphs[i];
                         p.parentNode.removeChild(p);
                     }
-                });
+                })
 
                 $('.note-btn').on('click', function () {
                     _this.initListeners()
@@ -341,7 +463,6 @@ export default {
                     this.$store.commit('journalState/setJournal', journal)
                     this.$store.commit('journalState/setJournalPlant', this.getUrlParams('plant'))
                     this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
-                    console.log('journal2', this.$store.getters['journalState/getJournal'])
                 })
                 .then(() => {
                     tableHtml = this.getCurrentTable.html
@@ -355,7 +476,6 @@ export default {
             this.$store.commit('journalState/setCurrentTable', {name: this.getUrlParams('table')})
             tableHtml = this.getCurrentTable.html
             this.title = this.getCurrentTable.title
-            console.log('table3')
 
             setTimeout(() => this.initAll(tableHtml), 0)
             // this.initAll(tableHtml)
@@ -366,7 +486,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 .create-table {
   display: flex;
   flex-direction: column;
@@ -410,17 +530,71 @@ export default {
   margin-top: 0;
   margin-bottom: 20px;
 }
-.modal-title {
-  margin-bottom: 20px;
-  font-size: 20px;
-}
-.modal-form {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12px;
-}
-.modal-btn {
-  margin-left: 10px;
+.note-toolbar.panel-heading {
+    position: relative;
+    height: 76px;
+
+    & > .note-insert:first-child {
+        height: calc(100% - 10px);
+        position: absolute;
+        top: 0;
+        left: 5px;
+
+        .note-btn-group.btn-group {
+            height: 100%;
+
+            button {
+                height: 100%;
+            }
+        }
+    }
+
+    & > .note-style {
+        position: absolute;
+        left: 131px;
+    }
+
+    & > .note-font {
+        position: absolute;
+        left: 59px;
+        bottom: 5px;
+    }
+
+    & > .note-fontsize {
+        position: absolute;
+        left: 327px;
+    }
+
+    & > .note-color {
+        position: absolute;
+        left: 269px;
+    }
+
+    & > .note-para {
+        position: absolute;
+        bottom: 5px;
+        left: 164px;
+
+        .dropdown-menu {
+            height: 274px;
+            overflow-y: auto;
+        }
+    }
+
+    & > .note-height {
+        position: absolute;
+        left: 383px;
+    }
+
+    & > .note-insert {
+        position: absolute;
+        bottom: 5px;
+        left: 333px;
+    }
+
+    & > .note-misk {
+        position: absolute;
+        left: 59px;
+    }
 }
 </style>

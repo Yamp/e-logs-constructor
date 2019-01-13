@@ -27,6 +27,7 @@
     margin: 0;
     height: 100%;
   }
+
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -40,41 +41,13 @@
       height: 100%;
     }
   }
-  .has-data {
-    position: absolute;
-    bottom: 4px;
-    left: 4px;
-    width: 16px;
-  }
-  th table, td table {
-    margin-bottom: 0 !important;
-    height: 100%;
-  }
-  td, th {
-    min-width: 70px !important;
-    cursor: pointer;
-  }
-  .indexed-line {
-    th, td {
-      background-color: #f4f8ff;
-    }
-  }
-  .selected-line {
-    th, td {
-      background-color: #b8cae6 !important;
-    }
-  }
 
   input[type=file] {
     display: flex !important;
     font-size: 14px !important;
   }
+
   .btn {
     transition: 0.2s;
-  }
-
-  .note-editable table td {
-    color: transparent !important;
-    text-shadow: 0 0 0 #000 !important;
   }
 </style>

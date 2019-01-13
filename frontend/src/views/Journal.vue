@@ -150,7 +150,6 @@
             },
             onDownload() {
                 this.onHandleSend((journal) => {
-                    console.log('download')
                     let self = this;
                     var blob = new Blob([JSON.stringify(journal)], {type: 'application/json'});
                     var file = new File([blob], journal.name + ".jrn")
@@ -193,7 +192,6 @@
             },
             onSaveAs() {
                 this.onHandleSend((journal) => {
-                    console.log('save')
                     let url = `${window.ELOGS_SERVER}/api/constructor/journal/`
                     let self = this;
                     axios.post(url, journal, 
@@ -210,7 +208,6 @@
                             if (this.plant) {
                                 link = link + `&plant=${plant}&journalName=${journal}`
                             }
-                            console.log(link)
                             window.open(link, '_blank')
                         })
                 })
@@ -303,19 +300,16 @@
             onHandleSend(callback) {
 
                 let journalObserver = this.$store.getters['journalState/getJournal'];
-                console.log(journalObserver);
                 let journal = JSON.parse(JSON.stringify(journalObserver));
                 journal.tables.map(item => {
                     item.html = this.addCells(item.html).replace(/(\sid=\".+\")/gmi, '')
                 });
-                console.log(journal);
                 window.journal = journal;
                 callback(journal)
             },
             clearJson(json) {
                 let result = json.replace('"', "'");
                 // json.replace(/\//g, '');
-                console.log("json:", result);
                 return result;
             },
             getUrlParams(name, url) {
@@ -370,8 +364,6 @@
             }
         },
         mounted() {
-            console.log('journal', this.$store.getters['journalState/getJournal'])
-
             if (this.getUrlParams('plant') && !this.plant) {
                 this.$store.dispatch('journalState/importJournal', {
                     plant: this.getUrlParams('plant'),
@@ -385,7 +377,6 @@
                         });
                         this.$store.commit('journalState/setJournal', journal)
                         this.$store.commit('journalState/setJournalPlant', this.getUrlParams('plant'))
-                        console.log('journal2', this.$store.getters['journalState/getJournal'])
                     })
             } else if (this.getUrlParams('imported') && !this.imported) {
                 let journalObserver = this.$store.getters['journalState/getJournal'];
@@ -395,7 +386,6 @@
                 });
                 this.$store.commit('journalState/setJournal', journal)
                 this.$store.commit('journalState/setJournalImported', true)
-                console.log('journal3', this.$store.getters['journalState/getJournal'])
             }
 
             this.initSectionList()

@@ -1,6 +1,6 @@
 <template>
     <div class="home">
-        <div class="form">
+        <form class="form" @submit.prevent="onHandleCreate">
             <div class="form-group">
                 <div class="title-label">Введите название журнала</div>
                 <input type="text" class="form-control" v-model="title" placeholder="Название журнала" @input="onHandleChange" style="margin-bottom: 20px">
@@ -9,8 +9,8 @@
                 Введите название журнала
             </div>
             <div class="buttons-container">
-                <button class="btn btn-default" @click="isShowImport = true">Загрузить журнал</button>
-                <button class="btn btn-primary" @click="onHandleCreate">Создать журнал</button>
+                <button class="btn btn-default" type="button" @click="isShowImport = true">Загрузить журнал</button>
+                <button class="btn btn-primary" type="submit" @click="onHandleCreate">Создать журнал</button>
             </div>
             <modal v-show="isShowImport" @close="isShowImport = false" :action="importJournalAction">
                 <div>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
             </modal>
-        </div>
+        </form>
     </div>
 </template>
 

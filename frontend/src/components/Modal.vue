@@ -1,17 +1,17 @@
 <template>
     <transition name="modal">
-    <div class="modal-mask">
+    <div class="modal-mask" @click="$emit('close')">
       <div class="modal-wrapper">
-        <div class="modal-container">
+        <form class="modal-container" @submit.prevent="action.callback" @click="(e) => e.stopPropagation()">
           <div class="modal-body">
             <slot>
             </slot>
           </div>
           <div class="modal-footer">
-              <button class="modal-default-button btn btn-default" @click="$emit('close')">Закрыть</button>
-              <button v-if="action" @click="action.callback" class="btn btn-primary">{{action.title}}</button>&nbsp;
+              <button class="modal-default-button btn btn-default" type="button" @click="$emit('close')">Закрыть</button>
+              <button v-if="action" @click="action.callback" type="submit" class="btn btn-primary">{{action.title}}</button>&nbsp;
           </div>
-        </div>
+        </form>
       </div>
     </div>
   </transition>
@@ -54,6 +54,7 @@ export default {
     .modal-wrapper {
         display: table-cell;
         vertical-align: middle;
+        z-index: 9999;
     }
 
     .modal-container {
