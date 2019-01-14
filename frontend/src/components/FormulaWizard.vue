@@ -4,13 +4,13 @@
         <div class="formula-wizard centered">
             <img src="../assets/icons/window-close.svg" class="icon close-button" @click="closeWizard">
             <div class="form-group input-container">
-                <label for="plant">Выберите журнал</label>
+                <label for="journal">Выберите журнал</label>
                 <select name="plant" id="journal" class="form-control" v-model="currentJournal">
                     <option v-for="journal in journals" :key="journal" :value="journal">{{ journal }}</option>
                 </select>
             </div>
             <div class="form-group input-container" v-if="currentJournal">
-                <label for="plant">Выберите таблицу</label>
+                <label for="table">Выберите таблицу</label>
                 <select name="plant" id="table" class="form-control" v-model="currentTable">
                     <option v-for="table in tables" :key="table" :value="table">{{ table }}</option>
                 </select>
@@ -94,7 +94,7 @@ export default {
 
 .wizard-container {
     position: absolute;
-    z-index: 5;
+    z-index: 1005;
     top: 0;
     right: 0;
     width: 100vw;

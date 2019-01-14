@@ -354,72 +354,71 @@ export default {
         },
         summernoteInit () {
             let _this = this
-            $(document).ready(function() {
-                $('#summernote').summernote({
-                    lang: 'ru-RU',
-                    height: 300,
-                    minHeight: null,
-                    maxHeight: null,
-                    focus: true,
-                    toolbar: [
-                        ['insert', ['table']],
-                        ['style', ['bold', 'italic', 'underline', 'clear']],
-                        ['font', ['strikethrough', 'superscript', 'subscript']],
-                        ['fontsize', ['fontsize']],
-                        ['color', ['color']],
-                        ['para', ['style', 'ul', 'ol', 'paragraph']],
-                        ['height', ['height']],
-                        ['insert', ['link', 'hr']],
-                        ['misk', ['undo', 'redo']]
+
+            $('#summernote').summernote({
+                lang: 'ru-RU',
+                height: 300,
+                minHeight: null,
+                maxHeight: null,
+                focus: true,
+                toolbar: [
+                    ['insert', ['table']],
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['style', 'ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['link', 'hr']],
+                    ['misk', ['undo', 'redo']]
+                ],
+                popover: {
+                    table: [
+                        ['row', ['addRowPlugin', 'removeRowPlugin']],
+                        ['column', ['addColumnPlugin', 'removeColumnPlugin']],
+                        ['split', ['splitH', 'splitV']],
+                        ['custom', ['cellHeader', 'mergeCells']]
                     ],
-                    popover: {
-                        table: [
-                            ['row', ['addRowPlugin', 'removeRowPlugin']],
-                            ['column', ['addColumnPlugin', 'removeColumnPlugin']],
-                            ['split', ['splitH', 'splitV']],
-                            ['custom', ['cellHeader', 'mergeCells']]
-                        ],
-                    },
-                });
+                },
+            });
 
 
-                $('#summernote').on('summernote.change', function (we, contents, $editable) {
-                    let tables = $('.note-editable table')
+            $('#summernote').on('summernote.change', function (we, contents, $editable) {
+                let tables = $('.note-editable table')
 
-                    tables.addClass('elog-journal-table')
-                    _this.redipsInit()
-                    _this.initListeners()
+                tables.addClass('elog-journal-table')
+                _this.redipsInit()
+                _this.initListeners()
 
-                    $('td, th').each(function () {
-                        if ($(this).children().is('table')) {
-                            this.redips ? this.redips.selected = false : null
+                $('td, th').each(function () {
+                    if ($(this).children().is('table')) {
+                        this.redips ? this.redips.selected = false : null
 
-                            $(this).attr('style', '').addClass('without-redips-handler')
-                            _this.redips.ignoreCell('without-redips-handler', 'classname')
+                        $(this).attr('style', '').addClass('without-redips-handler')
+                        _this.redips.ignoreCell('without-redips-handler', 'classname')
+                    }
+                    else {
+                        $(this).removeClass('without-redips-handler')
+
+                        if ($(this)[0].redips) {
+                            $(this)[0].redips.selected = false
                         }
-                        else {
-                            $(this).removeClass('without-redips-handler')
 
-                            if ($(this)[0].redips) {
-                                $(this)[0].redips.selected = false
-                            }
-
-                            _this.redips.attachCell($(this)[0])
-                        }
-                    })
-
-                    // remove '<p><br></p>' inside tables
-                    // (summernote creates them when nesting table in table)
-                    var uselessParagraphs = document.querySelectorAll('table p'), i;
-                    for (i = 0; i < uselessParagraphs.length; ++i) {
-                        let p = uselessParagraphs[i];
-                        p.parentNode.removeChild(p);
+                        _this.redips.attachCell($(this)[0])
                     }
                 })
 
-                $('.note-btn').on('click', function () {
-                    _this.initListeners()
-                })
+                // remove '<p><br></p>' inside tables
+                // (summernote creates them when nesting table in table)
+                var uselessParagraphs = document.querySelectorAll('table p'), i;
+                for (i = 0; i < uselessParagraphs.length; ++i) {
+                    let p = uselessParagraphs[i];
+                    p.parentNode.removeChild(p);
+                }
+            })
+
+            $('.note-btn').on('click', function () {
+                _this.initListeners()
             })
         },
         initAll (tableHtml) {
@@ -435,8 +434,10 @@ export default {
                 removeRow()
                 this.summernoteInit()
 
-                setTimeout(() => $('#summernote').summernote('code', tableHtml), 0)
-                setTimeout(() => this.replaceAttrs(), 0)
+                // setTimeout(() => $('#summernote').summernote('code', tableHtml), 0)
+                $('#summernote').summernote('code', tableHtml)
+                // setTimeout(() => this.replaceAttrs(), 0)
+                this.replaceAttrs()
             }
         },
         removeCells (table_html) {
@@ -447,7 +448,7 @@ export default {
         },
     },
     mounted () {
-        let tableHtml = this.getCurrentTable ? this.removeCells(this.getCurrentTable.html) : ''
+        let tableHtml = this.getCurrentTable && this.getCurrentTable.html ? this.removeCells(this.getCurrentTable.html) : ''
 
         if (this.getUrlParams('plant') && !this.plant) {
             this.$store.dispatch('journalState/importJournal', {
@@ -468,8 +469,8 @@ export default {
                     tableHtml = this.getCurrentTable.html
                     this.title = this.getCurrentTable.title
 
-                    setTimeout(() => this.initAll(tableHtml), 0)
-                    // this.initAll(tableHtml)
+                    // setTimeout(() => this.initAll(tableHtml), 0)
+                    this.initAll(tableHtml)
                 })
         }
         else if (this.getUrlParams('table')) {
@@ -477,11 +478,19 @@ export default {
             tableHtml = this.getCurrentTable.html
             this.title = this.getCurrentTable.title
 
-            setTimeout(() => this.initAll(tableHtml), 0)
-            // this.initAll(tableHtml)
+            // setTimeout(() => this.initAll(tableHtml), 0)
+            this.initAll(tableHtml)
         }
-        else setTimeout(() => this.initAll(tableHtml), 0)
-        // else this.initAll(tableHtml)
+        // else setTimeout(() => this.initAll(tableHtml), 0)
+        else this.initAll(tableHtml)
+
+        if (!this.$store.getters["journalState/getScheme"]()) {
+            let ThirdPartyAPI = window.ELOGS_SERVER + '/api';
+            axios.get(ThirdPartyAPI + '/scheme').then((response) => {
+                let data = response.data;
+                this.$store.commit('journalState/setScheme', data)
+            })
+        }
     }
 }
 </script>

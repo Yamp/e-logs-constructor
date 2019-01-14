@@ -144,8 +144,13 @@ export default {
 }
 .body {
     overflow-x: auto;
-    box-shadow: 0 0 4px #cccccc;
+    box-shadow: 0 0 2px #cccccc;
     padding: 6px;
+    transition: .2s;
+
+    &:hover {
+        box-shadow: 0 0 6px #cccccc;
+    }
 }
 .delete-icon, .edit-icon {
     width: 20px;

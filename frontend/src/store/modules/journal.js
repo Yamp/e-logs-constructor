@@ -132,9 +132,14 @@ const journalState = {
                 }
             }
         },
+        getScheme(state, getters) {
+            return function() {
+                return state.scheme
+            }
+        },
         getJournalNames(state, getters) {
             return function() {
-                return Object.keys(state.scheme);
+                return Object.keys(state.scheme ? state.scheme : {});
             }
         },
         getJournalTableNames(state, getters) {
