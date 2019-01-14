@@ -59,6 +59,8 @@
                 $('.cell').click(function(e) {
                     e.stopPropagation()
 
+                    if (_this.fieldSelectionMode) return;
+
                     let isCtrlPressed = false
                     let isShiftPressed = false
 
@@ -530,25 +532,20 @@
             },
             addFeildsSelectors () {
                 this.fieldSelectionMode = true;
-                for (var elem of $(".cell")) {
-                    let id = $(elem).attr("id");
-                    let fieldName = this.$store.getters['journalState/getFieldName'](id)
-                    let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
-                    if (fieldName) {
-                        $(elem).find(".data-icons-container").append(fieldSelectorElement);
-                    }
-                }
-                $('.field-selector').on("click", (e) => {
-                    e.stopPropagation();
-                    let cell = $(e.target).parents(".cell");
-                    let id = cell.attr("id")
-                    let name = this.$store.getters["journalState/getFieldName"](id);
-                    eventBus.$emit("insertCellIntoFormula", {field: name})
-                })
+
+                $(".cell").addClass('selection-mode').on('click', this.handleSelectionClick)
+
             },
             removeFieldsSelectors () {
                 this.fieldSelectionMode = false;
-                $('.field-selector').remove()
+
+                $(".cell").removeClass('selection-mode').off('click', this.handleSelectionClick)
+            },
+            handleSelectionClick (e) {
+                let cell = $(e.target).closest(".cell");
+                let id = cell.attr("id")
+                let name = this.$store.getters["journalState/getFieldName"](id);
+                eventBus.$emit("insertCellIntoFormula", {field: name})
             },
             openWizard () {
                 this.wizardDisplay = true;   
@@ -562,7 +559,9 @@
             this.tableHtml = this.getCurrentTable.html
             this.cells = this.getCurrentTable.fields
             setTimeout(() => this.setCells(), 0)
+            // this.setCells()
             setTimeout(() => this.setPopUpListeners(), 0)
+            // this.setPopUpListeners()
             eventBus.$on("toggleFieldsSelectors", () => this.toggleFieldsSelectors())
             eventBus.$on("removeFieldsSelectors", () => this.removeFieldsSelectors())
             eventBus.$on("openWizard", this.openWizard)
@@ -571,6 +570,9 @@
         },
         beforeDestroy () {
             eventBus.$off('toggleFieldsSelectors')
+            eventBus.$off('removeFieldsSelectors')
+            eventBus.$off('openWizard')
+            eventBus.$off('closeWizard')
             eventBus.$off('set-auto-names')
         }
     }
