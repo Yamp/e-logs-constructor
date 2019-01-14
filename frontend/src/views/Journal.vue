@@ -60,7 +60,6 @@
                 <button class="btn btn-success" @click="onDownload">Скачать журнал</button>
                 <button class="btn btn-primary" @click="onSave" v-if="plant">Сохранить изменения</button>
                 <button class="btn btn-primary" @click="onSaveAs">Начать использовать</button>
-                <div class="status" :style="{color: statusColor}">{{status}}</div>
             </div>
         </div>
         <modal v-show="isShowCreate" @close="isShowCreate = false" :action="addTableAction">
@@ -109,8 +108,6 @@
         data() {
             return {
                 downloadLink: '#',
-                status: '',
-                statusColor: '#2c3e50',
                 editingJournalName: false,
                 newJournalName: this.$store.getters['journalState/getJournalTitle'],
                 nameError: false,
@@ -181,12 +178,18 @@
                             axios.post(`${window.ELOGS_SERVER}/api/constructor/upload/`, formData)
                         })
                         .then((response) => {
-                            this.status = 'Журнал успешно сохранен!'
-                            this.statusColor = '#5cb85c'
+                            this.$notify({
+                                text: 'Журнал успешно сохранен!',
+                                duration: 3000,
+                                type: 'success'
+                            })
                         })
                         .catch(() => {
-                            this.status = 'Произошла ошибка!'
-                            this.statusColor = '#e00101'
+                            this.$notify({
+                                text: 'Не удалось сохранить журнал!',
+                                duration: 3000,
+                                type: 'error'
+                            })
                         })
                 })
             },
@@ -209,6 +212,13 @@
                                 link = link + `&plant=${plant}&journalName=${journal}`
                             }
                             window.open(link, '_blank')
+                        })
+                        .catch(() => {
+                            this.$notify({
+                                text: 'Произошла ошибка, повторите позже!',
+                                duration: 3000,
+                                type: 'error'
+                            })
                         })
                 })
             },
@@ -242,7 +252,7 @@
                 if (this.importFile && this.tableName && !this.getTablesNames.includes(this.tableName)) {
                     this.fileError = false
 
-                    let url = window.ELOGS_SERVER + '/import';
+                    let url = window.NODE_SERVER + '/import';
                     let data = new FormData()
                     data.append('data', this.importFile)
 
@@ -298,7 +308,6 @@
                 return $html.html()
             },
             onHandleSend(callback) {
-
                 let journalObserver = this.$store.getters['journalState/getJournal'];
                 let journal = JSON.parse(JSON.stringify(journalObserver));
                 journal.tables.map(item => {
@@ -377,6 +386,14 @@
                         });
                         this.$store.commit('journalState/setJournal', journal)
                         this.$store.commit('journalState/setJournalPlant', this.getUrlParams('plant'))
+                    })
+                    .catch(err => {
+                        this.$router.push('/')
+                        this.$notify({
+                            text: 'Не удалось загрузить журнал!',
+                            duration: 3000,
+                            type: 'error'
+                        })
                     })
             } else if (this.getUrlParams('imported') && !this.imported) {
                 let journalObserver = this.$store.getters['journalState/getJournal'];
@@ -555,12 +572,6 @@
 
     .btns a, .btns button {
         margin-left: 10px;
-    }
-
-    .status {
-        position: absolute;
-        right: 0;
-        bottom: -30px;
     }
 
     .modal-title {

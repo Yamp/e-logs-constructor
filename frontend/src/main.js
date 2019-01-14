@@ -4,9 +4,12 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import store from './store/store';
+import Notifications from 'vue-notification'
 // import './registerServiceWorker';
 
 Vue.config.productionTip = false
+
+Vue.use(Notifications)
 
 if (process.env.NODE_ENV == 'production') {
     window.NODE_SERVER = 'https://' + window.location.hostname + ':3000'
