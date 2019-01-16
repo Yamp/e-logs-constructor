@@ -121,6 +121,17 @@ const journalState = {
                 }
             }
         },
+        getFieldListType(state, getters) {
+            return function (cell) {
+                let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
+                if (field && field.listType) {
+                    return field.listType
+                }
+                else {
+                    return ''
+                }
+            }
+        },
         getFormula(state, getters) {
             return function (cell) {
                 let field = state.journal.currentTable.fields.filter(item => item.cell === cell)[0]
@@ -191,6 +202,13 @@ const journalState = {
                 // .then( function (response) {
                 //     commit('setJournal', response.data)
                 // });
+        },
+        loadListTypes: function ({commit, state, getters}, payload) {
+            let url = window.ELOGS_SERVER + "/api/bl/dicts/get_dicts/"
+            return axios.get(url)
+            // .then( function (response) {
+            //     commit('setJournal', response.data)
+            // });
         },
         importTable: function ({commit, state, getters}, payload) {
             var ThirdPartyAPI = window.ELOGS_SERVER + '/api';

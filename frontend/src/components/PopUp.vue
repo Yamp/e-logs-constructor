@@ -5,7 +5,7 @@
             <input type="text" id="name" class="form-control" v-model="fieldName" placeholder="Имя" @input="(value) => onHandleChange('fieldName', value)">
         </div>
         <div class="form-group input-container" v-show="cellTag === 'td'" :style="{'margin-top': cellTag === 'th' || selectedFields.length === 1 ? '15px' : '0'}">
-            <img src="../assets/icons/type_icon.svg" class="data-icon data-icon-units"/>
+            <img src="../assets/icons/type_icon.svg" class="data-icon"/>
             <select required id="type" class="form-control" v-model="type" @change="(value) => onHandleChange('type', value)">
                 <option value="" selected disabled>Тип ячейки</option>
                 <option value="text">Текст</option>
@@ -23,7 +23,13 @@
             </div>
 <!--                 <input type="text" id="formula" class="form-control" v-model="formula" placeholder="Введите формулу" @input="(value) => onHandleChange('formula', value)"> -->
         </div>
-
+        <div class="form-group input-container" v-show="type === 'datalist' && cellTag === 'td'">
+            <img src="../assets/icons/list.svg" class="data-icon" />
+            <select required id="listType" class="form-control" v-model="currentListType" @change="(value) => onHandleChange('listType', value)">
+                <option value="" selected disabled>Тип списка</option>
+                <option v-for="item in listTypes" :value="item.name">{{item.title}}</option>
+            </select>
+        </div>
         <div class="button-container form-group" v-if="type == 'formula'">
             <img v-if="!expanded" src="../assets/icons/expand.svg"  alt="Развернуть" class="expand-icon icon" @click="expandEditor">
             <img v-if="expanded" src="../assets/icons/compress.svg" alt="Свернуть" class="expand-icon icon" @click="compressEditor">
@@ -32,7 +38,7 @@
         </div>
 
         <div class="form-group" v-if="type == 'text' || type == 'number' || type == 'formula' || cellTag === 'th'">
-            <img src="../assets/icons/ed_icon.svg" class="data-icon data-icon-units" />
+            <img src="../assets/icons/ed_icon.svg" class="data-icon" />
             <input type="text" id="units" class="form-control" v-model="units" placeholder="Единицы измерения" @input="(value) => onHandleChange('units', value)">
         </div>
     </div>
@@ -55,6 +61,8 @@
                 minValue: '',
                 maxValue: '',
                 type: '',
+                listTypes: [],
+                currentListType: '',
                 units: '',
                 formula: '',
                 editor: null,
@@ -68,19 +76,23 @@
                     this.fieldName = this.$store.getters['journalState/getFieldName'](this.cell)
                     this.type = this.$store.getters['journalState/getFieldType'](this.cell)
                     this.units = this.$store.getters['journalState/getFieldUnits'](this.cell)
+                    this.currentListType = this.$store.getters['journalState/getFieldListType'](this.cell)
                     this.formula = this.$store.getters['journalState/getFormula'](this.cell)
+
                     this.editor.resize(true)
                     this.editor.getSession().setValue(this.formula)
+
+                    this.currentListType ? this.loadListTypes() : null
                 }
                 else if (value && this.cellTag === 'th') {
                     this.fieldName = $(`#${this.cell}`).find('.text').text()
-                    this.type = ''
                     this.units = $(`#${this.cell}`).find('.units').text()
                 }
                 else {
                     this.fieldName = ''
                     this.type = ''
                     this.units = ''
+                    this.currentListType = ''
                     this.editor.getSession().setValue("")
                 }
 
@@ -109,6 +121,12 @@
             }
         },
         methods: {
+            loadListTypes () {
+                this.$store.dispatch('journalState/loadListTypes')
+                    .then((resp) => {
+                        this.listTypes = resp.data
+                    })
+            },
             onHandleChange (data, input) {
                 if (data === 'fieldName') {
                     this.selectedFields.map(item => {
@@ -141,6 +159,7 @@
                         eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
                     }
                 }
+
                 if (data === 'type') {
                     this.selectedFields.map(item => {
                         $(`#${item}`).addClass('has-type')
@@ -152,6 +171,8 @@
                             type: this.type
                         }
                     )
+
+                    this.type === 'datalist' ? this.loadListTypes() : null
                 }
 
                 if (data === 'units') {
@@ -188,6 +209,15 @@
                         {
                             fieldsIds: this.selectedFields,
                             formula: this.editor.getValue()
+                        }
+                    )
+                }
+
+                if (data === 'listType') {
+                    this.$store.commit('journalState/setFields',
+                        {
+                            fieldsIds: this.selectedFields,
+                            listType: this.currentListType
                         }
                     )
                 }

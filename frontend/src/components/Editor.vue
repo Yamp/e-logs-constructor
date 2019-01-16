@@ -415,6 +415,13 @@
                 )
 
                 eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
+                // eventBus.$emit(
+                //     'set-has-all-names',
+                //     [...$('.cell')].every(item => {
+                //         return this.getCurrentTable.fields.include($(item).attr('id')) && this.getFieldName($(item).attr('id'))
+                //     })
+                // )
+                // make it works
 
                 this.attachCellData()
             },
