@@ -50,7 +50,15 @@ export default {
             showIndexedTooltip: false,
             left: 0,
             top: 0,
-            rowsData: []
+            rowsData: [],
+            headersData: [],
+            thOberver: null,
+            tdObserver: null,
+            config: {
+                childList: true,
+                characterData: true,
+                subtree: true
+            }
         }
     },
     computed: {
@@ -59,6 +67,19 @@ export default {
         }
     },
     methods: {
+        setHeadersData () {
+            let _this = this
+
+            $('th').each(function () {
+                _this.headersData.push({
+                    id: $(this).attr('id'),
+                    html: $(this).html()
+                })
+            })
+        },
+        getTHById (id) {
+            return this.headersData.filter(item => item.id === id)[0]
+        },
         getUrlParams(name, url) {
             if (!url) url = window.location.href;
             name = name.replace(/[\[\]]/g, '\\$&');
@@ -78,8 +99,16 @@ export default {
             $('.note-popover').remove()
             $('.note-editable td').removeAttr('style')
 
-            let currentHTML = $('#summernote').summernote('code')
-            let $html = $('<div>' + currentHTML + '</div>')
+            this.$store.commit('journalState/updateCurrentTable',
+                {
+                    html: this.getHTMLWithTHead($('#summernote').summernote('code')),
+                }
+            )
+
+            this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || this.getCurrentTable.name}/edit_data`)
+        },
+        getHTMLWithTHead (html) {
+            let $html = $('<div>' + html + '</div>')
 
             $html.find('table').each(function () {
                 let $rows = $(this).find('tbody tr')
@@ -99,16 +128,7 @@ export default {
                 if ($thead.children().length) $(this).prepend($thead)
             })
 
-            currentHTML = $html.html()
-
-            this.$store.commit('journalState/updateCurrentTable',
-                {
-                    fields: this.getUrlParams('table') ? this.$store.getters['journalState/getTableCells'](this.getUrlParams('table')) : [],
-                    html: currentHTML,
-                }
-            )
-
-            this.$router.push(`/journal/${this.$route.params.journalName}/table/${this.getUrlParams('table') || this.getCurrentTable.name}/edit_data`)
+            return $html.html()
         },
         onImport () {
             let url = window.ELOGS_SERVER + '/import';
@@ -157,144 +177,174 @@ export default {
 
             return $(bottomCell).is('td') || $(bottomCell).is('th') ? bottomCell : null
         },
-        initListeners () {
-            let _this = this
-            let indexedTooltipHeight = 50
-
-            $('td').off('DOMSubtreeModified').on("DOMSubtreeModified", function() {
-                if ($(this).children().length) {
-                    setTimeout(() => {
-                        if (!$(this).children().is('table')) {
-                            $(this).html('')
-                        }
-                    }, 0)
-                }
-                else $(this).html('')
-            });
-
-            $('td, th').off('mousedown').on('mousedown', function (e) {
+        handleTDModified (e, cell) {
+            if ($(cell).children().length) {
                 setTimeout(() => {
-                    let selectedCells = [...$('th, td')].filter(item => {
-                        return item.redips && item.redips.selected
-                    });
-
-                    let closestTable = $(this).closest('table')
-                    let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
-                        item.redips && item.redips.selected
-                    )
-
-                    if (!tableHasBGCOLOR) {
-                        $('.note-popover').css({display: 'none'})
-                    }
-
-                    // merge
-                    if (
-                        [...$('th, td')].some(item => {
-                            return item.redips && item.redips.selected && (
-                                (_this.getRightCell(item) && _this.getRightCell(item).redips && _this.getRightCell(item).redips.selected &&
-                                    (+$(item).attr('rowspan') || 1) === (+$(_this.getRightCell(item)).attr('rowspan') || 1)) ||
-                                (_this.getLeftCell(item) && _this.getLeftCell(item).redips && _this.getLeftCell(item).redips.selected &&
-                                    (+$(item).attr('rowspan') || 1) === (+$(_this.getLeftCell(item)).attr('rowspan') || 1)) ||
-                                (_this.getTopCell(item) && _this.getTopCell(item).redips && _this.getTopCell(item).redips.selected &&
-                                    (+$(item).attr('colspan') || 1) === (+$(_this.getTopCell(item)).attr('colspan') || 1)) ||
-                                (_this.getBottomCell(item) && _this.getBottomCell(item).redips && _this.getBottomCell(item).redips.selected &&
-                                    (+$(item).attr('colspan') || 1) === (+$(_this.getBottomCell(item)).attr('colspan') || 1))
-                            )
-                        })
-                    ) {
-                        $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
-                        $('.note-custom .note-btn-group.btn-group').last().css('display', 'block')
-                    }
-                    else {
-                        $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
-                        $('.note-custom .note-btn-group.btn-group').last().css('display', 'none')
-                    }
-
-                    // split v
-                    if ((
-                            $(e.target).attr('colspan') &&
-                            $(e.target).attr('colspan') > 1 &&
-                            e.target.redips && e.target.redips.selected
-                        ) ||
-                        (
-                            selectedCells.length === 1 &&
-                            selectedCells.filter(item => {
-                                return $(item).attr('colspan') && $(item).attr('colspan') > 1
-                            }).length === 1
-                        )
-                    ) {
-                        $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
-                        $('.note-split .note-btn-group.btn-group').last().css('display', 'block')
-
-                        $('.note-split').css('display', 'inline-block')
-                    }
-                    else {
-                        $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
-                        $('.note-split .note-btn-group.btn-group').last().css('display', 'none');
-
-                        if ([...$('.note-split').find('.note-btn-group.btn-group')].every(item => {
-                            return $(item).css('display') === 'none'
-                        })) {
-                            $('.note-split').css('display', 'none')
-                        }
-                    }
-
-                    //split h
-                    if ((
-                            $(e.target).attr('rowspan') &&
-                            $(e.target).attr('rowspan') > 1 &&
-                            e.target.redips && e.target.redips.selected
-                        ) ||
-                        (
-                            selectedCells.length === 1 &&
-                            selectedCells.filter(item => {
-                                return $(item).attr('rowspan') && $(item).attr('rowspan') > 1
-                            }).length === 1
-                        )
-                    ) {
-                        $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '0', 'border-bottom-left-radius': '0'})
-                        $('.note-split .note-btn-group.btn-group').first().css('display', 'block')
-
-                        $('.note-split').css('display', 'inline-block')
-                    }
-                    else {
-                        $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '3px', 'border-bottom-left-radius': '3px'})
-                        $('.note-split .note-btn-group.btn-group').first().css('display', 'none')
-
-                        if ([...$('.note-split').find('.note-btn-group.btn-group')].every(item => {
-                            return $(item).css('display') === 'none'
-                        })) {
-                            $('.note-split').css('display', 'none')
-                        }
+                    if (!$(cell).children().is('table')) {
+                        $(cell).html('')
                     }
                 }, 0)
-            })
+            }
+            else $(cell).html('')
+        },
+        handleTHModified (mutations) {
+            let _this = this
 
-            $('td, th').off('click').on('click', function (e) {
-                e.stopPropagation();
+            mutations.forEach(function(mutation) {
+                console.log('th modified', mutation);
+                let closestTH = $(mutation.target).closest('th')
 
-                let coords = e.target.getBoundingClientRect()
+                $(closestTH).html(_this.getTHById($(closestTH).attr('id')).html)
+            });
+        },
+        handleCellMousedown (e, cell) {
+            let _this = this
 
-                _this.top = coords.top - indexedTooltipHeight
-                _this.left = coords.left
-                _this.rowsData = [...$(e.target).parents('tr')]
+            // Timeout for calling after redips mousedown event
+            setTimeout(() => {
+                let selectedCells = [...$('th, td')].filter(item => {
+                    return item.redips && item.redips.selected
+                });
 
-                let closestRow = $(this).closest('tr')
-                let rowHasBGCOLOR = [...closestRow.children()].some(item =>
+                let closestTable = $(cell).closest('table')
+                let tableHasBGCOLOR = [...closestTable.find('th, td')].some(item =>
                     item.redips && item.redips.selected
                 )
 
-                if (rowHasBGCOLOR) {
-                    _this.showIndexedTooltip = true
-                }
-                else {
-                    _this.showIndexedTooltip = false
+                if (!tableHasBGCOLOR) {
+                    $('.note-popover').css({display: 'none'})
                 }
 
-                $('table').each(function () {
-                    $(this)[0].removeAttribute('id')
-                })
-                $(this).closest('table').attr('id', 'redipsTable')
+                // merge
+                if (
+                    [...$('th, td')].some(item => {
+                        return item.redips && item.redips.selected && (
+                            (_this.getRightCell(item) && _this.getRightCell(item).redips && _this.getRightCell(item).redips.selected &&
+                                (+$(item).attr('rowspan') || 1) === (+$(_this.getRightCell(item)).attr('rowspan') || 1)) ||
+                            (_this.getLeftCell(item) && _this.getLeftCell(item).redips && _this.getLeftCell(item).redips.selected &&
+                                (+$(item).attr('rowspan') || 1) === (+$(_this.getLeftCell(item)).attr('rowspan') || 1)) ||
+                            (_this.getTopCell(item) && _this.getTopCell(item).redips && _this.getTopCell(item).redips.selected &&
+                                (+$(item).attr('colspan') || 1) === (+$(_this.getTopCell(item)).attr('colspan') || 1)) ||
+                            (_this.getBottomCell(item) && _this.getBottomCell(item).redips && _this.getBottomCell(item).redips.selected &&
+                                (+$(item).attr('colspan') || 1) === (+$(_this.getBottomCell(item)).attr('colspan') || 1))
+                        )
+                    })
+                ) {
+                    $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
+                    $('.note-custom .note-btn-group.btn-group').last().css('display', 'block')
+                }
+                else {
+                    $('.note-custom .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                    $('.note-custom .note-btn-group.btn-group').last().css('display', 'none')
+                }
+
+                // split v
+                if ((
+                        $(e.target).attr('colspan') &&
+                        $(e.target).attr('colspan') > 1 &&
+                        e.target.redips && e.target.redips.selected
+                    ) ||
+                    (
+                        selectedCells.length === 1 &&
+                        selectedCells.filter(item => {
+                            return $(item).attr('colspan') && $(item).attr('colspan') > 1
+                        }).length === 1
+                    )
+                ) {
+                    $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '0', 'border-bottom-right-radius': '0'})
+                    $('.note-split .note-btn-group.btn-group').last().css('display', 'block')
+
+                    $('.note-split').css('display', 'inline-block')
+                }
+                else {
+                    $('.note-split .note-btn-group.btn-group button').first().css({'border-top-right-radius': '3px', 'border-bottom-right-radius': '3px'})
+                    $('.note-split .note-btn-group.btn-group').last().css('display', 'none');
+
+                    if ([...$('.note-split').find('.note-btn-group.btn-group')].every(item => {
+                        return $(item).css('display') === 'none'
+                    })) {
+                        $('.note-split').css('display', 'none')
+                    }
+                }
+
+                //split h
+                if ((
+                        $(e.target).attr('rowspan') &&
+                        $(e.target).attr('rowspan') > 1 &&
+                        e.target.redips && e.target.redips.selected
+                    ) ||
+                    (
+                        selectedCells.length === 1 &&
+                        selectedCells.filter(item => {
+                            return $(item).attr('rowspan') && $(item).attr('rowspan') > 1
+                        }).length === 1
+                    )
+                ) {
+                    $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '0', 'border-bottom-left-radius': '0'})
+                    $('.note-split .note-btn-group.btn-group').first().css('display', 'block')
+
+                    $('.note-split').css('display', 'inline-block')
+                }
+                else {
+                    $('.note-split .note-btn-group.btn-group button').last().css({'border-top-left-radius': '3px', 'border-bottom-left-radius': '3px'})
+                    $('.note-split .note-btn-group.btn-group').first().css('display', 'none')
+
+                    if ([...$('.note-split').find('.note-btn-group.btn-group')].every(item => {
+                        return $(item).css('display') === 'none'
+                    })) {
+                        $('.note-split').css('display', 'none')
+                    }
+                }
+            }, 0)
+        },
+        handleCellClick (e, cell) {
+            let _this = this
+            let indexedTooltipHeight = 50
+
+            e.stopPropagation();
+
+            let coords = e.target.getBoundingClientRect()
+
+            _this.top = coords.top - indexedTooltipHeight
+            _this.left = coords.left
+            _this.rowsData = [...$(e.target).parents('tr')]
+
+            let closestRow = $(cell).closest('tr')
+            let rowHasBGCOLOR = [...closestRow.children()].some(item =>
+                item.redips && item.redips.selected
+            )
+
+            if (rowHasBGCOLOR) {
+                _this.showIndexedTooltip = true
+            }
+            else {
+                _this.showIndexedTooltip = false
+            }
+
+            $('table').each(function () {
+                $(this).removeAttr('id')
+            })
+            $(cell).closest('table').attr('id', 'redipsTable')
+        },
+        initListeners () {
+            let _this = this
+
+            $('td').off('DOMSubtreeModified').on("DOMSubtreeModified", function (e) {
+                _this.handleTDModified(e, this)
+            })
+
+            // _this.thOberver = new MutationObserver(_this.handleTHModified)
+            //
+            // $('th').each(function () {
+            //     _this.thOberver.observe(this, _this.config)
+            // })
+
+            $('td, th').off('mousedown').on('mousedown', function (e) {
+                _this.handleCellMousedown(e, this)
+            })
+
+            $('td, th').off('click').on('click', function (e) {
+                _this.handleCellClick(e, this)
             })
 
             $('.note-editable').on('click', function () {
@@ -303,6 +353,10 @@ export default {
 
             $('.note-editable').on('scroll', function () {
                 _this.showIndexedTooltip = false
+            })
+
+            $('.note-btn').on('click', function () {
+                _this.initListeners()
             })
         },
         redipsInit () {
@@ -399,11 +453,6 @@ export default {
                     }
                     else {
                         $(this).removeClass('without-redips-handler')
-
-                        if ($(this)[0].redips) {
-                            $(this)[0].redips.selected = false
-                        }
-
                         _this.redips.attachCell($(this)[0])
                     }
                 })
@@ -415,10 +464,6 @@ export default {
                     let p = uselessParagraphs[i];
                     p.parentNode.removeChild(p);
                 }
-            })
-
-            $('.note-btn').on('click', function () {
-                _this.initListeners()
             })
         },
         initAll (tableHtml) {
@@ -434,10 +479,9 @@ export default {
                 removeRow()
                 this.summernoteInit()
 
-                // setTimeout(() => $('#summernote').summernote('code', tableHtml), 0)
                 $('#summernote').summernote('code', tableHtml)
-                // setTimeout(() => this.replaceAttrs(), 0)
                 this.replaceAttrs()
+                this.setHeadersData()
             }
         },
         removeCells (table_html) {
@@ -478,10 +522,8 @@ export default {
             tableHtml = this.getCurrentTable.html
             this.title = this.getCurrentTable.title
 
-            // setTimeout(() => this.initAll(tableHtml), 0)
             this.initAll(tableHtml)
         }
-        // else setTimeout(() => this.initAll(tableHtml), 0)
         else this.initAll(tableHtml)
 
         if (!this.$store.getters["journalState/getScheme"]()) {
@@ -491,6 +533,9 @@ export default {
                 this.$store.commit('journalState/setScheme', data)
             })
         }
+    },
+    beforeDestroy () {
+        // this.thOberver.disconnect()
     }
 }
 </script>

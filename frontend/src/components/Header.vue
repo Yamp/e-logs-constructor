@@ -10,21 +10,43 @@
     export default {
         name: "Header",
         props: {
-          isHidden: Boolean
+            isHidden: Boolean
+        },
+        data () {
+            return {
+                showedTimer: null,
+                hiddenTimer: null,
+                timeTillShow: 300
+            }
         },
         methods: {
             goHome() {
                 if (this.journal) {
                     this.$router.push(`/journal/${this.journalName}${this.plant ? '?plant=' + this.plant : ''}`)
+                    this.$store.commit('journalState/setCurrentTable', null)
                 }
                 else this.$router.push('/')
             },
             mousemoveHandler (e) {
                 if (e.pageY <= 20 && this.isHidden) {
-                    this.$emit('showHeader')
+                    !this.showedTimer ?
+                        this.showedTimer = setTimeout(() => {
+                            this.$emit('showHeader')
+                        }, this.timeTillShow)
+                        : null
                 }
-                else if (e.pageY > 50 && !this.isHidden) {
-                    this.$emit('hideHeader')
+                else if (e.pageY > 50) {
+                    !this.hiddenTimer ?
+                        this.hiddenTimer = setTimeout(() => {
+                            this.showedTimer = clearTimeout(this.showedTimer)
+                            this.hiddenTimer = clearTimeout(this.hiddenTimer)
+
+                            !this.isHidden ? this.$emit('hideHeader') : null
+                        }, 3 * this.timeTillShow)
+                        : null
+                }
+                else if (e.pageY <= 50 && !this.isHidden) {
+                    this.hiddenTimer = clearTimeout(this.hiddenTimer)
                 }
             }
         },

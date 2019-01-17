@@ -292,17 +292,26 @@
                 refactoredHtml = refactoredHtml.split('</cell>').join('</div>')
                 return refactoredHtml
             },
+            getCellNode (fieldName, vRowIndex, rowIndex) {
+                let checkedFieldName = fieldName ? `field-name="${fieldName}"` : ''
+                let checkedRowIndex = vRowIndex ? `:row-index="${vRowIndex}"` : rowIndex ? `row-index="${rowIndex}"` : 'row-index="0"'
+
+                return ('<cell ' +
+                            `${checkedFieldName}` +
+                            `${checkedRowIndex}` +
+                        '></cell>'
+                )
+            },
             addCells(table_html) {
+                let _this = this
                 let $html = $('<div>' + table_html + '</div>')
+
                 $html.find('.cell').replaceWith(function () {
-                    return `<cell ` +
-                        `${$(this).attr('field-name') ? `field-name="${$(this).attr('field-name')}"` : ''}` +
-                        `${$(this).attr('row-index') ?
-                            `row-index="${$(this).attr("row-index")}"`
-                            : $(this).attr(':row-index') ?
-                                `:row-index="${$(this).attr(":row-index")}"`
-                                : 'row-index="0"'}` +
-                        `></cell>`
+                    return _this.getCellNode(
+                        $(this).attr('field-name'),
+                        $(this).attr(':row-index'),
+                        $(this).attr('row-index')
+                    )
                 })
 
                 return $html.html()

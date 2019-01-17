@@ -13,7 +13,7 @@
                 <span>Вы можете объединять ячейки с помощью зажатой клавиши Ctrl или Shift</span>
             </div>
             <div class="btns">
-                <button class="btn btn-default" @click="onHandleCancel" style="margin-right: 10px">Отмена</button>
+                <button class="btn btn-default" @click="onHandleBack" style="margin-right: 10px">Назад</button>
                 <button class="btn" :class="{'btn-primary': !hasAllNames, 'btn-default': hasAllNames}" @click="setAutoNames" style="margin-right: 10px">Заполнить имена автоматически</button>
                 <button class="btn btn-primary" @click.prevent="onHandleSave" :disabled="!hasAllNames">Сохранить</button>
             </div>
@@ -28,6 +28,7 @@
 
     export default {
         name: 'EditTableDataPage',
+        components: {Editor},
         data() {
             return {
                 hasAllNames: false,
@@ -43,23 +44,34 @@
             },
             plant () {
                 return this.$store.getters['journalState/getJournalPlant']
+            },
+            getJournalName () {
+                return this.$store.getters['journalState/getJournalName']
             }
         },
         methods: {
-            onHandleCancel() {
-                this.$store.commit('journalState/setCurrentTable', null)
-                this.$router.push(`/journal/${this.$store.getters['journalState/getJournalName']}`)
+            onHandleBack() {
+                $('.editor th, .editor td').each(function () {
+                    $(this).removeClass("selected")
+                })
+
+                this.$store.commit('journalState/updateCurrentTable',
+                    {
+                        html: formatFactory($('#editor-content').html())
+                    }
+                )
+
+                this.$router.push(`/journal/${this.getJournalName}/table/create`)
             },
             setAutoNames () {
                 eventBus.$emit('set-auto-names')
             },
             onHandleSave() {
                 this.getCurrentTable.fields.map(field => {
-                    $(`#${field.cell}`).removeClass('is-empty')
-                })
-
-                this.getCurrentTable.fields.map(field => {
-                    if (!field['name']) {
+                    if (field['name']) {
+                        $(`#${field.cell}`).removeClass('is-empty')
+                    }
+                    else {
                         $(`#${field.cell}`).addClass('is-empty')
                         this.hasAllNames = false
                     }
@@ -81,16 +93,12 @@
 
                 // If everything is ok
                 $('.editor .cell').each(function () {
-                    $(this).removeClass("selected")
-                    $(this).find('.name-container').text('')
+                    $(this).attr('class', 'cell')
+                    $(this).html('')
                 })
 
                 $('.editor th').each(function () {
                     $(this).removeClass("selected")
-                })
-
-                this.getCurrentTable.fields.map(field => {
-                    $(`#${field.cell}`).attr('class', 'cell')
                 })
 
                 this.$store.commit('journalState/updateCurrentTable',
@@ -144,12 +152,12 @@
                 return decodeURIComponent(results[2].replace(/\+/g, ' '));
             },
         },
-        components: {Editor},
         mounted() {
             eventBus.$on('check-repeated', () => this.checkRepeated())
             eventBus.$on('set-has-all-names', (hasAllNames) => this.hasAllNames = hasAllNames)
         },
         beforeDestroy(){
+            eventBus.$off('check-repeated')
             eventBus.$off('set-has-all-names')
         }
     }
