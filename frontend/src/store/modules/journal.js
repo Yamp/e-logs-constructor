@@ -150,42 +150,59 @@ const journalState = {
         },
         getJournalNames(state, getters) {
             return function() {
-                return Object.keys(state.scheme ? state.scheme : {});
+                return state.scheme.map((journal) => { return {
+                    name: journal.name,
+                    verbose_name: journal.verbose_name
+                }
+                })
             }
         },
         getJournalTableNames(state, getters) {
             return function (journalName) {
-                return Object.keys(state.scheme[journalName])
+                let journal = state.scheme.filter((journal) => journal.name === journalName)[0]
+                return journal.tables.map((table) => { return {
+                    name: table.name,
+                    verbose_name: table.verbose_name
+                }
+                })
             }
         },
+        // TODO:
         getJournalCompletions(state, getters) {
             return function (prefix) {
-                let journal_names = Object.keys(state.scheme)
+                let journal_names =  state.scheme
+                    .map((journal) => journal.verbose_name)
                 return journal_names.filter(name => name.includes(prefix))
             }
         },
         getTableCompletions(state, getters) {
             return function (prefix) {
                 console.log("U sobak bolshie hui", state.scheme)
-                let table_names = Object.values(state.scheme).map(function(tables) {
-                    return Object.keys(tables)
-                }).flat();
+                let table_names = state.scheme
+                    .map((journal) => journal.tables
+                        .map((table) => table.verbose_name))
+                    .flat()
                 return table_names.filter(name => name.includes(prefix))
             }
         },
         getFieldCompletions(state, getters) {
             return function (prefix) {
                 console.log("U sobak bolshie hui", state.scheme)
-                let table_names = Object.values(state.scheme).map(function(tables) {
-                    let fields_names = Object.values(tables);
-                    return fields_names.flat()
-                }).flat();
-                return table_names.filter(name => name.includes(prefix))
+                let field_names = state.scheme
+                    .map((journal) => journal.tables
+                        .map((table) => table.fields
+                            .map((field) => field.verbose_name))
+                        .flat())
+                    .flat()
+                return field_names.filter(name => name.includes(prefix))
             }
         },
         getSchemeTableHTML(state, getters) {
-            return function (journal, table) {
-                return state.scheme[journal][table].html
+            return function (journalName, tableName) {
+                let res = state.scheme
+                    .filter((journal) => journal.name === journalName)[0].tables
+                    .filter((table) => table.name === tableName)[0].html
+                return res ? res : "Не получилось загрузить таблицу"
             }
         },
         getTableHTML(state, getters) {
@@ -260,8 +277,14 @@ const journalState = {
         },
         setTableHTML(state, payload) {
             console.log(payload)
-            console.log(state.scheme[payload.journal][payload.table])
-            Vue.set(state.scheme[payload.journal][payload.table], 'html', "<div>" + payload.html + "</div>")
+            let journalName = payload.journal
+            let tableName = payload.table
+
+            Vue.set(
+                state.scheme
+                    .filter((journal) => journal.name === journalName)[0].tables
+                    .filter((table) => table.name === tableName)[0],
+                'html', "<div>" + payload.html + "</div>")
         },
         setScheme(state, payload) {
             Vue.set(state, 'scheme', payload)

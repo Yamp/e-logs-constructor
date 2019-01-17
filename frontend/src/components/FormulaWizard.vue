@@ -6,13 +6,13 @@
             <div class="form-group input-container">
                 <label for="journal">Выберите журнал</label>
                 <select name="plant" id="journal" class="form-control" v-model="currentJournal">
-                    <option v-for="journal in journals" :key="journal" :value="journal">{{ journal }}</option>
+                    <option v-for="journal in journals" :key="journal.name" :value="journal.name">{{ journal.verbose_name }}</option>
                 </select>
             </div>
             <div class="form-group input-container" v-if="currentJournal">
                 <label for="table">Выберите таблицу</label>
                 <select name="plant" id="table" class="form-control" v-model="currentTable">
-                    <option v-for="table in tables" :key="table" :value="table">{{ table }}</option>
+                    <option v-for="table in tables" :key="table.name" :value="table.name">{{ table.verbose_name }}</option>
                 </select>
             </div>
             <div v-if='currentTable && currentJournal'>
