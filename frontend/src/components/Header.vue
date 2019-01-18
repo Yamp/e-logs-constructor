@@ -1,5 +1,5 @@
 <template>
-    <div class="header">
+    <div :class="{'header': true, 'header-hidden': isHidden}">
         <div class="title" @click="goHome">
             <span>Конструктор журналов</span>
         </div>
@@ -9,12 +9,45 @@
 <script>
     export default {
         name: "Header",
+        props: {
+            isHidden: Boolean
+        },
+        data () {
+            return {
+                showedTimer: null,
+                hiddenTimer: null,
+                timeTillShow: 300
+            }
+        },
         methods: {
             goHome() {
                 if (this.journal) {
                     this.$router.push(`/journal/${this.journalName}${this.plant ? '?plant=' + this.plant : ''}`)
+                    this.$store.commit('journalState/setCurrentTable', null)
                 }
                 else this.$router.push('/')
+            },
+            mousemoveHandler (e) {
+                if (e.pageY <= 20 && this.isHidden) {
+                    !this.showedTimer ?
+                        this.showedTimer = setTimeout(() => {
+                            this.$emit('showHeader')
+                        }, this.timeTillShow)
+                        : null
+                }
+                else if (e.pageY > 50) {
+                    !this.hiddenTimer ?
+                        this.hiddenTimer = setTimeout(() => {
+                            this.showedTimer = clearTimeout(this.showedTimer)
+                            this.hiddenTimer = clearTimeout(this.hiddenTimer)
+
+                            !this.isHidden ? this.$emit('hideHeader') : null
+                        }, 3 * this.timeTillShow)
+                        : null
+                }
+                else if (e.pageY <= 50 && !this.isHidden) {
+                    this.hiddenTimer = clearTimeout(this.hiddenTimer)
+                }
             }
         },
         computed: {
@@ -27,6 +60,12 @@
             plant () {
                 return this.$store.getters['journalState/getJournalPlant']
             }
+        },
+        mounted () {
+            $(document).on('mousemove', this.mousemoveHandler)
+        },
+        destroyed() {
+            $(document).off('mousemove', this.mousemoveHandler)
         }
     }
 </script>
@@ -41,7 +80,12 @@
         background-color: #337ab7;
         padding: 10px 20px;
         box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.4);
+        transition: .2s;
         z-index: 1000;
+
+        &.header-hidden {
+            transform: translateY(-50px);
+        }
 
         .title {
             font-family: 'Poiret One';

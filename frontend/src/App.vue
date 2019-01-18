@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <constructor-header></constructor-header>
-    <div class="app-content">
+    <constructor-header :is-hidden="headerIsHidden" @showHeader="showHeader" @hideHeader="hideHeader"></constructor-header>
+    <div class="app-content" :style="{'transform': headerIsHidden ? 'translateY(0)' : 'translateY(50px)'}">
       <router-view/>
       <notifications classes='vue-notification'/>
     </div>
@@ -9,28 +9,47 @@
 </template>
 
 <script>
-  import Header from './components/Header'
-  export default {
-     components: {
-         'constructor-header': Header
-     }
-  }
+import Header from './components/Header'
+export default {
+    components: {
+        'constructor-header': Header
+    },
+    data () {
+        return {
+            headerIsHovered: false
+        }
+    },
+    computed: {
+        headerIsHidden () {
+            return this.$route.name !== 'home' && !this.headerIsHovered
+            // return false
+        }
+    },
+    methods: {
+        showHeader () {
+            this.headerIsHovered = true
+        },
+        hideHeader () {
+            this.headerIsHovered = false
+        }
+    }
+}
 </script>
 
 <style lang="scss">
-  @import url('https://fonts.googleapis.com/css?family=Poiret+One');
-  @import '~bootstrap3/dist/css/bootstrap.min.css';
-  @import '~@fortawesome/fontawesome-free/css/all.min.css';
-  @import 'assets/scss/variables.scss';
-  /*@import '~bootstrap3/dist/css/bootstrap-theme.min.css';*/
+@import url('https://fonts.googleapis.com/css?family=Poiret+One');
+@import '~bootstrap3/dist/css/bootstrap.min.css';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+@import 'assets/scss/variables.scss';
+/*@import '~bootstrap3/dist/css/bootstrap-theme.min.css';*/
 
-  html, body {
+html, body {
     padding: 0;
     margin: 0;
     height: 100%;
-  }
+}
 
-  #app {
+#app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -39,21 +58,21 @@
     box-sizing: border-box;
 
     .app-content {
-      padding-top: 50px;
-      height: 100%;
+        height: 100%;
+        transition: .2s;
     }
-  }
+}
 
-  input[type=file] {
+input[type=file] {
     display: flex !important;
     font-size: 14px !important;
-  }
+}
 
-  .btn {
+.btn {
     transition: 0.2s;
-  }
+}
 
-  .vue-notification {
+.vue-notification {
     padding: 10px;
     font-size: 14px !important;
     border-radius: 4px;
@@ -76,9 +95,9 @@
       background: $accent-green !important;
       border-left-color: darken($accent-green, 10) !important;
     }
-  }
+}
 
-  .notifications {
+.notifications {
     span {
       .notification-wrapper {
         &:first-child {
@@ -86,5 +105,5 @@
         }
       }
     }
-  }
+}
 </style>

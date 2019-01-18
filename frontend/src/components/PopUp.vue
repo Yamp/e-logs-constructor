@@ -51,6 +51,7 @@
     import 'brace/theme/xcode';
     import 'brace/ext/language_tools';
     import {eventBus} from '../main.js'
+    import formatFactory from '../utils/formatFactory.js'
     
     export default {
         name: "PopUp",
@@ -95,12 +96,6 @@
                     this.currentListType = ''
                     this.editor.getSession().setValue("")
                 }
-
-                // $('#name input').val(this.fieldName)
-                // $('#minValue input').val(this.minValue)
-                // $('#maxValue input').val(this.maxValue)
-                // $('#type input').val(this.type)
-                // $('#units input').val(this.units)
             },
             type (value) {
                 this.compressEditor()
@@ -128,21 +123,19 @@
                     })
             },
             onHandleChange (data, input) {
+                let currentCell = $(`#${this.cell}`)
+
                 if (data === 'fieldName') {
                     this.selectedFields.map(item => {
                         $(`#${item}`).attr('field-name', input.target.value)
                     })
-                    if (this.cellTag === 'th') {
-                        let $text = $(`#${this.cell}`).find('.text')
 
-                        if ($text.length) {
-                            input.target.value ?
-                                $text.text(input.target.value)
-                                : $text.remove()
-                        }
-                        else {
-                            $(`#${this.cell}`).prepend(`<span class="text">${input.target.value}</span>`)
-                        }
+                    if (this.cellTag === 'th') {
+                        let $text = currentCell.find('.text')
+
+                        $text.length ?
+                            $text.text(input.target.value)
+                            : currentCell.prepend(`<span class="text">${input.target.value}</span>`)
                     }
                     else if (this.cellTag === 'td' && this.selectedFields.length === 1){
                         this.selectedFields.map(item => {
@@ -157,6 +150,7 @@
                         )
 
                         eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
+                        eventBus.$emit('check-repeated')
                     }
                 }
 
@@ -191,7 +185,7 @@
                         )
                     }
                     else if (this.cellTag === 'th') {
-                        let $units = $(`#${this.cell}`).find('.units')
+                        let $units = currentCell.find('.units')
 
                         if ($units.length) {
                             input.target.value ?
@@ -221,8 +215,6 @@
                         }
                     )
                 }
-
-                eventBus.$emit('check-repeated')
             },
             expandEditor () {
                 // document.getElementById("formula-editor").classList.add("expanded-formula-editor")

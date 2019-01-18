@@ -51,15 +51,27 @@
                 $(row).removeClass('selected-line')
             },
             addIndexed(row) {
-                $(row).addClass('indexed-line').attr('v-for', '(value, index) in rowsCount').attr(':key', 'index')
-                $(row).find('th, td').attr('row-index', '')
-                $(row).find('th, td').attr(':row-index', 'index')
+                $(row)
+                    .addClass('indexed-line')
+                    .attr('v-for', '(value, index) in rowsCount')
+                    .attr(':key', 'index')
+
+                $(row).find('th, td')
+                    .removeAttr('row-index')
+                    .attr(':row-index', 'index')
+
                 this.$forceUpdate()
             },
             removeIndexed(row) {
-                $(row).removeClass('indexed-line').attr('v-for', '').attr(':key', '')
-                $(row).find('th, td').attr('row-index', '0')
-                $(row).find('th, td').attr(':row-index', '')
+                $(row)
+                    .removeClass('indexed-line')
+                    .removeAttr('v-for')
+                    .removeAttr(':key')
+
+                $(row).find('th, td')
+                    .removeAttr(':row-index')
+                    .attr('row-index', '0')
+
                 this.$forceUpdate()
             }
         }
