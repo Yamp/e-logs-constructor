@@ -174,10 +174,11 @@
 
                             formData.append("hash", hash);
                             formData.append("plant", this.getUrlParams('plant'));
+                            formData.append("journal_name", this.$store.getters['journalState/getJournalName'])
 
-                            axios.post(`${window.ELOGS_SERVER}/api/constructor/upload/`, formData)
+                            axios.post(`${window.ELOGS_SERVER}/api/constructor/alter/`, formData)
                         })
-                        .then((response) => {
+                        .then(() => {
                             this.$notify({
                                 text: 'Журнал успешно сохранен!',
                                 duration: 3000,
