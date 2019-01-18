@@ -23,7 +23,7 @@ var getCellFromVariable = function (variable) {
 var getCellsFromFormula = function (formula, scope) {
     let re = /FUNC\([^\)]*\)/g;
     let variables = formula.match(re)
-    return variables.map(getCellFromVariable, scope);
+    return variables ? variables.map(getCellFromVariable, scope) : []
 }
 
 var getCellValue = function (cell) {

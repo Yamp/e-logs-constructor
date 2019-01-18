@@ -239,7 +239,8 @@ const journalState = {
                     console.log(cells)
                     for (var cell of cells) {
                         let fieldName = $(cell).attr("field-name")
-                        let fieldSelectorElement = `<div class='field-selector'>${fieldName}</div>`
+                        $(cell).addClass("cell").addClass("selection-mode")
+                        let fieldSelectorElement = `<div>${fieldName}</div>`
                         $(cell).text("")
                         $(cell).append(fieldSelectorElement)
                     }

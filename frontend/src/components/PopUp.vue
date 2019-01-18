@@ -51,7 +51,10 @@
     import 'brace/theme/xcode';
     import 'brace/ext/language_tools';
     import {eventBus} from '../main.js'
-    import formatFactory from '../utils/formatFactory.js'
+    import { debounce } from "debounce";
+    import axios from 'axios'
+    let FormulaParser = require('hot-formula-parser').Parser;
+    let parser = new FormulaParser();
     
     export default {
         name: "PopUp",
@@ -109,6 +112,35 @@
                     this.expanded = false
                 }
             },
+            formulaValidationErrors: {
+                handler(newValue) {
+                    console.log(newValue)
+                    if (newValue.syntax) {
+                        eventBus.$emit("add-cell-with-error", {
+                            error_type: "formula",
+                            error_name: "syntax",
+                            cell: this.cell,
+                        })
+                    }
+                    else {
+                        eventBus.$emit("remove-cell-with-error", {
+                            error_type: "formula",
+                            error_name: "syntax",
+                            cell: this.cell,
+                        })
+                    }
+                    // if (newValue.cells) {
+                    //     eventBus.$emit("display-error", "cells error")
+                    // }
+                    // if (newValue.cycles) {
+                    //     eventBus.$emit("display-error", "cycles error")
+                    // }
+                    // else {
+                    //     eventBus.$emit("remove-error")
+                    // }
+                },
+                deep: true,
+            }
         },
         computed: {
             getCurrentTable () {
@@ -151,6 +183,7 @@
 
                         eventBus.$emit('set-has-all-names', this.getCurrentTable.fields.every(item => item.name))
                         eventBus.$emit('check-repeated')
+                        eventBus.$emit('')
                     }
                 }
 
@@ -199,6 +232,7 @@
                 }
 
                 if (data === 'formula') {
+                    this.validateFormula()
                     this.$store.commit('journalState/setFields',
                         {
                             fieldsIds: this.selectedFields,
@@ -258,8 +292,110 @@
             },
             openWizard () {
                 eventBus.$emit("openWizard");
+            },
+            validateFormulaSyntax() {
+                let formula = this.editor.getValue()
+                console.log("in validator", formula)
+                parser.setFunction("FUNC", function(params) {
+                    return 1;
+                })
+                let res = parser.parse(formula)
+                if (res.error !== null) {
+                    eventBus.$emit("add-cell-with-error", {
+                        error_type: "formula",
+                        error_name: "syntax",
+                        cell: this.cell,
+                    })
+                    return true
+                }
+                else {
+                    eventBus.$emit("remove-cell-with-error", {
+                        error_type: "formula",
+                        error_name: "syntax",
+                        cell: this.cell,
+                    })
+                    return false
+                }
+            },
+            validateFormulaCellAndCycles() {
+                let formula = this.editor.getValue()
+                let journalName = window.location.pathname.split("/")[2]
+                let tableName = window.location.pathname.split("/")[4]
+                axios.post("http://localhost:3000/formula-uncreated-cells", {
+                    formula: formula,
+                    scope: {
+                        journal: journalName,
+                        table: tableName,
+                        field: this.fieldName,
+                    }
+                }).then((response) => {
+                    console.log("check-formula", response)
+                    let uncreatedCells = response.data
+                    uncreatedCells = uncreatedCells.filter((cell) => {
+                        if (cell.journal != journalName) {
+                            return true
+                        }
+                        else {
+                            if (cell.table != tableName) {
+                                return true
+                            }
+                            else {
+                                if (!(this.$store.gettters["journalState/getFields"].includes(cell.field))) {
+                                    return true
+                                }
+                                return false
+                            }
+                        }
+                    })
+                    if (uncreatedCells.length > 0) {
+                        eventBus.$emit("add-cell-with-error", {
+                            error_type: "formula",
+                            error_name: "cells",
+                            cell: this.cell,
+                        })
+                    }
+                    else {
+                        eventBus.$emit("remove-cell-with-error", {
+                            error_type: "formula",
+                            error_name: "cells",
+                            cell: this.cell,
+                        })
+                        axios.post("http://localhost:3000/check-formula", {
+                            formula: formula,
+                            cell: {
+                                journal: journalName,
+                                table: tableName,
+                                field: this.fieldName,
+                            }
+                        }).then((response) => {
+                            console.log("check-formula", response)
+                            if (response) {
+                                eventBus.$emit("add-cell-with-error", {
+                                    error_type: "formula",
+                                    error_name: "cycles",
+                                    cell: this.cell,
+                                })
+                            }
+                            else {
+                                eventBus.$emit("remove-cell-with-error", {
+                                    error_type: "formula",
+                                    error_name: "cycles",
+                                    cell: this.cell,
+                                })
+                            }
+                        })
+                    }
+                })
+            },
+            validateFormula() {
+                if (this.cell) {
+                    let formula = this.editor.getValue()
+                    let syntax_error = this.validateFormulaSyntax()
+                    if (!syntax_error && formula) {
+                        this.validateFormulaCellAndCycles()
+                    }
+                }
             }
-
         },
         mounted() {
 
@@ -326,9 +462,8 @@
                 indentedSoftWrap: false,
             });
             this.editor.renderer.setScrollMargin(6, 6)
-            this.editor.on("change", (e) => {
-                this.onHandleChange('formula', e)
-            })
+            this.editor.on("change", (e) => this.onHandleChange('formula', e))
+            this.editor.on("change", debounce(() => {this.validateFormula()}, 2000))
         }
     }
 </script>

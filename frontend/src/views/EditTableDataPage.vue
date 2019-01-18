@@ -2,8 +2,10 @@
     <div class="edit-data">
         <div class="title-container">
             <h2 class="title">Заполнение данными</h2>
-            <div v-show="error" class="error">
-                {{error}}
+            <div class="errors-container">
+                <div v-for="error in errors" class="error">
+                    {{error}}
+                </div>
             </div>
         </div>
         <editor class="editor"></editor>
@@ -32,7 +34,44 @@
         data() {
             return {
                 hasAllNames: false,
-                error: ''
+                errors: [],
+                validateErrors: {
+                    formula: {
+                        syntax: [],
+                        cells: [],
+                        cycles: [],
+                    }
+                }
+            }
+        },
+        watch: {
+            'validateErrors.formula.syntax': function(error_cells) {
+                let message = 'syntax error'
+                if (error_cells.length > 0) {
+                    if (!(this.errors.includes(message))) {
+                        this.errors.push(message)
+                    }
+                }
+                else {
+                    console.log("check")
+                    this.errors = this.errors.filter((e) => e !== message)
+                }
+            },
+            'validateErrors.formula.cells': function(error_cells) {
+                if (error_cells) {
+                    this.error = 'syntax error'
+                }
+                else {
+                    this.error = ''
+                }
+            },
+            'validateErrors.formula.cycles': function(error_cells) {
+                if (error_cells) {
+                    this.error = 'syntax error'
+                }
+                else {
+                    this.error = ''
+                }
             }
         },
         computed: {
@@ -130,13 +169,14 @@
                 }
 
                 if (hasReapitebleNames) {
-                    this.error = 'Имена полей не должны повторяться!'
+                    this.errors.push('Имена полей не должны повторяться!')
                     this.getCurrentTable.fields.map(field => {
                         $(`#${field.cell}`).removeClass('is-empty')
                     })
                     return true
                 }
                 else {
+                    this.errors = this.errors.filter((e) => e !== 'Имена полей не должны повторяться!')
                     this.error = this.error === 'Все имена полей должны быть заполнены!' ?
                         'Все имена полей должны быть заполнены!' : ''
                     return false
@@ -151,14 +191,37 @@
                 if (!results[2]) return '';
                 return decodeURIComponent(results[2].replace(/\+/g, ' '));
             },
+            addCellWithError(payload) {
+                this.validateErrors[payload.error_type][payload.error_name].push(payload.cell)
+                if (payload.error_type == "formula") {
+                    if (payload.error_name == "syntax") {
+                        $(`#${payload.cell}`).addClass('is-repeated')
+                    }
+                }
+            },
+            removeCellWithError(payload) {
+                this.validateErrors[payload.error_type][payload.error_name] =
+                    this.validateErrors[payload.error_type][payload.error_name]
+                    .filter((e) => e !== payload.cell)
+
+                if (payload.error_type == "formula") {
+                    if (payload.error_name == "syntax") {
+                        $(`#${payload.cell}`).removeClass('is-repeated')
+                    }
+                }
+            },
         },
         mounted() {
             eventBus.$on('check-repeated', () => this.checkRepeated())
             eventBus.$on('set-has-all-names', (hasAllNames) => this.hasAllNames = hasAllNames)
+            eventBus.$on('add-cell-with-error', (payload) => this.addCellWithError(payload))
+            eventBus.$on('remove-cell-with-error', (payload) => this.removeCellWithError(payload))
         },
         beforeDestroy(){
             eventBus.$off('check-repeated')
             eventBus.$off('set-has-all-names')
+            eventBus.$off('display-error')
+            eventBus.$off('remove-error')
         }
     }
 </script>
@@ -170,6 +233,10 @@
         justify-content: space-between;
         height: 40px;
         margin-bottom: 20px;
+    }
+    .errors-container {
+        display: flex;
+        overflow-y: auto;
     }
     .edit-data {
         padding: 20px;
