@@ -211,7 +211,7 @@
                     this.$store.commit('journalState/setFields',
                         {
                             fieldsIds: this.selectedFields,
-                            listType: this.currentListType
+                            type: `${this.type}_${this.currentListType}`
                         }
                     )
                 }
