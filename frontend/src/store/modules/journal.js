@@ -20,6 +20,14 @@ const journalState = {
         getTables(state, getters) {
             return state && state.journal ? state.journal.tables : []
         },
+        getFields(state, getters) {
+            return state.journal.tables
+                .map((table) => {
+                    return table.fields
+                })
+                .flat()
+                .concat(state.journal.currentTable.fields)
+        },
         getCurrentTable(state, getters) {
             return state && state.journal ? state.journal.currentTable : {}
         },

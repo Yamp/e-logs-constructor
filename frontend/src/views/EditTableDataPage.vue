@@ -51,6 +51,8 @@
                     if (!(this.errors.includes(message))) {
                         this.errors.push(message)
                     }
+                    this.validateErrors.formula.cells = []
+                    this.validateErrors.formula.cycles = []
                 }
                 else {
                     console.log("check")
@@ -58,19 +60,26 @@
                 }
             },
             'validateErrors.formula.cells': function(error_cells) {
-                if (error_cells) {
-                    this.error = 'syntax error'
+                let message = "cells error"
+                if (error_cells.length > 0) {
+                   if (!(this.errors.includes(message))) {
+                        this.errors.push(message)
+                    }
+                   this.validateErrors.formula.cycles = []
                 }
                 else {
-                    this.error = ''
+                    this.errors = this.errors.filter((e) => e !== message)
                 }
             },
             'validateErrors.formula.cycles': function(error_cells) {
-                if (error_cells) {
-                    this.error = 'syntax error'
+                let message = 'cycles error'
+                if (error_cells.length > 0) {
+                   if (!(this.errors.includes(message))) {
+                        this.errors.push(message)
+                    }
                 }
                 else {
-                    this.error = ''
+                    this.errors = this.errors.filter((e) => e !== message)
                 }
             }
         },
@@ -168,15 +177,18 @@
                     })
                 }
 
+                let message = 'Имена полей не должны повторяться!'
                 if (hasReapitebleNames) {
-                    this.errors.push('Имена полей не должны повторяться!')
+                    if (!this.errors.includes(message)) {
+                        this.errors.push(message)
+                    }
                     this.getCurrentTable.fields.map(field => {
                         $(`#${field.cell}`).removeClass('is-empty')
                     })
                     return true
                 }
                 else {
-                    this.errors = this.errors.filter((e) => e !== 'Имена полей не должны повторяться!')
+                    this.errors = this.errors.filter((e) => e !== message)
                     this.error = this.error === 'Все имена полей должны быть заполнены!' ?
                         'Все имена полей должны быть заполнены!' : ''
                     return false
@@ -193,22 +205,13 @@
             },
             addCellWithError(payload) {
                 this.validateErrors[payload.error_type][payload.error_name].push(payload.cell)
-                if (payload.error_type == "formula") {
-                    if (payload.error_name == "syntax") {
-                        $(`#${payload.cell}`).addClass('is-repeated')
-                    }
-                }
+                $(`#${payload.cell}`).addClass(`${payload.error_type}-${payload.error_name}-error`)
             },
             removeCellWithError(payload) {
                 this.validateErrors[payload.error_type][payload.error_name] =
                     this.validateErrors[payload.error_type][payload.error_name]
                     .filter((e) => e !== payload.cell)
-
-                if (payload.error_type == "formula") {
-                    if (payload.error_name == "syntax") {
-                        $(`#${payload.cell}`).removeClass('is-repeated')
-                    }
-                }
+                $(`#${payload.cell}`).removeClass(`${payload.error_type}-${payload.error_name}-error`)
             },
         },
         mounted() {
