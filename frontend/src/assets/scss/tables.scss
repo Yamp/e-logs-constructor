@@ -41,12 +41,12 @@
         user-select: none;
 
         &.selection-mode {
-            background-color: #337ab7 !important;
+            background-color: #337ab7;
             transition: .2s;
             color: #ffffff;
 
             &:hover {
-                background-color: darken(#337ab7, 10%) !important;
+                background-color: darken(#337ab7, 10%);
             }
         }
 

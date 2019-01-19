@@ -55,6 +55,7 @@
     import axios from 'axios'
     let FormulaParser = require('hot-formula-parser').Parser;
     let parser = new FormulaParser();
+    let Range = ace.acequire('ace/range').Range
     
     export default {
         name: "PopUp",
@@ -129,15 +130,6 @@
                             cell: this.cell,
                         })
                     }
-                    // if (newValue.cells) {
-                    //     eventBus.$emit("display-error", "cells error")
-                    // }
-                    // if (newValue.cycles) {
-                    //     eventBus.$emit("display-error", "cycles error")
-                    // }
-                    // else {
-                    //     eventBus.$emit("remove-error")
-                    // }
                 },
                 deep: true,
             }
@@ -232,7 +224,6 @@
                 }
 
                 if (data === 'formula') {
-                    // this.validateFormula()
                     this.$store.commit('journalState/setFields',
                         {
                             fieldsIds: this.selectedFields,
@@ -287,7 +278,16 @@
                 else {
                     var formula = `$("${payload.field}")`
                 }
+                let start = this.editor.getValue().length;
+                let end = start + formula.length;
+                let range = new Range(0, start, 0, end)
+                this.editor.getSession().addMarker(range, `color-${payload.colorCode}`, "word")
                 this.editor.session.insert(this.editor.getCursorPosition(), formula);
+
+                let s = this.editor.getValue();
+                s.search(formula)
+
+
                 this.editor.focus();
             },
             openWizard () {

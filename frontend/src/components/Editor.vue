@@ -13,6 +13,7 @@
     import PopUp from './PopUp.vue'
     import FormulaWizard from './FormulaWizard.vue'
     import formatFactory from '../utils/formatFactory.js'
+    import colorGenerator from '../utils/colorGenerator.js'
     import {eventBus} from '../main.js'
 
     export default {
@@ -31,7 +32,7 @@
               y: '0',
               expandDirection: true,
               fieldSelectionMode: false,
-              firstCell: null
+              firstCell: null,
           }
         },
         watch: {
@@ -470,28 +471,62 @@
             },
             toggleFieldsSelectors () {
                 if (!this.fieldSelectionMode) {
-                    this.addFeildsSelectors()
+                    this.addFieldsSelectors()
                 }
                 else {
                     this.removeFieldsSelectors()
                 }
             },
-            addFeildsSelectors () {
+            addColorStyle(color) {
+                var css = document.createElement("style");
+                let code = color.slice(1, -1)
+                css.type = "text/css";
+                css.innerHTML =
+                    `.color-${code} {background-color: ${color} !important; position: absolute;}\n` +
+                    `.color-${code}:hover { background-color: darken(${color}, 10%) !important}`;
+                document.body.appendChild(css);
+            },
+            addFieldsSelectors () {
                 this.fieldSelectionMode = true;
+
+                $(".cell").each((i, e) => {
+                    let colorCode = $(e).attr("data-selection-color")
+                    if (colorCode) {
+                        let className = `color-${colorCode}`
+                        $(e).addClass(className)
+                    }
+                })
 
                 $(".cell").addClass('selection-mode').on('click', this.handleSelectionClick)
 
             },
             removeFieldsSelectors () {
                 this.fieldSelectionMode = false;
+                $(".cell").each((i, e) => {
+                    let colorCode = $(e).attr('data-selection-color')
+                    if (colorCode) {
+                        let className = `color-${colorCode}`
+                        $(e).removeClass(className)
+                    }
+                })
 
                 $(".cell").removeClass('selection-mode').off('click', this.handleSelectionClick)
             },
             handleSelectionClick (e) {
                 let cell = $(e.target).closest(".cell");
+                let color = cell.attr('data-selection-color')
+                if (!color) {
+                    color = colorGenerator.hex()
+                    cell.attr('data-selection-color', color.slice(1, -1))
+                    this.addColorStyle(color)
+                }
+                let colorCode = color.slice(1, -1)
+                let className = `color-${colorCode}`
+                cell.addClass(className)
+
                 let id = cell.attr("id")
                 let name = this.$store.getters["journalState/getFieldName"](id);
-                eventBus.$emit("insertCellIntoFormula", {field: name})
+                eventBus.$emit("insertCellIntoFormula", {field: name, colorCode: colorCode})
             },
             openWizard () {
                 this.wizardDisplay = true;   
