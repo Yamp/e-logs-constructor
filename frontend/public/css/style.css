@@ -46,11 +46,11 @@
     /* Internet Explorer/Edge */
     user-select: none; }
     .elog-journal-table .cell.selection-mode {
-      background-color: #337ab7 !important;
+      background-color: #337ab7;
       transition: .2s;
       color: #ffffff; }
       .elog-journal-table .cell.selection-mode:hover {
-        background-color: #285f8f !important; }
+        background-color: #285f8f; }
     .elog-journal-table .cell .data-icons-container {
       display: flex;
       align-items: center;
@@ -165,6 +165,12 @@
     left: 4px;
     width: 16px; }
   .elog-journal-table .is-repeated, .elog-journal-table .is-empty {
+    outline: 1px solid #f56c6c; }
+  .elog-journal-table .formula-cycles-error {
+    outline: 1px solid #f56c6c; }
+  .elog-journal-table .formula-cells-error {
+    outline: 1px solid #f56c6c; }
+  .elog-journal-table .formula-syntax-error {
     outline: 1px solid #f56c6c; }
   .elog-journal-table .indexed-line td {
     background-color: #f4f8ff; }
