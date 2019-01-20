@@ -16,6 +16,8 @@
     import colorGenerator from '../utils/colorGenerator.js'
     import {eventBus} from '../main.js'
 
+    var Color = require('color');
+
     export default {
         name: "Editor",
         components: {PopUp, FormulaWizard},
@@ -480,10 +482,11 @@
             addColorStyle(color) {
                 var css = document.createElement("style");
                 let code = color.slice(1, -1)
+                let darkenColor = Color(color).darken(0.1).hex()
                 css.type = "text/css";
                 css.innerHTML =
                     `.color-${code} {background-color: ${color} !important; position: absolute;}\n` +
-                    `.color-${code}:hover { background-color: darken(${color}, 10%) !important}`;
+                    `.color-${code}:hover { background-color: ${darkenColor} !important}`;
                 document.body.appendChild(css);
             },
             addFieldsSelectors () {
