@@ -51,8 +51,10 @@
     import 'brace/theme/xcode';
     import 'brace/ext/language_tools';
     import {eventBus} from '../main.js'
-    import { debounce } from "debounce";
+    import {debounce} from "debounce";
+    import {getIndicesOf} from '../utils/getIndicesOf'
     import axios from 'axios'
+
     let FormulaParser = require('hot-formula-parser').Parser;
     let parser = new FormulaParser();
     let Range = ace.acequire('ace/range').Range
@@ -72,6 +74,7 @@
                 formula: '',
                 editor: null,
                 expanded: false,
+                markers : {}
             }
         },
         watch: {
@@ -113,26 +116,6 @@
                     this.expanded = false
                 }
             },
-            formulaValidationErrors: {
-                handler(newValue) {
-                    console.log(newValue)
-                    if (newValue.syntax) {
-                        eventBus.$emit("add-cell-with-error", {
-                            error_type: "formula",
-                            error_name: "syntax",
-                            cell: this.cell,
-                        })
-                    }
-                    else {
-                        eventBus.$emit("remove-cell-with-error", {
-                            error_type: "formula",
-                            error_name: "syntax",
-                            cell: this.cell,
-                        })
-                    }
-                },
-                deep: true,
-            }
         },
         computed: {
             getCurrentTable () {
@@ -270,25 +253,56 @@
             },
             
             insertCellIntoFormula (payload) {
-                // console.log()
-                // console.log(Object.keys(payload), "journal" in Object.keys(payload))
+                let formula;
                 if  (Object.keys(payload).indexOf("journal") >= 0 && Object.keys(payload).indexOf("table") >= 0) {
-                    var formula = `$("${payload.journal}", "CURRENT_SHIFT", "${payload.table}", "${payload.field}")`
+                    formula = `$("${payload.journal}", "CURRENT_SHIFT", "${payload.table}", "${payload.field}")`
                 }
                 else {
-                    var formula = `$("${payload.field}")`
+                    formula = `$("${payload.field}")`
                 }
-                let start = this.editor.getValue().length;
+                let start = this.editor.getCursorPosition().column;
                 let end = start + formula.length;
                 let range = new Range(0, start, 0, end)
-                this.editor.getSession().addMarker(range, `color-${payload.colorCode}`, "word")
-                this.editor.session.insert(this.editor.getCursorPosition(), formula);
+                let markerId = this.editor.getSession().addMarker(range, `color-${payload.colorCode}`, "word")
 
-                let s = this.editor.getValue();
-                s.search(formula)
+                if (Object.keys(this.markers).includes(formula)) {
+                    this.markers[formula].ids.push(markerId)
+                    this.markers[formula].start.push(start)
+                }
+                else {
+                    this.markers[formula] = {
+                        color: payload.colorCode,
+                        ids: [markerId],
+                        start: [start],
+                    }
+                }
+
+                this.colorCode = payload.colorCode
+                this.editor.session.insert(this.editor.getCursorPosition(), formula);
 
 
                 this.editor.focus();
+            },
+            moveMarkers() {
+                let formula = this.editor.getValue();
+                let cells = Object.keys(this.markers);
+                cells.forEach((cell) => {
+                    let marker = this.markers[cell]
+                    let session = this.editor.session
+                    marker.ids.forEach((id) => {
+                        session.removeMarker(id)
+                    });
+
+                    marker.start = getIndicesOf(cell, formula);
+                    marker.ids = marker.start
+                        .map((start) => {
+                            let end = start + cell.length;
+                            let range = new Range(0, start, 0, end);
+                            let colorCode = marker.color;
+                            let markerId = session.addMarker(range, `color-${colorCode}`, "word")
+                            return markerId
+                        })
+                })
             },
             openWizard () {
                 eventBus.$emit("openWizard");
@@ -381,7 +395,7 @@
                     this.validateFormulaCells()
                     this.validateFormulaCycles()
                 }
-            }
+            },
         },
         mounted() {
 
@@ -450,6 +464,7 @@
             this.editor.renderer.setScrollMargin(6, 6)
             this.editor.on("change", (e) => this.onHandleChange('formula', e))
             this.editor.on("change", debounce(() => {this.validateFormula()}, 2000))
+            this.editor.on("change", () => this.moveMarkers())
         }
     }
 </script>
