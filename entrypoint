@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+echo Starting node...
+exec npm start --prefix /e-logs-constructor/backend &
+
+echo Starting node http server
+cd /e-logs-constructor/frontend/dist
+exec http-server -p 8003 ./

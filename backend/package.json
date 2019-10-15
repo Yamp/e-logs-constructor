@@ -7,14 +7,15 @@
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
+    "debounce": "^1.2.0",
     "debug": "~4.1.0",
     "express": "^4.16.4",
     "express-fileupload": "^1.0.0",
     "http-errors": "~1.7.1",
-    "jade": "~1.11.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "mammoth": "^1.4.7",
     "morgan": "^1.9.1",
+    "pug": "^2.0.4",
     "sync-request": "^6.0.0",
     "uglify-js": "^3.4.9",
     "xlsx": "^0.14.1"

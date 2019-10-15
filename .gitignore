@@ -63,3 +63,4 @@ typings/
 .next
 
 frontend/public/bundle.js
+frontend/dist/
